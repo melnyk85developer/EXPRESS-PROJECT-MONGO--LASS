@@ -1,0 +1,49 @@
+{
+  "name": "lesson1",
+  "version": "1.0.0",
+  "main": "src/app.ts",
+  "license": "MIT",
+  "scripts": {
+    "watch": "tsc -w",
+    "dev": "yarn nodemon --inspect dist/index.js",
+    "test": "jest --projects --detectOpenHandles --no-cache --watchAll -i",
+    "jest:coverage": "jest -i --coverage"
+  },
+  "dependencies": {
+    "@types/date-fns": "^2.6.3",
+    "@types/nodemailer": "^6.4.16",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.45",
+    "mongodb": "^6.8.0",
+    "nodemailer": "^6.9.16",
+    "uuid": "^10.0.0",
+    "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.9",
+    "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
+    "dotenv": "^16.4.5",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  }
+}
