@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commentsServices = void 0;
+exports.commentsServices = exports.CommentsServices = void 0;
 const commentsRepository_1 = require("./CommentRepository/commentsRepository");
-const utils_1 = require("../../utils/utils");
-exports.commentsServices = {
+const utils_1 = require("../../shared/utils/utils");
+class CommentsServices {
     createCommentOnePostServices(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const { content } = req.body;
@@ -36,7 +36,7 @@ exports.commentsServices = {
                 return null;
             }
         });
-    },
+    }
     updateCommentServices(commentId, userId, body) {
         return __awaiter(this, void 0, void 0, function* () {
             const comment = yield commentsRepository_1.commentsRepository._getCommentRepository(commentId);
@@ -51,7 +51,7 @@ exports.commentsServices = {
                 return utils_1.INTERNAL_STATUS_CODE.FORBIDDEN_UPDATE_YOU_ARE_NOT_THE_OWNER_OF_THE_COMMENT;
             }
         });
-    },
+    }
     deleteCommentServices(id, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             const comment = yield commentsRepository_1.commentsRepository._getCommentRepository(id);
@@ -63,4 +63,6 @@ exports.commentsServices = {
             }
         });
     }
-};
+}
+exports.CommentsServices = CommentsServices;
+exports.commentsServices = new CommentsServices();

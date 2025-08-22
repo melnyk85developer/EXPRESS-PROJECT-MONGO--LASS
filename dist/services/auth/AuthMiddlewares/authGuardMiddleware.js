@@ -10,13 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sessionTokenMiddleware = exports.accessTokenMiddleware = exports.refreshTokenMiddleware = exports.authLoginMiddleware = exports.oldAuthGuardMiddleware = void 0;
-const utils_1 = require("../../../utils/utils");
+const utils_1 = require("../../../shared/utils/utils");
 const settings_1 = require("../../../settings");
 const authServices_1 = require("../authServices");
-const ErResSwitch_1 = require("../../../utils/ErResSwitch");
-const secutityDeviceService_1 = require("../../usersSessions/secutityDeviceService");
+const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
+const securityDeviceService_1 = require("../../usersSessions/securityDeviceService");
 const usersQueryRepository_1 = require("../../users/UserRpository/usersQueryRepository");
-const tokenService_1 = require("../../../infrastructure/tokenService");
+const tokenService_1 = require("../../../shared/infrastructure/tokenService");
 const oldAuthGuardMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const fromUTF8ToBase64 = (code) => {
         const buff2 = Buffer.from(code, 'utf8');
@@ -63,7 +63,7 @@ const refreshTokenMiddleware = (req, res, next) => __awaiter(void 0, void 0, voi
     }
     if (userToken) {
         const findToken = yield tokenService_1.tokenService.getRefreshTokenByTokenInBlackList(refreshToken);
-        const foundDevice = yield secutityDeviceService_1.secutityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+        const foundDevice = yield securityDeviceService_1.securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
         // console.log('findToken: - getRefreshTokenByTokenInBlackList', findToken)
         if (findToken || !foundDevice) {
             // console.log('refreshTokenMiddleware: - BlackList', true)

@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersQueryRepository = void 0;
+exports.usersQueryRepository = exports.UsersQueryRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("../../../db");
-exports.usersQueryRepository = {
+class UsersQueryRepository {
     getAllUsersRepository(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const sanitizedQuery = yield this._helper(req.query);
@@ -54,7 +54,7 @@ exports.usersQueryRepository = {
                 return null;
             }
         });
-    },
+    }
     getUserByIdRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -68,7 +68,7 @@ exports.usersQueryRepository = {
                 return error;
             }
         });
-    },
+    }
     getUserByLoginOrEmail(loginOrEmail) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -88,7 +88,7 @@ exports.usersQueryRepository = {
             }
             return null;
         });
-    },
+    }
     _getUsersCount(sanitizedQuery) {
         return __awaiter(this, void 0, void 0, function* () {
             const { searchLoginTerm, searchEmailTerm } = sanitizedQuery;
@@ -111,7 +111,7 @@ exports.usersQueryRepository = {
                 return 0;
             }
         });
-    },
+    }
     _userMapForRender(user) {
         const { accountData } = user;
         return {
@@ -120,7 +120,7 @@ exports.usersQueryRepository = {
             email: accountData.email,
             createdAt: accountData.createdAt,
         };
-    },
+    }
     _arrUsersMapForRender(sanitizedQuery, arrUsers, totalCount) {
         const resUsers = [];
         for (let i = 0; i < arrUsers.length; i++) {
@@ -134,7 +134,7 @@ exports.usersQueryRepository = {
             totalCount,
             items: resUsers
         };
-    },
+    }
     _helper(query) {
         return {
             pageNumber: query.pageNumber ? +query.pageNumber : 1,
@@ -145,4 +145,6 @@ exports.usersQueryRepository = {
             searchLoginTerm: query.searchLoginTerm ? query.searchLoginTerm : null,
         };
     }
-};
+}
+exports.UsersQueryRepository = UsersQueryRepository;
+exports.usersQueryRepository = new UsersQueryRepository();

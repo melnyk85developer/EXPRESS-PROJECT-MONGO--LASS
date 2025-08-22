@@ -32,34 +32,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersServices = void 0;
+exports.usersServices = exports.UserService = void 0;
 const mongodb_1 = require("mongodb");
 const usersRepository_1 = require("./UserRpository/usersRepository");
 const db_1 = require("../../db");
+const userTypes_1 = require("./Users_DTO/userTypes");
 const bcrypt = __importStar(require("bcryptjs"));
-exports.usersServices = {
+class UserService {
     createUserServices(user) {
         return __awaiter(this, void 0, void 0, function* () {
             const { accountData, emailConfirmation } = user;
             if (accountData.userName && accountData.password && accountData.email) {
-                const createUser = {
-                    accountData: {
-                        userName: accountData.userName,
-                        email: accountData.email,
-                        password: yield bcrypt.hash(accountData.password, 10),
-                        createdAt: accountData.createdAt
-                    },
-                    emailConfirmation: {
-                        confirmationCode: emailConfirmation.confirmationCode,
-                        expirationDate: emailConfirmation.expirationDate,
-                        isConfirmed: emailConfirmation.isConfirmed
-                    }
-                };
-                // console.log('createUserServices: - ', createUser)
+                let createUser = new userTypes_1.UserTypeDB(new mongodb_1.ObjectId(), {
+                    userName: accountData.userName,
+                    email: accountData.email,
+                    password: yield bcrypt.hash(accountData.password, 10),
+                    createdAt: accountData.createdAt
+                }, {
+                    confirmationCode: emailConfirmation.confirmationCode,
+                    expirationDate: emailConfirmation.expirationDate,
+                    isConfirmed: emailConfirmation.isConfirmed
+                });
                 return yield usersRepository_1.usersRepository.createUserRepository(createUser);
             }
         });
-    },
+    }
     updateUserServices(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
             const updatedUser = {
@@ -68,17 +65,17 @@ exports.usersServices = {
             };
             return yield usersRepository_1.usersRepository.updateUserRepository(id, updatedUser);
         });
-    },
+    }
     updateResendingUserServices(id, confirmationCode) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield usersRepository_1.usersRepository.updateResendingUserRepository(id, confirmationCode);
         });
-    },
+    }
     deleteUserServices(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield usersRepository_1.usersRepository.deleteUserRepository(id);
         });
-    },
+    }
     _getUserByIdRepo(id) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('_getUserByIdRepo: - ', id)
@@ -90,7 +87,7 @@ exports.usersServices = {
                 return error;
             }
         });
-    },
+    }
     _getUserByLoginOrEmail(loginOrEmail) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -109,7 +106,7 @@ exports.usersServices = {
                 return error;
             }
         });
-    },
+    }
     _getUserByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -123,7 +120,7 @@ exports.usersServices = {
                 return error;
             }
         });
-    },
+    }
     _findUserByConfirmationCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -139,4 +136,6 @@ exports.usersServices = {
             }
         });
     }
-};
+}
+exports.UserService = UserService;
+exports.usersServices = new UserService();

@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsRepository = void 0;
+exports.blogsRepository = exports.BlogsRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("../../../db");
-exports.blogsRepository = {
+class BlogsRepository {
     createBlogRepository(blog) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -23,7 +23,7 @@ exports.blogsRepository = {
                 return error;
             }
         });
-    },
+    }
     updateBlogRepository(id, blog) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -41,7 +41,7 @@ exports.blogsRepository = {
                 return error;
             }
         });
-    },
+    }
     deleteBlogRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -53,4 +53,6 @@ exports.blogsRepository = {
             }
         });
     }
-};
+}
+exports.BlogsRepository = BlogsRepository;
+exports.blogsRepository = new BlogsRepository();

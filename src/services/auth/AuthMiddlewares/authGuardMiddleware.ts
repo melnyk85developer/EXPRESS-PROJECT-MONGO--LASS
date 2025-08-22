@@ -1,14 +1,13 @@
 import {Response, Request, NextFunction} from 'express'
 import { UserType, UserTypeDB } from '../../users/Users_DTO/userTypes';
-import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../utils/utils';
+import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { SETTINGS } from '../../../settings';
 import { authServices } from '../authServices';
-import { ResErrorsSwitch } from '../../../utils/ErResSwitch';
-import { secutityDeviceServices } from '../../usersSessions/secutityDeviceService';
+import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
+import { securityDeviceServices } from '../../usersSessions/securityDeviceService';
 import { usersQueryRepository } from '../../users/UserRpository/usersQueryRepository';
 import { JwtPayload } from 'jsonwebtoken';
-import { usersServices } from '../../users/usersServices';
-import { tokenService } from '../../../infrastructure/tokenService';
+import { tokenService } from '../../../shared/infrastructure/tokenService';
 
 export const oldAuthGuardMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const fromUTF8ToBase64 = (code: string) => {
@@ -55,7 +54,7 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
 
     if(userToken){
         const findToken = await tokenService.getRefreshTokenByTokenInBlackList(refreshToken);
-        const foundDevice = await secutityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
+        const foundDevice = await securityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
         
         // console.log('findToken: - getRefreshTokenByTokenInBlackList', findToken)
         if(findToken || !foundDevice){

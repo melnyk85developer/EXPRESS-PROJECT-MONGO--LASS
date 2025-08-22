@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userSessionsQueryRepository = void 0;
+exports.userSessionsQueryRepository = exports.UserSessionsQueryRepository = void 0;
 const db_1 = require("../../../db");
-exports.userSessionsQueryRepository = {
+class UserSessionsQueryRepository {
     getAllSessionByUserIdRepository(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -24,7 +24,7 @@ exports.userSessionsQueryRepository = {
                 return null;
             }
         });
-    },
+    }
     getSessionByIdQueryRepository(userId, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('getSessionByIdQueryRepository: - userId', userId, 'deviceId: - ', deviceId)
@@ -40,7 +40,7 @@ exports.userSessionsQueryRepository = {
                 return { statusCode: -100, message: String(error) };
             }
         });
-    },
+    }
     _userSessionMapForRender(device) {
         return {
             ip: device.ip,
@@ -48,7 +48,7 @@ exports.userSessionsQueryRepository = {
             deviceId: device.deviceId,
             lastActiveDate: device.lastActiveDate
         };
-    },
+    }
     _arrUsersSessionMapForRender(AllDevices) {
         const Devices = [];
         for (let i = 0; i < AllDevices.length; i++) {
@@ -56,5 +56,7 @@ exports.userSessionsQueryRepository = {
             Devices.push(device);
         }
         return Devices;
-    },
-};
+    }
+}
+exports.UserSessionsQueryRepository = UserSessionsQueryRepository;
+exports.userSessionsQueryRepository = new UserSessionsQueryRepository();

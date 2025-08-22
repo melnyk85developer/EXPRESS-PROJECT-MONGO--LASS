@@ -1,5 +1,25 @@
 import { ObjectId } from "mongodb"
 
+
+export class UserTypeDB {
+    constructor(
+        public _id: ObjectId,
+        public accountData: {
+            userName: string
+            email: string
+            password: string
+            createdAt: string
+        },
+        public emailConfirmation: {
+            confirmationCode: string,
+            expirationDate: string,
+            isConfirmed: boolean
+        }
+    ) { }
+
+}
+
+
 export type ResponseUserType = {
     pagesCount: number,
     page: number,
@@ -13,17 +33,17 @@ export type UserType = {
     email: string
     createdAt: string
 }
-export type UserTypeDB = {
-    _id: ObjectId
-    accountData: {
-        userName: string
-        email: string
-        password: string
-        createdAt: string
-    },
-    emailConfirmation: {
-        confirmationCode: string,
-        expirationDate: string,
-        isConfirmed: boolean
-    }
-}
+// export type UserTypeDB = {
+//     _id: ObjectId
+//     accountData: {
+//         userName: string
+//         email: string
+//         password: string
+//         createdAt: string
+//     },
+//     emailConfirmation: {
+//         confirmationCode: string,
+//         expirationDate: string,
+//         isConfirmed: boolean
+//     }
+// }

@@ -1,8 +1,8 @@
 import { Response, Request, NextFunction } from 'express';
-import { INTERNAL_STATUS_CODE } from '../../../utils/utils';   
+import { INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';   
 import { postsQueryRepository } from '../../posts/PostRepository/postQueryRepository';
 import { commentsRepository } from '../CommentRepository/commentsRepository';
-import { ResErrorsSwitch } from '../../../utils/ErResSwitch';
+import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
 
 export const commentIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     if(!req.params.id){return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT)}

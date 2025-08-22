@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commentsQueryRepository = void 0;
+exports.commentsQueryRepository = exports.CommentsQueryRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("../../../db");
-exports.commentsQueryRepository = {
+class CommentsQueryRepository {
     getAllCommentssRepository(postId, query) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('getAllCommentssRepository: - postId, query', postId, query)
@@ -47,7 +47,7 @@ exports.commentsQueryRepository = {
                 return null;
             }
         });
-    },
+    }
     getCommentByIdRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -61,7 +61,7 @@ exports.commentsQueryRepository = {
                 return error;
             }
         });
-    },
+    }
     _getCommentsCount(sanitizedQuery, postId) {
         return __awaiter(this, void 0, void 0, function* () {
             const filter = {};
@@ -80,7 +80,7 @@ exports.commentsQueryRepository = {
                 return 0;
             }
         });
-    },
+    }
     _commentsMapForRender(comment) {
         return __awaiter(this, void 0, void 0, function* () {
             const { _id, content, commentatorInfo, createdAt } = comment;
@@ -91,7 +91,7 @@ exports.commentsQueryRepository = {
                 createdAt,
             };
         });
-    },
+    }
     _arrCommentsMapForRender(sanitizedQuery, arrComment, totalCount) {
         return __awaiter(this, void 0, void 0, function* () {
             const resComments = [];
@@ -107,7 +107,7 @@ exports.commentsQueryRepository = {
                 items: resComments
             };
         });
-    },
+    }
     _helper(query) {
         return __awaiter(this, void 0, void 0, function* () {
             return {
@@ -119,4 +119,6 @@ exports.commentsQueryRepository = {
             };
         });
     }
-};
+}
+exports.CommentsQueryRepository = CommentsQueryRepository;
+exports.commentsQueryRepository = new CommentsQueryRepository();

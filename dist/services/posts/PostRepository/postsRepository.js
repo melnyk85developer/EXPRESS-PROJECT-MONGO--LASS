@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsRepository = void 0;
+exports.postsRepository = exports.PostsRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("../../../db");
-exports.postsRepository = {
+class PostsRepository {
     createPostRepository(post) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -23,7 +23,7 @@ exports.postsRepository = {
                 return null;
             }
         });
-    },
+    }
     updatePostRepository(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -41,7 +41,7 @@ exports.postsRepository = {
                 return null;
             }
         });
-    },
+    }
     deletePostRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('deletePostRepository: - res ', id)
@@ -54,4 +54,6 @@ exports.postsRepository = {
             }
         });
     }
-};
+}
+exports.PostsRepository = PostsRepository;
+exports.postsRepository = new PostsRepository();

@@ -1,5 +1,4 @@
 import { SETTINGS } from "../../src/settings"
-import { HTTP_STATUSES } from "../../src/utils/utils"
 import { postsTestManager } from "./utils/postsTestManager"
 import { blogsTestManager } from "./utils/blogsTestManager"
 import { usersTestManager } from "./utils/usersTestManager"
@@ -9,6 +8,7 @@ import { CreateBlogModel } from "../../src/services/blogs/Blogs_DTO/CreateBlogMo
 import { CreatePostModel } from "../../src/services/posts/Post_DTO/CreatePostModel"
 import { CreateCommentModel } from "../../src/services/comments/Comment_DTO/CreateCommentModel"
 import { UpdateCommentModel } from "../../src/services/comments/Comment_DTO/UpdateCommentModel"
+import { HTTP_STATUSES } from "../../src/shared/utils/utils"
 
 describe('test for /comments', () => {
     const buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')

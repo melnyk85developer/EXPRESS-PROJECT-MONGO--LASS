@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsServices = void 0;
+exports.postsServices = exports.PostsServices = void 0;
 const postsRepository_1 = require("./PostRepository/postsRepository");
 const blogQueryRepository_1 = require("../blogs/BlogsRepository/blogQueryRepository");
 const commentsRepository_1 = require("../comments/CommentRepository/commentsRepository");
 const commentsQueryRepository_1 = require("../comments/CommentRepository/commentsQueryRepository");
-exports.postsServices = {
+class PostsServices {
     createPostServices(post) {
         return __awaiter(this, void 0, void 0, function* () {
             const { title, shortDescription, content, blogId } = post;
@@ -32,7 +32,7 @@ exports.postsServices = {
             };
             return yield postsRepository_1.postsRepository.createPostRepository(createPost);
         });
-    },
+    }
     createPostOneBlogServices(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const { blogId } = req.params;
@@ -51,7 +51,7 @@ exports.postsServices = {
             };
             return yield postsRepository_1.postsRepository.createPostRepository(createPost);
         });
-    },
+    }
     updatePostServices(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
             const updatedPost = {
@@ -62,7 +62,7 @@ exports.postsServices = {
             };
             return yield postsRepository_1.postsRepository.updatePostRepository(id, updatedPost);
         });
-    },
+    }
     deletePostServices(id) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('deletePostServices: - req id', id)
@@ -76,4 +76,6 @@ exports.postsServices = {
             return yield postsRepository_1.postsRepository.deletePostRepository(id);
         });
     }
-};
+}
+exports.PostsServices = PostsServices;
+exports.postsServices = new PostsServices();

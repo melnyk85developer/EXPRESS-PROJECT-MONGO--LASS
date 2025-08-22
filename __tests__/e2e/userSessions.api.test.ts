@@ -1,15 +1,15 @@
 import { SETTINGS } from "../../src/settings";
-import { HTTP_STATUSES } from "../../src/utils/utils";
 import { authTestManager } from "./utils/authTestManager";
 import { getRequest } from "./utils/blogsTestManager";
 import { usersTestManager } from "./utils/usersTestManager";
 import { usersSessionTestManager } from "./utils/userSessionTestManager";
-import { tokenService } from "../../src/infrastructure/tokenService";
 import { JwtPayload } from "jsonwebtoken";
 import { UserType } from "../../src/services/users/Users_DTO/userTypes";
 import { SessionType } from "../../src/services/usersSessions/Sessions_DTO/sessionsType";
-import { secutityDeviceServices } from "../../src/services/usersSessions/secutityDeviceService";
 import { CreateUserModel } from "../../src/services/users/Users_DTO/CreateUserModel";
+import { HTTP_STATUSES } from "../../src/shared/utils/utils";
+import { tokenService } from "../../src/shared/infrastructure/tokenService";
+import { securityDeviceServices } from "../../src/services/usersSessions/securityDeviceService";
 
 export const delay = (milliseconds: number) =>
     new Promise((resolve) => {
@@ -79,26 +79,26 @@ describe('E2E-USERS-SESSIONS', () => {
                 accessToken1 = accessToken, 
                 refreshToken1 = refreshToken
                 const userToken = await tokenService.validateRefreshToken(refreshToken);
-                const foundDevice = await secutityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
+                const foundDevice = await securityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
                 // console.log('TEST: - ', foundDevice)
                 session1 = foundDevice
             }else if(i === 1){
                 accessToken2 = accessToken, 
                 refreshToken2 = refreshToken
                 const userToken = await tokenService.validateRefreshToken(refreshToken2);
-                const foundDevice = await secutityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
+                const foundDevice = await securityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
                 session2 = foundDevice
             }else if(i === 2){
                 accessToken3 = accessToken, 
                 refreshToken3 = refreshToken
                 const userToken = await tokenService.validateRefreshToken(refreshToken3);
-                const foundDevice = await secutityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
+                const foundDevice = await securityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
                 session3 = foundDevice
             }else if(i === 3){
                 accessToken4 = accessToken, 
                 refreshToken4 = refreshToken
                 const userToken = await tokenService.validateRefreshToken(refreshToken4);
-                const foundDevice = await secutityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
+                const foundDevice = await securityDeviceServices._getSessionByDeviceIdServices(String((userToken as JwtPayload).deviceId));
                 session4 = foundDevice
             }
         }

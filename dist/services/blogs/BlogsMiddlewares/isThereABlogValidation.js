@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isBlogIdMiddleware = exports.blogIdMiddleware = void 0;
 const blogQueryRepository_1 = require("../BlogsRepository/blogQueryRepository");
-const utils_1 = require("../../../utils/utils");
-const ErResSwitch_1 = require("../../../utils/ErResSwitch");
+const utils_1 = require("../../../shared/utils/utils");
+const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
 const blogIdMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const foundBlog = yield blogQueryRepository_1.blogsQueryRepository.getBlogByIdRepository(req.params.id);
     if (!foundBlog) {

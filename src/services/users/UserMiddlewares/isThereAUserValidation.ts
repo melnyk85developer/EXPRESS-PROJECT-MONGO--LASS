@@ -1,7 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
-import { usersQueryRepository } from '../UserRpository/usersQueryRepository';
-import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../utils/utils';
-import { ResErrorsSwitch } from '../../../utils/ErResSwitch';
+import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
+import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
 import { usersServices } from '../usersServices';
 import { UserTypeDB } from '../Users_DTO/userTypes';
 

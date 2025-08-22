@@ -1,8 +1,8 @@
 import request from "supertest";
 import { SETTINGS } from "../../../src/settings";
 import {app} from "../../../src/app";
-import {HTTP_STATUSES, HttpStatusType} from "../../../src/utils/utils";
 import { AuthModel } from "../../../src/services/auth/AuthModel";
+import { HTTP_STATUSES, HttpStatusType } from "../../../src/shared/utils/utils";
 
 export const getRequest = () => {
     return request(app)

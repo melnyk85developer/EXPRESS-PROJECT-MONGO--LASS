@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userIdMiddleware = void 0;
-const utils_1 = require("../../../utils/utils");
-const ErResSwitch_1 = require("../../../utils/ErResSwitch");
+const utils_1 = require("../../../shared/utils/utils");
+const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
 const usersServices_1 = require("../usersServices");
 const userIdMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const found = yield usersServices_1.usersServices._getUserByIdRepo(req.params.id);

@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsQueryRepository = void 0;
+exports.blogsQueryRepository = exports.BlogsQueryRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("../../../db");
-exports.blogsQueryRepository = {
+class BlogsQueryRepository {
     getAllBlogsRepository(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const sanitizedQuery = yield this._helper(req.query);
@@ -39,7 +39,7 @@ exports.blogsQueryRepository = {
                 return error;
             }
         });
-    },
+    }
     getBlogByIdRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -56,7 +56,7 @@ exports.blogsQueryRepository = {
                 return error;
             }
         });
-    },
+    }
     _getBlogsCount(sanitizedQuery) {
         return __awaiter(this, void 0, void 0, function* () {
             const filter = {};
@@ -72,7 +72,7 @@ exports.blogsQueryRepository = {
                 return 0;
             }
         });
-    },
+    }
     _blogMapForRender(blog) {
         return __awaiter(this, void 0, void 0, function* () {
             return {
@@ -84,7 +84,7 @@ exports.blogsQueryRepository = {
                 isMembership: blog.isMembership
             };
         });
-    },
+    }
     _arrBlogsMapForRender(sanitizedQuery, arrBlog, totalCount) {
         return __awaiter(this, void 0, void 0, function* () {
             const resBlogs = [];
@@ -100,7 +100,7 @@ exports.blogsQueryRepository = {
                 items: resBlogs
             };
         });
-    },
+    }
     _helper(query) {
         return __awaiter(this, void 0, void 0, function* () {
             return {
@@ -112,4 +112,6 @@ exports.blogsQueryRepository = {
             };
         });
     }
-};
+}
+exports.BlogsQueryRepository = BlogsQueryRepository;
+exports.blogsQueryRepository = new BlogsQueryRepository();

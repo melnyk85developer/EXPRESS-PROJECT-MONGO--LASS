@@ -1,19 +1,17 @@
-import { ObjectId, SortDirection } from "mongodb";
 import { devicesCollection } from "../../../db";
-import { sanitizedQueryType } from "../../../types/types";
 import { SessionType, SessionTypeDB } from "../Sessions_DTO/sessionsType";
 
-export const userSessionsQueryRepository = {
-    async getAllSessionByUserIdRepository(userId: string): Promise<any>{
-        try{
-            const devices = await devicesCollection.find({userId}).toArray()
+export class UserSessionsQueryRepository {
+    async getAllSessionByUserIdRepository(userId: string): Promise<any> {
+        try {
+            const devices = await devicesCollection.find({ userId }).toArray()
             // console.log('getAllSessionByUserIdRepository: - devices', devices)
             return this._arrUsersSessionMapForRender(devices)
-        }catch(error){
+        } catch (error) {
             console.error(error)
             return null
         }
-    },
+    }
     async getSessionByIdQueryRepository(userId: string, deviceId: string): Promise<any> {
         // console.log('getSessionByIdQueryRepository: - userId', userId, 'deviceId: - ', deviceId)
         try {
@@ -22,11 +20,11 @@ export const userSessionsQueryRepository = {
             const mapDevice = this._userSessionMapForRender(device)
             // console.log('getSessionByIdQueryRepository: mapDevice - ', mapDevice)
             return mapDevice
-        }catch(error){
+        } catch (error) {
             console.error(error);
-            return {statusCode: -100, message: String(error)}
+            return { statusCode: -100, message: String(error) }
         }
-    },
+    }
     _userSessionMapForRender(device: SessionTypeDB): SessionType {
         return {
             ip: device.ip,
@@ -34,13 +32,14 @@ export const userSessionsQueryRepository = {
             deviceId: device.deviceId,
             lastActiveDate: device.lastActiveDate
         }
-    },
-    _arrUsersSessionMapForRender(AllDevices: SessionTypeDB[]): SessionType[]{
+    }
+    _arrUsersSessionMapForRender(AllDevices: SessionTypeDB[]): SessionType[] {
         const Devices = [];
         for (let i = 0; i < AllDevices.length; i++) {
             let device = this._userSessionMapForRender(AllDevices[i]);
             Devices.push(device);
         }
         return Devices;
-    },
+    }
 }
+export const userSessionsQueryRepository = new UserSessionsQueryRepository()

@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersRepository = void 0;
+exports.usersRepository = exports.UsersRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("../../../db");
-exports.usersRepository = {
+class UsersRepository {
     createUserRepository(user) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -26,7 +26,7 @@ exports.usersRepository = {
                 return null;
             }
         });
-    },
+    }
     updateUserRepository(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -42,7 +42,7 @@ exports.usersRepository = {
                 return null;
             }
         });
-    },
+    }
     updateResendingUserRepository(id, confirmationCode) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -57,7 +57,7 @@ exports.usersRepository = {
                 return null;
             }
         });
-    },
+    }
     deleteUserRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -68,11 +68,13 @@ exports.usersRepository = {
                 return null;
             }
         });
-    },
+    }
     updateConfirmationUserRepository(_id) {
         return __awaiter(this, void 0, void 0, function* () {
             let result = yield db_1.usersCollection.updateOne({ _id }, { $set: { 'emailConfirmation.isConfirmed': true } });
             return result.modifiedCount === 1;
         });
     }
-};
+}
+exports.UsersRepository = UsersRepository;
+exports.usersRepository = new UsersRepository();

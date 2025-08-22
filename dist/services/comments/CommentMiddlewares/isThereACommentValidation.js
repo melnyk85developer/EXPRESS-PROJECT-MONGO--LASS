@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentCommentIdMiddleware = exports.commentIdMiddleware = void 0;
-const utils_1 = require("../../../utils/utils");
+const utils_1 = require("../../../shared/utils/utils");
 const postQueryRepository_1 = require("../../posts/PostRepository/postQueryRepository");
 const commentsRepository_1 = require("../CommentRepository/commentsRepository");
-const ErResSwitch_1 = require("../../../utils/ErResSwitch");
+const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
 const commentIdMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.params.id) {
         return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT);

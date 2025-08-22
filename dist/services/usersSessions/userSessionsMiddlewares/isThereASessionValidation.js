@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deviceIdMiddleware = void 0;
-const utils_1 = require("../../../utils/utils");
-const ErResSwitch_1 = require("../../../utils/ErResSwitch");
+const utils_1 = require("../../../shared/utils/utils");
+const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
 const userSessionsRepository_1 = require("../UserSessionsRpository/userSessionsRepository");
-const tokenService_1 = require("../../../infrastructure/tokenService");
+const tokenService_1 = require("../../../shared/infrastructure/tokenService");
 const deviceIdMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // console.log('deviceIdMiddleware: - ', req.params.deviceId, req.user!.id)
     const cookieName = 'refreshToken';

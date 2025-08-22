@@ -1,4 +1,4 @@
-import { inputValidationMiddleware } from "../../../middlewares/input-validation-middleware";
+import { inputValidationMiddleware } from "../../../shared/middlewares/input-validation-middleware";
 import { accessTokenMiddleware } from "../../auth/AuthMiddlewares/authGuardMiddleware";
 import { commentsMiddleware } from "./commentsMiddlewares";
 import { commentCommentIdMiddleware, commentIdMiddleware } from "./isThereACommentValidation";

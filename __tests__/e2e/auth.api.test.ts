@@ -1,9 +1,9 @@
-import { emailAdapter } from "../../src/infrastructure/emailAdapter";
 import { SETTINGS } from "../../src/settings";
-import { HTTP_STATUSES } from "../../src/utils/utils";
 import { authTestManager } from "./utils/authTestManager";
 import { getRequest } from "./utils/blogsTestManager";
 import { authServices } from "../../src/services/auth/authServices";
+import { emailAdapter } from "../../src/shared/infrastructure/emailAdapter";
+import { HTTP_STATUSES } from "../../src/shared/utils/utils";
 
 export const delay = (milliseconds: number) =>
     new Promise((resolve) => {

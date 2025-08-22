@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userSessionsRepository = void 0;
+exports.userSessionsRepository = exports.UserSessionsRepository = void 0;
 const db_1 = require("../../../db");
-exports.userSessionsRepository = {
+class UserSessionsRepository {
     createSessionsRepository(session) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -22,7 +22,7 @@ exports.userSessionsRepository = {
                 return null;
             }
         });
-    },
+    }
     updateSessionsRepository(session) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -36,7 +36,7 @@ exports.userSessionsRepository = {
                 return null;
             }
         });
-    },
+    }
     deleteSessionsByDeviceIdRepository(userId, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -49,7 +49,7 @@ exports.userSessionsRepository = {
                 return null;
             }
         });
-    },
+    }
     deleteAllSessionsRepository(userId, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('deleteAllSessionsRepository: - userId & deviceId', userId, deviceId)
@@ -64,7 +64,7 @@ exports.userSessionsRepository = {
                 return { statusCode: -100, message: String(error) };
             }
         });
-    },
+    }
     _getAllSessionyUsersRepository() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -75,7 +75,7 @@ exports.userSessionsRepository = {
                 return null;
             }
         });
-    },
+    }
     _getAllSessionByUserIdRepository(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -86,7 +86,7 @@ exports.userSessionsRepository = {
                 return error;
             }
         });
-    },
+    }
     _getSessionByUserIdRepository(userId, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -99,7 +99,7 @@ exports.userSessionsRepository = {
                 return null;
             }
         });
-    },
+    }
     _getSessionDeviceByIdRepository(deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -112,5 +112,7 @@ exports.userSessionsRepository = {
                 return { statusCode: -100, message: String(error) };
             }
         });
-    },
-};
+    }
+}
+exports.UserSessionsRepository = UserSessionsRepository;
+exports.userSessionsRepository = new UserSessionsRepository();

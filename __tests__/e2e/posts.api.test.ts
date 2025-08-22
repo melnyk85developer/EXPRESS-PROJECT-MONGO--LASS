@@ -1,5 +1,4 @@
 import { SETTINGS } from "../../src/settings"
-import { HTTP_STATUSES } from "../../src/utils/utils"
 import { getRequest, postsTestManager } from "./utils/postsTestManager"
 import { blogsTestManager } from "./utils/blogsTestManager"
 import { usersTestManager } from "./utils/usersTestManager"
@@ -7,6 +6,7 @@ import { authTestManager } from "./utils/authTestManager"
 import { CreatePostModel } from "../../src/services/posts/Post_DTO/CreatePostModel"
 import { CreateBlogModel } from "../../src/services/blogs/Blogs_DTO/CreateBlogModel"
 import { UpdatePostModel } from "../../src/services/posts/Post_DTO/UpdatePostModel"
+import { HTTP_STATUSES } from "../../src/shared/utils/utils"
 
 
 describe('test for /posts', () => {

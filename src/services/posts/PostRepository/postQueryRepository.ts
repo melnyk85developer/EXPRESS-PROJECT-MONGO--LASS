@@ -1,21 +1,21 @@
 import { ObjectId, SortDirection } from "mongodb";
 import { postsCollection } from "../../../db";
 import { URIParamsOnePostIdModel, URIParamsPostIdModel } from "../Post_DTO/URIParamsPostIdModel";
-import { RequestWithParams, RequestWithQuery } from "../../../types/typesGeneric";
-import { sanitizedQueryType } from "../../../types/types";
 import { PostType, PostTypeDB, ResponsePostsType } from "../Post_DTO/postType";
+import { RequestWithParams, RequestWithQuery } from "../../../shared/types/typesGeneric";
+import { sanitizedQueryType } from "../../../shared/types/types";
 
-export const postsQueryRepository = {
-    async getAllPostsRepositories(req: RequestWithParams<URIParamsOnePostIdModel> & RequestWithQuery<{[key: string]: string | undefined}>): Promise<ResponsePostsType | null> {
-        const { blogId } = req.params;          
+export class PostsQueryRepository {
+    async getAllPostsRepositories(req: RequestWithParams<URIParamsOnePostIdModel> & RequestWithQuery<{ [key: string]: string | undefined }>): Promise<ResponsePostsType | null> {
+        const { blogId } = req.params;
         const sanitizedQuery: sanitizedQueryType = await this._helper(req.query)
         const totalCount = await this._getPostsCount(sanitizedQuery, blogId);
-        const {searchNameTerm, sortBy, sortDirection, pageNumber, pageSize} = sanitizedQuery;
+        const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = sanitizedQuery;
         const sortDirectionValue = sortDirection === 'asc' ? 1 : -1
         const filter: any = {};
         try {
-            if (blogId){filter.blogId = blogId}
-            if (searchNameTerm) {filter.title = { $regex: searchNameTerm, $options: 'i' }}
+            if (blogId) { filter.blogId = blogId }
+            if (searchNameTerm) { filter.title = { $regex: searchNameTerm, $options: 'i' } }
             const posts = await postsCollection
                 .find(filter)
                 .sort({ [sortBy]: sortDirectionValue, _id: 1 })
@@ -23,34 +23,34 @@ export const postsQueryRepository = {
                 .limit(pageSize)
                 .toArray();
             return await postsQueryRepository._arrPostsMapForRender(sanitizedQuery, posts, totalCount)
- 
+
         } catch (e) {
             console.error(e);
             return null;
         }
-    },
-    async getPostByIdRepositories(id: string): Promise<PostType | number | any>{
+    }
+    async getPostByIdRepositories(id: string): Promise<PostType | number | any> {
         // console.log('getPostByIdRepositories - ', id)
         try {
-            const getPost = await postsCollection.findOne({ _id: new ObjectId(id) }) 
+            const getPost = await postsCollection.findOne({ _id: new ObjectId(id) })
             // console.log('getPostByIdRepositories - res ', getPost)
-            if(getPost){return await postsQueryRepository._postsMapForRender(getPost)}
-        }catch(error){
+            if (getPost) { return await postsQueryRepository._postsMapForRender(getPost) }
+        } catch (error) {
             return error
         }
-    },
+    }
     async _getPostsCount(sanitizedQuery: sanitizedQueryType, blogId: string | undefined): Promise<number> {
         const filter: any = {};
         const { searchNameTerm } = sanitizedQuery;
-        if (blogId){filter.blogId = blogId}
-        if (searchNameTerm) {filter.title = { $regex: searchNameTerm, $options: 'i' };}
+        if (blogId) { filter.blogId = blogId }
+        if (searchNameTerm) { filter.title = { $regex: searchNameTerm, $options: 'i' }; }
         try {
             return await postsCollection.countDocuments(filter);
-        }catch(e) {
+        } catch (e) {
             console.error(e);
             return 0;
         }
-    },
+    }
     async _postsMapForRender(post: PostTypeDB): Promise<PostType> {
         const { _id, title, shortDescription, content, blogId, blogName, createdAt } = post
         return {
@@ -62,7 +62,7 @@ export const postsQueryRepository = {
             blogName,
             createdAt,
         }
-    },
+    }
     async _arrPostsMapForRender(sanitizedQuery: sanitizedQueryType, arrPost: PostTypeDB[], totalCount: number): Promise<ResponsePostsType> {
         const resPosts: PostType[] = [];
         for (let i = 0; i < arrPost.length; i++) {
@@ -76,8 +76,8 @@ export const postsQueryRepository = {
             totalCount,
             items: resPosts
         };
-    },
-    async _helper(query: {[key: string]: string | undefined}): Promise<sanitizedQueryType> {
+    }
+    async _helper(query: { [key: string]: string | undefined }): Promise<sanitizedQueryType> {
         return {
             pageNumber: query.pageNumber ? +query.pageNumber : 1,
             pageSize: query.pageSize !== undefined ? +query.pageSize : 10,
@@ -87,3 +87,4 @@ export const postsQueryRepository = {
         }
     }
 }
+export const postsQueryRepository = new PostsQueryRepository()

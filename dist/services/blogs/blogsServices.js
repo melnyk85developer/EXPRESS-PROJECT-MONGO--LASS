@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsServices = void 0;
+exports.blogsServices = exports.BlogsServices = void 0;
 const blogsRepository_1 = require("./BlogsRepository/blogsRepository");
-exports.blogsServices = {
+class BlogsServices {
     createBlogServices(blog) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, description, websiteUrl } = blog;
@@ -27,7 +27,7 @@ exports.blogsServices = {
             };
             return yield blogsRepository_1.blogsRepository.createBlogRepository(createBlog);
         });
-    },
+    }
     updateBlogServices(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
             const updatedBlog = {
@@ -37,10 +37,12 @@ exports.blogsServices = {
             };
             return yield blogsRepository_1.blogsRepository.updateBlogRepository(id, updatedBlog);
         });
-    },
+    }
     deleteBlogServices(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield blogsRepository_1.blogsRepository.deleteBlogRepository(id);
         });
     }
-};
+}
+exports.BlogsServices = BlogsServices;
+exports.blogsServices = new BlogsServices();

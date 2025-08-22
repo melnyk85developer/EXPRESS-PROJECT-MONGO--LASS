@@ -1,11 +1,11 @@
 import { SETTINGS } from "../../src/settings";
 import { app } from '../../src/app';
-import { emailAdapter } from "../../src/infrastructure/emailAdapter";
-import { tokenService } from "../../src/infrastructure/tokenService";
-import { INTERNAL_STATUS_CODE } from "../../src/utils/utils";
 import { authServices } from "../../src/services/auth/authServices";
 import request from "supertest";
 import * as uuid from 'uuid';
+import { emailAdapter } from "../../src/shared/infrastructure/emailAdapter";
+import { tokenService } from "../../src/shared/infrastructure/tokenService";
+import { INTERNAL_STATUS_CODE } from "../../src/shared/utils/utils";
 
 export const getRequest = () => {
     return request(app);

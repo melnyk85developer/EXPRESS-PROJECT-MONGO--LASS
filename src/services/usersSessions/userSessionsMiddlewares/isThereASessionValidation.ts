@@ -1,10 +1,10 @@
 import { Response, Request, NextFunction } from 'express';
-import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../utils/utils';   
-import { ResErrorsSwitch } from '../../../utils/ErResSwitch';
+import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';   
+import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
 import { userSessionsRepository } from '../UserSessionsRpository/userSessionsRepository';
 import { SessionType } from '../Sessions_DTO/sessionsType';
-import { tokenService } from '../../../infrastructure/tokenService';
 import { JwtPayload } from 'jsonwebtoken';
+import { tokenService } from '../../../shared/infrastructure/tokenService';
 
 export const deviceIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     // console.log('deviceIdMiddleware: - ', req.params.deviceId, req.user!.id)

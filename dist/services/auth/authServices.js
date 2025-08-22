@@ -35,20 +35,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authServices = void 0;
+exports.authServices = exports.AuthServices = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const mongodb_1 = require("mongodb");
 const usersQueryRepository_1 = require("../users/UserRpository/usersQueryRepository");
-const tokenService_1 = require("../../infrastructure/tokenService");
-const utils_1 = require("../../utils/utils");
+const utils_1 = require("../../shared/utils/utils");
 const usersServices_1 = require("../users/usersServices");
 const db_1 = require("../../db");
 const usersRepository_1 = require("../users/UserRpository/usersRepository");
-const emailAdapter_1 = require("../../infrastructure/emailAdapter");
 const date_fns_1 = require("date-fns");
 const uuid = __importStar(require("uuid"));
-const secutityDeviceService_1 = require("../usersSessions/secutityDeviceService");
-exports.authServices = {
+const securityDeviceService_1 = require("../usersSessions/securityDeviceService");
+const emailAdapter_1 = require("../../shared/infrastructure/emailAdapter");
+const tokenService_1 = require("../../shared/infrastructure/tokenService");
+class AuthServices {
     registration(login, password, email) {
         return __awaiter(this, void 0, void 0, function* () {
             const isLogin = yield usersServices_1.usersServices._getUserByLoginOrEmail(login);
@@ -108,17 +108,17 @@ exports.authServices = {
                 return utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_TНE_LOGIN_ALREADY_EXISTS;
             }
         });
-    },
+    }
     loginServices(userId, ip, userAgent) {
         return __awaiter(this, void 0, void 0, function* () {
-            const session = yield secutityDeviceService_1.secutityDeviceServices.createSessionServices(userId, ip, userAgent);
+            const session = yield securityDeviceService_1.securityDeviceServices.createSessionServices(userId, ip, userAgent);
             return session;
         });
-    },
+    }
     logoutServices(userId, refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const userToken = yield tokenService_1.tokenService.validateRefreshToken(refreshToken);
-            const session = yield secutityDeviceService_1.secutityDeviceServices.deleteSessionByDeviceIdServices(userId, userToken.deviceId);
+            const session = yield securityDeviceService_1.securityDeviceServices.deleteSessionByDeviceIdServices(userId, userToken.deviceId);
             const isSaveRefreshTokenBlackList = yield tokenService_1.tokenService.saveRefreshTokenBlackList(userId, refreshToken);
             if (session.acknowledged && isSaveRefreshTokenBlackList.acknowledged) {
                 return session.acknowledged;
@@ -127,7 +127,7 @@ exports.authServices = {
                 return utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_WHEN_ADDING_A_TOKEN_TO_THE_BLACKLIST;
             }
         });
-    },
+    }
     refreshTokenOrSessionService(ip, userAgent, userId, refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const isSessionExpired = (expirationDate) => {
@@ -138,7 +138,7 @@ exports.authServices = {
             if (!userToken) {
                 return utils_1.INTERNAL_STATUS_CODE.REFRESH_TOKEN_VALIDATION_ERROR;
             }
-            const device = yield secutityDeviceService_1.secutityDeviceServices._getSessionByDeviceIdServices(userToken.deviceId);
+            const device = yield securityDeviceService_1.securityDeviceServices._getSessionByDeviceIdServices(userToken.deviceId);
             if (!device) {
                 return utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND;
             }
@@ -151,7 +151,7 @@ exports.authServices = {
             if (noExpSession && device.lastActiveDate === new Date(userToken.iat).toISOString()) {
                 const isSaveRefreshTokenBlackList = yield tokenService_1.tokenService.saveRefreshTokenBlackList(userId, refreshToken);
                 if (isSaveRefreshTokenBlackList.acknowledged) {
-                    const isUpdatedSession = yield secutityDeviceService_1.secutityDeviceServices.updateSessionServices(userId, ip, userAgent, String(userToken.deviceId));
+                    const isUpdatedSession = yield securityDeviceService_1.securityDeviceServices.updateSessionServices(userId, ip, userAgent, String(userToken.deviceId));
                     if (isUpdatedSession) {
                         return isUpdatedSession;
                     }
@@ -167,7 +167,7 @@ exports.authServices = {
                 return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN;
             }
         });
-    },
+    }
     confirmEmail(code) {
         return __awaiter(this, void 0, void 0, function* () {
             let user = yield usersServices_1.usersServices._findUserByConfirmationCode(code);
@@ -183,7 +183,7 @@ exports.authServices = {
                 return false;
             return yield usersRepository_1.usersRepository.updateConfirmationUserRepository(user._id);
         });
-    },
+    }
     emailResending(email) {
         return __awaiter(this, void 0, void 0, function* () {
             const confirmationCode = uuid.v4();
@@ -219,7 +219,7 @@ exports.authServices = {
                 return null;
             return yield usersServices_1.usersServices.updateResendingUserServices(String(getUser._id), confirmationCode);
         });
-    },
+    }
     me(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -238,7 +238,7 @@ exports.authServices = {
                 return null;
             }
         });
-    },
+    }
     _isAuthServiceForMiddleware(loginOrEmail, password) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield usersServices_1.usersServices._getUserByLoginOrEmail(loginOrEmail);
@@ -254,5 +254,7 @@ exports.authServices = {
                 return null;
             }
         });
-    },
-};
+    }
+}
+exports.AuthServices = AuthServices;
+exports.authServices = new AuthServices();

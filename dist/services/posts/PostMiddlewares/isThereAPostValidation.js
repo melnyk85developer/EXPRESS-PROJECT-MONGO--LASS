@@ -10,9 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postPostIdMiddleware = exports.postIdMiddleware = void 0;
-const utils_1 = require("../../../utils/utils");
+const utils_1 = require("../../../shared/utils/utils");
 const postQueryRepository_1 = require("../PostRepository/postQueryRepository");
-const ErResSwitch_1 = require("../../../utils/ErResSwitch");
+const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
 const postIdMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const foundPost = yield postQueryRepository_1.postsQueryRepository.getPostByIdRepositories(req.params.id);
     if (!foundPost) {

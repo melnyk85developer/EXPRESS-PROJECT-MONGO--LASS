@@ -1,12 +1,12 @@
 import request from "supertest";
 import { SETTINGS } from "../../../src/settings";
 import {app} from "../../../src/app";
-import {HTTP_STATUSES, HttpStatusType} from "../../../src/utils/utils";
 import { JwtPayload } from "jsonwebtoken";
-import { tokenService } from "../../../src/infrastructure/tokenService";
 import { SessionType } from "../../../src/services/usersSessions/Sessions_DTO/sessionsType";
 import { CreateUserModel } from "../../../src/services/users/Users_DTO/CreateUserModel";
-import { secutityDeviceServices } from "../../../src/services/usersSessions/secutityDeviceService";
+import { HTTP_STATUSES, HttpStatusType } from "../../../src/shared/utils/utils";
+import { tokenService } from "../../../src/shared/infrastructure/tokenService";
+import { securityDeviceServices } from "../../../src/services/usersSessions/securityDeviceService";
 
 export const getRequest = () => {
     return request(app)
@@ -112,7 +112,7 @@ export const usersSessionTestManager = {
 
         const userToken = await tokenService.validateRefreshToken(authToken2);
         for(let i = 0; i < count; i++){
-            await secutityDeviceServices.createSessionServices(
+            await securityDeviceServices.createSessionServices(
                 (userToken as JwtPayload & { userId: string }).userId.toString(),
                 `::ffff:127.0.0.${i}`,
                 `user-agent/INTEGRATION-TEST/0.${i}}`

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteBlogMiddlewares = exports.updateBlogMiddlewares = exports.postBlogIdOnePostMiddlewares = exports.postBlogMiddlewares = exports.getBlogIdMiddlewares = exports.getBlogIdAllPostsMiddlewares = exports.getBlogsMiddlewares = void 0;
-const input_validation_middleware_1 = require("../../../middlewares/input-validation-middleware");
+const input_validation_middleware_1 = require("../../../shared/middlewares/input-validation-middleware");
 const authGuardMiddleware_1 = require("../../auth/AuthMiddlewares/authGuardMiddleware");
 const postMiddlewares_1 = require("../../posts/PostMiddlewares/postMiddlewares");
 const blogMiddlewares_1 = require("./blogMiddlewares");

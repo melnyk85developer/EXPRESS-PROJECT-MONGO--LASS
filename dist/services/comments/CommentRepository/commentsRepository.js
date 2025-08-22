@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commentsRepository = void 0;
+exports.commentsRepository = exports.CommentsRepository = void 0;
 const mongodb_1 = require("mongodb");
 const db_1 = require("../../../db");
-exports.commentsRepository = {
+class CommentsRepository {
     createCommentRepository(comment) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -23,7 +23,7 @@ exports.commentsRepository = {
                 return error;
             }
         });
-    },
+    }
     updateCommentRepository(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -39,7 +39,7 @@ exports.commentsRepository = {
                 return error;
             }
         });
-    },
+    }
     deleteCommentRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -56,7 +56,7 @@ exports.commentsRepository = {
                 return error;
             }
         });
-    },
+    }
     _getCommentRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -70,7 +70,7 @@ exports.commentsRepository = {
                 return error;
             }
         });
-    },
+    }
     deleteAllCommentsFromPostRepository(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -88,5 +88,7 @@ exports.commentsRepository = {
                 return error;
             }
         });
-    },
-};
+    }
+}
+exports.CommentsRepository = CommentsRepository;
+exports.commentsRepository = new CommentsRepository();

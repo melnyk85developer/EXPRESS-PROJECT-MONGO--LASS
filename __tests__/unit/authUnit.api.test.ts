@@ -1,8 +1,8 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
-import { tokenService } from '../../src/infrastructure/tokenService';
-import { tokensCollection } from '../../src/db';
-import { INTERNAL_STATUS_CODE } from '../../src/utils/utils';
+import { tokensCollection } from '../../src/db';import { tokenService } from '../../src/shared/infrastructure/tokenService';
+import { INTERNAL_STATUS_CODE } from '../../src/shared/utils/utils';
+;
 
 // Мокирование зависимостей
 jest.mock('jsonwebtoken');

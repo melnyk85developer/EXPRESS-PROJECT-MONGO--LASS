@@ -1,4 +1,4 @@
-import { inputValidationMiddleware } from "../../../middlewares/input-validation-middleware";
+import { inputValidationMiddleware } from "../../../input-validation-middleware";
 import { userMiddlewares } from "../../users/UserMiddlewares/userMiddlewares";
 import { accessTokenMiddleware, authLoginMiddleware, refreshTokenMiddleware } from "./authGuardMiddleware";
 import { inputMiddlewares } from "./imputAuthMiddlewares";

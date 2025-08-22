@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUserMiddlewares = exports.updateUserMiddlewares = exports.postUserMiddlewares = exports.getUserByIdMiddlewares = exports.getAllUsersMiddlewares = void 0;
-const input_validation_middleware_1 = require("../../../middlewares/input-validation-middleware");
+const input_validation_middleware_1 = require("../../../shared/middlewares/input-validation-middleware");
 const authGuardMiddleware_1 = require("../../auth/AuthMiddlewares/authGuardMiddleware");
 const isThereAUserValidation_1 = require("./isThereAUserValidation");
 const userMiddlewares_1 = require("./userMiddlewares");

@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from 'express';
-import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../utils/utils';   
+import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';   
 import { postsQueryRepository } from '../PostRepository/postQueryRepository';
-import { ResErrorsSwitch } from '../../../utils/ErResSwitch';
+import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
 
 export const postIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const foundPost = await postsQueryRepository.getPostByIdRepositories(req.params.id)

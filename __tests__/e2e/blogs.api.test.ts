@@ -1,5 +1,5 @@
 import {SETTINGS} from "../../src/settings";
-import {HTTP_STATUSES} from "../../src/utils/utils";
+import { HTTP_STATUSES } from "../../src/shared/utils/utils";
 import { authTestManager } from "./utils/authTestManager";
 import { blogsTestManager, getRequest } from "./utils/blogsTestManager";
 import { usersTestManager } from "./utils/usersTestManager";

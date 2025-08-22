@@ -1,12 +1,12 @@
 import request from "supertest";
 import { SETTINGS } from "../../src/settings";
 import { app } from '../../src/app';
-import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from "../../src/utils/utils";
 import { usersSessionTestManager } from "../e2e/utils/userSessionTestManager";
 import { usersTestManager } from "../e2e/utils/usersTestManager";
 import { authTestManager } from "../e2e/utils/authTestManager";
 import { UserType } from "../../src/services/users/Users_DTO/userTypes";
 import { CreateUserModel } from "../../src/services/users/Users_DTO/CreateUserModel";
+import { HTTP_STATUSES } from "../../src/shared/utils/utils";
 
 export const getRequest = () => {
     return request(app);

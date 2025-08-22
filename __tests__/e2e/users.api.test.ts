@@ -1,11 +1,11 @@
 import { JwtPayload } from "jsonwebtoken";
-import { tokenService } from "../../src/infrastructure/tokenService";
 import { SETTINGS } from "../../src/settings";
-import { HTTP_STATUSES } from "../../src/utils/utils";
 import { authTestManager } from "./utils/authTestManager";
 import { getRequest } from "./utils/blogsTestManager";
 import { usersTestManager } from "./utils/usersTestManager";
 import { CreateUserModel } from "../../src/services/users/Users_DTO/CreateUserModel";
+import { HTTP_STATUSES } from "../../src/shared/utils/utils";
+import { tokenService } from "../../src/shared/infrastructure/tokenService";
 
 describe('test for /users', () => {
     const buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')
