@@ -1,11 +1,17 @@
 import express, { Response } from 'express';
+import "reflect-metadata"
 import { deleteUserMiddlewares, getAllUsersMiddlewares, getUserByIdMiddlewares, postUserMiddlewares, updateUserMiddlewares } from './UserMiddlewares/userArrayMiddlewares';
-import { usersController } from './usersControllers';
+// import { usersControllers } from '../../shared/container/compositionRootCustom';
+// import { container } from '../../shared/container/iocRoot';
+import { UsersControllers } from './usersControllers';
+import { usersControllers } from '../../shared/container/compositionRootCustom';
 
 export const usersRouter = express.Router()
 
-usersRouter.get('/', getAllUsersMiddlewares, usersController.getAllUsers)
-usersRouter.get('/:id', getUserByIdMiddlewares, usersController.getUser)
-usersRouter.post('/', postUserMiddlewares, usersController.createUser)
-usersRouter.put('/:id', updateUserMiddlewares, usersController.updateUser)
-usersRouter.delete('/:id', deleteUserMiddlewares, usersController.deleteUser)
+// const usersControllers: UsersControllers = container.resolve(UsersControllers)
+
+usersRouter.get('/', getAllUsersMiddlewares, usersControllers.getAllUsers.bind(usersControllers))
+usersRouter.get('/:id', getUserByIdMiddlewares, usersControllers.getUser.bind(usersControllers))
+usersRouter.post('/', postUserMiddlewares, usersControllers.createUser.bind(usersControllers))
+usersRouter.put('/:id', updateUserMiddlewares, usersControllers.updateUser.bind(usersControllers))
+usersRouter.delete('/:id', deleteUserMiddlewares, usersControllers.deleteUser.bind(usersControllers))

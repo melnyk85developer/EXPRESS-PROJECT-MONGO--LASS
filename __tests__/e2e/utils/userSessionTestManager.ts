@@ -1,12 +1,19 @@
+import "reflect-metadata"
 import request from "supertest";
-import { SETTINGS } from "../../../src/settings";
+import { SETTINGS } from "../../../src/shared/settings";
 import {app} from "../../../src/app";
 import { JwtPayload } from "jsonwebtoken";
 import { SessionType } from "../../../src/services/usersSessions/Sessions_DTO/sessionsType";
 import { CreateUserModel } from "../../../src/services/users/Users_DTO/CreateUserModel";
 import { HTTP_STATUSES, HttpStatusType } from "../../../src/shared/utils/utils";
-import { tokenService } from "../../../src/shared/infrastructure/tokenService";
-import { securityDeviceServices } from "../../../src/services/usersSessions/securityDeviceService";
+// import { container } from "../../../src/shared/container/iocRoot";
+import { TokenService } from "../../../src/shared/infrastructure/tokenService";
+import { SecurityDeviceServices } from "../../../src/services/usersSessions/securityDeviceService";
+import { tokenService, securityDeviceServices } from "../../../src/shared/container/compositionRootCustom";
+// import { securityDeviceServices, tokenService } from "../../../src/shared/container/compositionRootCustom";
+
+// const tokenService: TokenService = container.resolve(TokenService)
+// const securityDeviceServices: SecurityDeviceServices = container.resolve(SecurityDeviceServices)
 
 export const getRequest = () => {
     return request(app)

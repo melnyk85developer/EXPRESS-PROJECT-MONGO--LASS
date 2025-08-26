@@ -1,37 +1,48 @@
+import "reflect-metadata"
 import { Response, Request, NextFunction } from 'express';
-import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';   
+import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
-import { userSessionsRepository } from '../UserSessionsRpository/userSessionsRepository';
 import { SessionType } from '../Sessions_DTO/sessionsType';
 import { JwtPayload } from 'jsonwebtoken';
-import { tokenService } from '../../../shared/infrastructure/tokenService';
+import { injectable } from 'inversify';
+import { UserSessionsRepository } from '../UserSessionsRpository/userSessionsRepository';
+import { TokenService } from '../../../shared/infrastructure/tokenService';
 
-export const deviceIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    // console.log('deviceIdMiddleware: - ', req.params.deviceId, req.user!.id)
-    const cookieName = 'refreshToken';
-    const refreshToken = req.cookies[cookieName];
+@injectable()
+export class SessionsMiddlewares {
+    constructor(
+        // @inject(TYPES.UserSessionsRepository)
+        private userSessionsRepository: UserSessionsRepository,
+        // @inject(TYPES.TokenService)
+        private tokenService: TokenService,
+    ) { }
 
-    const userToken = await tokenService.validateRefreshToken(refreshToken);
-    // console.log('deviceIdMiddleware: userToken - ', userToken)
+    deviceIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+        // console.log('deviceIdMiddleware: - ', req.params.deviceId, req.user!.id)
+        const cookieName = 'refreshToken';
+        const refreshToken = req.cookies[cookieName];
 
-    const foundDevice = await userSessionsRepository._getSessionDeviceByIdRepository(String(req.params.deviceId))
-    // console.log('deviceIdMiddleware: - foundDevice', foundDevice)
-    if(!foundDevice){
-        return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND)
-    }
-    if(String((userToken as JwtPayload).userId) !== String(((foundDevice as unknown) as SessionType & { userId: string }).userId)){
-        return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.FORBIDDEN_DELETED_YOU_ARE_NOT_THE_OWNER_OF_THE_SESSION)
-    }
-    const foundSession = await userSessionsRepository._getSessionByUserIdRepository(String(req.user!.id), String(req.params.deviceId))
+        const userToken = await this.tokenService.validateRefreshToken(refreshToken);
+        // console.log('deviceIdMiddleware: userToken - ', userToken)
 
-    if(foundSession){
-        if(!foundSession){
+        const foundDevice = await this.userSessionsRepository._getSessionDeviceByIdRepository(String(req.params.deviceId))
+        // console.log('deviceIdMiddleware: - foundDevice', foundDevice)
+        if (!foundDevice) {
             return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND)
         }
+        if (String((userToken as JwtPayload).userId) !== String(((foundDevice as unknown) as SessionType & { userId: string }).userId)) {
+            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.FORBIDDEN_DELETED_YOU_ARE_NOT_THE_OWNER_OF_THE_SESSION)
+        }
+        const foundSession = await this.userSessionsRepository._getSessionByUserIdRepository(String(req.user!.id), String(req.params.deviceId))
 
-    }else{
-        return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND)
+        if (foundSession) {
+            if (!foundSession) {
+                return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND)
+            }
+
+        } else {
+            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND)
+        }
+        return next();
     }
-    return next();
 }
- 

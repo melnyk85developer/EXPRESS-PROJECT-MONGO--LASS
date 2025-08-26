@@ -15,12 +15,21 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
     if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -32,20 +41,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authController = exports.AuthControllers = void 0;
+exports.AuthControllers = void 0;
+require("reflect-metadata");
+const inversify_1 = require("inversify");
 const utils_1 = require("../../shared/utils/utils");
-const authServices_1 = require("./authServices");
-const usersQueryRepository_1 = require("../users/UserRpository/usersQueryRepository");
 const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
 const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
+const authServices_1 = require("./authServices");
+const usersQueryRepository_1 = require("../users/UserRpository/usersQueryRepository");
 const uuid = __importStar(require("uuid"));
-class AuthControllers {
-    registration(req, res) {
+let AuthControllers = class AuthControllers {
+    constructor(
+    // @inject(AuthServices)
+    authServices, 
+    // @inject(TYPES.UsersQueryRepository)
+    usersQueryRepository) {
+        this.authServices = authServices;
+        this.usersQueryRepository = usersQueryRepository;
+    }
+    registrationController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield authServices_1.authServices.registration(req.body.login, req.body.password, req.body.email);
-            // console.log('result: - ', result)
+            // console.log('AuthControllers - data 😡',
+            //     req.body.login,
+            //     req.body.password,
+            //     req.body.email
+            // )
+            const result = yield this.authServices.registrationServices(req.body.login, req.body.password, req.body.email);
+            console.log('AuthControllers - registration: - result ', result);
             if (result.insertedId) {
-                const foundUser = yield usersQueryRepository_1.usersQueryRepository.getUserByIdRepository(result.insertedId);
+                const foundUser = yield this.usersQueryRepository.getUserByIdRepository(result.insertedId);
                 if (foundUser) {
                     return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.NO_CONTENT);
                 }
@@ -55,7 +79,7 @@ class AuthControllers {
             }
         });
     }
-    login(req, res) {
+    loginControllers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             // @ts-ignore
             // console.log('authControllers: login - userId', String(req.user._id))
@@ -64,7 +88,7 @@ class AuthControllers {
             req.ip ? ip = req.ip : ip = `There's no ip address on the darknet`;
             req.headers['user-agent'] ? title = req.headers['user-agent'] : title = `device unknown='${uuid.v4()}'`;
             // @ts-ignore
-            const result = yield authServices_1.authServices.loginServices(String(req.user._id), ip, title);
+            const result = yield this.authServices.loginServices(String(req.user._id), ip, title);
             // console.log('authControllers: result - ', result)
             if (result) {
                 res
@@ -79,10 +103,10 @@ class AuthControllers {
             }
         });
     }
-    logout(req, res) {
+    logoutControllers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('authControllers: - logout', String(req.user!.id))
-            const isLogout = yield authServices_1.authServices.logoutServices(String(req.user.id), req.cookies.refreshToken);
+            const isLogout = yield this.authServices.logoutServices(String(req.user.id), req.cookies.refreshToken);
             if (isLogout) {
                 res.clearCookie('refreshToken', { httpOnly: true });
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.NO_CONTENT);
@@ -92,10 +116,10 @@ class AuthControllers {
             }
         });
     }
-    refresh(req, res) {
+    refreshControllers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('authControllers: - refresh-token', String(req.user!.id))
-            const isRefresh = yield authServices_1.authServices.refreshTokenOrSessionService(req.ip ? req.ip : `There's no ip address on the darknet`, req.headers['user-agent'] ? req.headers['user-agent'] : `device unknown='${uuid.v4()}'`, String(req.user.id), req.cookies['refreshToken']);
+            const isRefresh = yield this.authServices.refreshTokenOrSessionService(req.ip ? req.ip : `There's no ip address on the darknet`, req.headers['user-agent'] ? req.headers['user-agent'] : `device unknown='${uuid.v4()}'`, String(req.user.id), req.cookies['refreshToken']);
             if (isRefresh === utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND) {
                 // console.log('authControllers: - isRefresh', isRefresh)
                 return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_BLACK_LIST);
@@ -115,9 +139,9 @@ class AuthControllers {
             }
         });
     }
-    confirmationEmail(req, res) {
+    confirmationEmailControllers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield authServices_1.authServices.confirmEmail(req.query.code);
+            const result = yield this.authServices.confirmEmail(req.query.code);
             if (result) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.ACCOUNT_SUCCESSFULLY_CONFIRMED);
             }
@@ -126,9 +150,9 @@ class AuthControllers {
             }
         });
     }
-    registrationConfirmation(req, res) {
+    registrationConfirmationControllers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield authServices_1.authServices.confirmEmail(req.body.code);
+            const result = yield this.authServices.confirmEmail(req.body.code);
             if (result) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.ACCOUNT_SUCCESSFULLY_CONFIRMED);
             }
@@ -137,9 +161,9 @@ class AuthControllers {
             }
         });
     }
-    registrationEmailResending(req, res) {
+    registrationEmailResendingControllers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield authServices_1.authServices.emailResending(req.body.email);
+            const result = yield this.authServices.emailResending(req.body.email);
             if (result === null) {
                 return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_USER_NOT_FOUND_OR_EMAIL_ALREADY_CONFIRMED);
             }
@@ -149,9 +173,9 @@ class AuthControllers {
             return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.NO_CONTENT);
         });
     }
-    me(req, res) {
+    meControllers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const authUser = yield authServices_1.authServices.me(String(req.user.id));
+            const authUser = yield this.authServices.me(String(req.user.id));
             if (authUser) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, '', authUser);
             }
@@ -160,6 +184,10 @@ class AuthControllers {
             }
         });
     }
-}
+};
 exports.AuthControllers = AuthControllers;
-exports.authController = new AuthControllers();
+exports.AuthControllers = AuthControllers = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [authServices_1.AuthServices,
+        usersQueryRepository_1.UsersQueryRepository])
+], AuthControllers);

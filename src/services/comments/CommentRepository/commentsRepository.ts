@@ -1,13 +1,21 @@
+import "reflect-metadata"
 import { InsertOneResult, ObjectId, UpdateResult } from "mongodb";
-import { commentsCollection } from "../../../db";
 import { CreateCommentModel } from "../Comment_DTO/CreateCommentModel";
 import { UpdateCommentModel } from "../Comment_DTO/UpdateCommentModel";
 import { CommentType } from "../Comment_DTO/commentType";
+import { injectable } from "inversify";
+// import { commentsCollection } from "../../../db";
+import { MongoDBCollection } from "../../../db";
 
+@injectable()
 export class CommentsRepository {
+    constructor(
+        // @inject(TYPES.MongoDBCollection)
+        private mongoDB: MongoDBCollection
+    ) { }
     async createCommentRepository(comment: CreateCommentModel): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | any> {
         try {
-            return await commentsCollection.insertOne(comment)
+            return await this.mongoDB.commentsCollection.insertOne(comment)
         } catch (error) {
             // console.error(error)
             return error
@@ -15,7 +23,7 @@ export class CommentsRepository {
     }
     async updateCommentRepository(id: string, body: UpdateCommentModel): Promise<UpdateResult<{ acknowledged: boolean, insertedId: number }> | any> {
         try {
-            const updatedComment = await commentsCollection.updateOne(
+            const updatedComment = await this.mongoDB.commentsCollection.updateOne(
                 { _id: new ObjectId(id) },
                 {
                     $set: {
@@ -31,7 +39,7 @@ export class CommentsRepository {
     }
     async deleteCommentRepository(id: string): Promise<{ acknowledged: boolean, insertedId: number } | any> {
         try {
-            const deleteComment = await commentsCollection.deleteOne({ _id: new ObjectId(id) })
+            const deleteComment = await this.mongoDB.commentsCollection.deleteOne({ _id: new ObjectId(id) })
             if (deleteComment) {
                 return deleteComment
             } else {
@@ -44,7 +52,7 @@ export class CommentsRepository {
     }
     async _getCommentRepository(id: string): Promise<CommentType | any> {
         try {
-            const getComment = await commentsCollection.findOne({ _id: new ObjectId(id) })
+            const getComment = await this.mongoDB.commentsCollection.findOne({ _id: new ObjectId(id) })
             if (getComment) {
                 return getComment
             }
@@ -55,7 +63,7 @@ export class CommentsRepository {
     }
     async deleteAllCommentsFromPostRepository(postId: string): Promise<{ acknowledged: boolean, insertedId: number } | any> {
         try {
-            const deleteComments = await commentsCollection.deleteMany({ postId: new ObjectId(postId) });
+            const deleteComments = await this.mongoDB.commentsCollection.deleteMany({ postId: new ObjectId(postId) });
             if (deleteComments.deletedCount > 0) {
                 return deleteComments;
             } else {
@@ -68,4 +76,3 @@ export class CommentsRepository {
         }
     }
 }
-export const commentsRepository = new CommentsRepository()

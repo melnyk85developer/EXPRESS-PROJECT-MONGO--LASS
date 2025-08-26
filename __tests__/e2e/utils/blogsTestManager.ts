@@ -1,8 +1,8 @@
-import { SETTINGS } from "../../../src/settings";
 import {app} from "../../../src/app";
 import request from "supertest";
 import { CreateBlogModel } from "../../../src/services/blogs/Blogs_DTO/CreateBlogModel";
 import { HTTP_STATUSES, HttpStatusType } from "../../../src/shared/utils/utils";
+import { SETTINGS } from "../../../src/shared/settings";
 
 export const getRequest = () => {
     return request(app)

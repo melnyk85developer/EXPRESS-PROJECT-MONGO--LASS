@@ -1,4 +1,7 @@
-import { SETTINGS } from "../../src/settings"
+import 'reflect-metadata';
+// import { container } from '../../src/shared/container/iocRoot';
+// import { MongoDBCollection } from '../../src/db';
+import { SETTINGS } from "../../src/shared/settings"
 import { getRequest, postsTestManager } from "./utils/postsTestManager"
 import { blogsTestManager } from "./utils/blogsTestManager"
 import { usersTestManager } from "./utils/usersTestManager"
@@ -8,6 +11,8 @@ import { CreateBlogModel } from "../../src/services/blogs/Blogs_DTO/CreateBlogMo
 import { UpdatePostModel } from "../../src/services/posts/Post_DTO/UpdatePostModel"
 import { HTTP_STATUSES } from "../../src/shared/utils/utils"
 
+// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
+// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
 
 describe('test for /posts', () => {
     const buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')
@@ -17,6 +22,7 @@ describe('test for /posts', () => {
     let authToken: any = null
 
     beforeAll(async () => {
+        // await mongoDB.connectDB();
         await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`);
     })
     it('Должен вернуть 200, массив сообщений - should return 200 and post array', async () => {
@@ -26,7 +32,7 @@ describe('test for /posts', () => {
             email: 'webmars@mars.com'
         }
         // console.log("TEST: - codedAuth", codedAuth)
-        const {createdEntity} = await usersTestManager.createUser(userData, 
+        const { createdEntity } = await usersTestManager.createUser(userData,
             // authToken, 
             codedAuth,
             HTTP_STATUSES.CREATED_201)
@@ -39,16 +45,16 @@ describe('test for /posts', () => {
         authToken = accessToken
         const { getAllPosts } = await postsTestManager.getAllPosts(HTTP_STATUSES.OK_200)
         expect(getAllPosts).toEqual(
-        expect.objectContaining({
-            pagesCount: 0,
-            page: 1,
-            pageSize: 10,
-            totalCount: 0,
-            items: []
-        })) 
+            expect.objectContaining({
+                pagesCount: 0,
+                page: 1,
+                pageSize: 10,
+                totalCount: 0,
+                items: []
+            }))
     })
     it('Должен возвращать 404 для несуществующего сообщения - should return 404 for a non-existent post', async () => {
-        await postsTestManager.getPostsById('66b9413b36f75d0b44ad1c57',HTTP_STATUSES.NOT_FOUND_404)
+        await postsTestManager.getPostsById('66b9413b36f75d0b44ad1c57', HTTP_STATUSES.NOT_FOUND_404)
     })
     it(`Вы не должны создавать посты от неавторизованных пользователей! - You shouldn't create a post by an unauthorized user!`, async () => {
         const data: CreatePostModel = {
@@ -69,7 +75,7 @@ describe('test for /posts', () => {
                 pageSize: 10,
                 totalCount: 0,
                 items: []
-            })) 
+            }))
     })
     it(`Не следует создавать пост с неверными исходными данными - You should not create a post with incorrect initial data`, async () => {
         const data: CreatePostModel = {
@@ -78,7 +84,7 @@ describe('test for /posts', () => {
             content: '',
             blogId: ''
         }
-        await postsTestManager.createPosts(data, 
+        await postsTestManager.createPosts(data,
             // authToken, 
             codedAuth,
             HTTP_STATUSES.BAD_REQUEST_400)
@@ -90,7 +96,7 @@ describe('test for /posts', () => {
                 pageSize: 10,
                 totalCount: 0,
                 items: []
-            })) 
+            }))
     })
     let createdPost1: any = null
     let createdBlog1: any = null
@@ -100,7 +106,7 @@ describe('test for /posts', () => {
             description: 'Description blog',
             websiteUrl: 'https://www.youtube.com/watch?v=ASndlvhI8p0'
         };
-        const resData = await blogsTestManager.createBlogs(blogData, 
+        const resData = await blogsTestManager.createBlogs(blogData,
             // authToken, 
             codedAuth,
             HTTP_STATUSES.CREATED_201);
@@ -112,9 +118,9 @@ describe('test for /posts', () => {
             content: 'content',
             blogId: resData.createdEntity.id
         };
-        const { createdEntity } = await postsTestManager.createPosts(data, 
+        const { createdEntity } = await postsTestManager.createPosts(data,
             // authToken,
-            codedAuth, 
+            codedAuth,
             HTTP_STATUSES.CREATED_201);
         createdPost1 = createdEntity;
         const { getAllPosts } = await postsTestManager.getAllPosts(HTTP_STATUSES.OK_200)
@@ -125,7 +131,7 @@ describe('test for /posts', () => {
                 pageSize: 10,
                 totalCount: 1,
                 items: [createdPost1]
-            })) 
+            }))
     })
     let createdPost2: any = null
     let createdBlog2: any = null
@@ -135,7 +141,7 @@ describe('test for /posts', () => {
             description: 'Description blog',
             websiteUrl: 'https://www.youtube.com/watch?v=ASndlvhI8p0'
         };
-        const resData = await blogsTestManager.createBlogs(blogData, 
+        const resData = await blogsTestManager.createBlogs(blogData,
             // authToken, 
             codedAuth,
             HTTP_STATUSES.CREATED_201);
@@ -147,7 +153,7 @@ describe('test for /posts', () => {
             content: 'https://-bGYGzbDUI8THxDvfX9-wi3',
             blogId: resData.createdEntity.id
         };
-        const { createdEntity } = await postsTestManager.createPosts(data, 
+        const { createdEntity } = await postsTestManager.createPosts(data,
             // authToken, 
             codedAuth,
             HTTP_STATUSES.CREATED_201);
@@ -160,7 +166,7 @@ describe('test for /posts', () => {
                 pageSize: 10,
                 totalCount: 2,
                 items: [createdPost2, createdPost1]
-            })) 
+            }))
     })
     it(`Не следует обновлять пост с неверными данными. - You should not update a post with incorrect post data`, async () => {
         const data: UpdatePostModel = {
@@ -169,14 +175,14 @@ describe('test for /posts', () => {
             content: '',
             blogId: ''
         };
-        await postsTestManager.updatePosts(createdPost1.id, data, 
+        await postsTestManager.updatePosts(createdPost1.id, data,
             // authToken, 
             codedAuth,
             HTTP_STATUSES.BAD_REQUEST_400);
         const { getPostsById } = await postsTestManager.getPostsById(createdPost1.id, HTTP_STATUSES.OK_200);
         expect(getPostsById).toEqual(
-            expect.objectContaining(createdPost1)) 
-            
+            expect.objectContaining(createdPost1))
+
     })
     it(`Не следует обновлять несуществующий пост - You should not update a post that does not exist`, async () => {
         const data: UpdatePostModel = {
@@ -185,7 +191,7 @@ describe('test for /posts', () => {
             content: 'https://-bUI8THxDvfX9-wi3',
             blogId: '66de3dcb9bb517c3d357fc28'
         }
-        await postsTestManager.updatePosts('66de3dcb9bb517c3d357fc28', data, 
+        await postsTestManager.updatePosts('66de3dcb9bb517c3d357fc28', data,
             // authToken, 
             codedAuth,
             HTTP_STATUSES.NOT_FOUND_404);
@@ -197,28 +203,28 @@ describe('test for /posts', () => {
             content: 'Aleksandra content',
             blogId: createdPost1.blogId
         }
-        await postsTestManager.updatePosts(createdPost1.id, updatedPost, 
+        await postsTestManager.updatePosts(createdPost1.id, updatedPost,
             // authToken,
-            codedAuth, 
+            codedAuth,
             HTTP_STATUSES.NO_CONTENT_204);
-        const {getPostsById} = await postsTestManager.getPostsById(createdPost1.id, HTTP_STATUSES.OK_200)
+        const { getPostsById } = await postsTestManager.getPostsById(createdPost1.id, HTTP_STATUSES.OK_200)
         expect(getPostsById).toEqual(
             expect.objectContaining({
                 title: updatedPost.title,
                 shortDescription: updatedPost.shortDescription,
                 content: updatedPost.content,
                 blogId: updatedPost.blogId
-            })) 
-        const {response} = await postsTestManager.getPostsById(createdPost2.id, HTTP_STATUSES.OK_200)
+            }))
+        const { response } = await postsTestManager.getPostsById(createdPost2.id, HTTP_STATUSES.OK_200)
         expect(response.body).toEqual(expect.objectContaining(createdPost2))
     })
     it(`Следует удалить оба сообщения - should delete both posts`, async () => {
-        await postsTestManager.deletePost(createdPost1.id, 
+        await postsTestManager.deletePost(createdPost1.id,
             // authToken, 
-            codedAuth, 
+            codedAuth,
             HTTP_STATUSES.NO_CONTENT_204)
         await postsTestManager.getPostsById(createdPost1.id, HTTP_STATUSES.NOT_FOUND_404)
-        await postsTestManager.deletePost(createdPost2.id, 
+        await postsTestManager.deletePost(createdPost2.id,
             // authToken, 
             codedAuth,
             HTTP_STATUSES.NO_CONTENT_204)
@@ -231,7 +237,7 @@ describe('test for /posts', () => {
                 pageSize: 10,
                 totalCount: 0,
                 items: []
-            })) 
+            }))
     })
     afterAll(done => {
         done();

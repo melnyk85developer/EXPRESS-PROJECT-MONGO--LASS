@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.emailAdapter = void 0;
-const settings_1 = require("../../settings");
+const settings_1 = require("../settings");
 exports.emailAdapter = {
     sendMail(from, to, subject, text, message) {
         return __awaiter(this, void 0, void 0, function* () {

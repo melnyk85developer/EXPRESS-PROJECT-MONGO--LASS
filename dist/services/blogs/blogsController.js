@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,35 +18,51 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsController = exports.BlogsControllers = void 0;
+exports.BlogsControllers = void 0;
+require("reflect-metadata");
 const utils_1 = require("../../shared/utils/utils");
+const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
+const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
+const inversify_1 = require("inversify");
 const postQueryRepository_1 = require("../posts/PostRepository/postQueryRepository");
 const blogQueryRepository_1 = require("./BlogsRepository/blogQueryRepository");
 const postsServices_1 = require("../posts/postsServices");
-const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
-const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
 const blogsServices_1 = require("./blogsServices");
-class BlogsControllers {
+let BlogsControllers = class BlogsControllers {
+    constructor(
+    // @inject(TYPES.PostsQueryRepository)
+    postsQueryRepository, 
+    // @inject(TYPES.BlogsQueryRepository)
+    blogsQueryRepository, 
+    // @inject(TYPES.PostsServices)
+    postsServices, 
+    // @inject(TYPES.BlogsServices)
+    blogsServices) {
+        this.postsQueryRepository = postsQueryRepository;
+        this.blogsQueryRepository = blogsQueryRepository;
+        this.postsServices = postsServices;
+        this.blogsServices = blogsServices;
+    }
     getBlogsController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.HTTP_STATUSES.OK_200, undefined, yield blogQueryRepository_1.blogsQueryRepository.getAllBlogsRepository(req));
+            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.HTTP_STATUSES.OK_200, undefined, yield this.blogsQueryRepository.getAllBlogsRepository(req));
         });
     }
     getBlogIdAllPostsController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield postQueryRepository_1.postsQueryRepository.getAllPostsRepositories(req));
+            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield this.postsQueryRepository.getAllPostsRepositories(req));
         });
     }
     getBlogByIdController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield blogQueryRepository_1.blogsQueryRepository.getBlogByIdRepository(req.params.id));
+            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield this.blogsQueryRepository.getBlogByIdRepository(req.params.id));
         });
     }
     createBlogController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const createBlog = yield blogsServices_1.blogsServices.createBlogServices(req.body);
+            const createBlog = yield this.blogsServices.createBlogServices(req.body);
             if (createBlog && createBlog.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_BLOG, undefined, yield blogQueryRepository_1.blogsQueryRepository.getBlogByIdRepository(createBlog.insertedId));
+                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_BLOG, undefined, yield this.blogsQueryRepository.getBlogByIdRepository(createBlog.insertedId));
             }
             else {
                 return (0, ErResSwitch_1.ResErrorsSwitch)(res, createBlog);
@@ -46,9 +71,9 @@ class BlogsControllers {
     }
     createPostOneBlogController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const createPostOneBlog = yield postsServices_1.postsServices.createPostOneBlogServices(req);
+            const createPostOneBlog = yield this.postsServices.createPostOneBlogServices(req);
             if (createPostOneBlog && createPostOneBlog.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_POST, undefined, yield postQueryRepository_1.postsQueryRepository.getPostByIdRepositories(createPostOneBlog.insertedId));
+                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_POST, undefined, yield this.postsQueryRepository.getPostByIdRepositories(createPostOneBlog.insertedId));
             }
             else {
                 return (0, ErResSwitch_1.ResErrorsSwitch)(res, createPostOneBlog);
@@ -57,9 +82,9 @@ class BlogsControllers {
     }
     updateBlogController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updateBlog = yield blogsServices_1.blogsServices.updateBlogServices(req.params.id, req.body);
+            const updateBlog = yield this.blogsServices.updateBlogServices(req.params.id, req.body);
             if (updateBlog && updateBlog.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_BLOG, undefined, yield postQueryRepository_1.postsQueryRepository.getPostByIdRepositories(updateBlog.insertedId));
+                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_BLOG, undefined, yield this.postsQueryRepository.getPostByIdRepositories(updateBlog.insertedId));
             }
             else {
                 return (0, ErResSwitch_1.ResErrorsSwitch)(res, updateBlog);
@@ -68,7 +93,7 @@ class BlogsControllers {
     }
     deleteBlogController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blog = yield blogsServices_1.blogsServices.deleteBlogServices(req.params.id);
+            const blog = yield this.blogsServices.deleteBlogServices(req.params.id);
             if (blog && blog.acknowledged === true) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_BLOG);
             }
@@ -77,6 +102,12 @@ class BlogsControllers {
             }
         });
     }
-}
+};
 exports.BlogsControllers = BlogsControllers;
-exports.blogsController = new BlogsControllers();
+exports.BlogsControllers = BlogsControllers = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [postQueryRepository_1.PostsQueryRepository,
+        blogQueryRepository_1.BlogsQueryRepository,
+        postsServices_1.PostsServices,
+        blogsServices_1.BlogsServices])
+], BlogsControllers);

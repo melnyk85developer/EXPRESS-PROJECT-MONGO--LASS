@@ -1,8 +1,14 @@
-import {SETTINGS} from "../../src/settings";
+import 'reflect-metadata';
+// import { container } from '../../src/shared/container/iocRoot';
+import {SETTINGS} from "../../src/shared/settings";
 import { HTTP_STATUSES } from "../../src/shared/utils/utils";
 import { authTestManager } from "./utils/authTestManager";
 import { blogsTestManager, getRequest } from "./utils/blogsTestManager";
 import { usersTestManager } from "./utils/usersTestManager";
+// import { MongoDBCollection } from '../../src/db';
+
+// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
+// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
 
 describe('test for /blogs', () => {
     const buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')
@@ -13,6 +19,7 @@ describe('test for /blogs', () => {
     let authToken: any = null
 
     beforeAll(async () => {
+        // await mongoDB.connectDB();
         await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`)
     })
     it('Должен возвращать 200, а массив блогов - should return 200 and blog array', async () => {

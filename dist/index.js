@@ -32,13 +32,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("reflect-metadata");
 const app_1 = require("./app");
-const db_1 = require("./db");
 const dotenv = __importStar(require("dotenv"));
+const compositionRootCustom_1 = require("./shared/container/compositionRootCustom");
+// import { MongoDBCollection } from "./db";
+// import { container } from "./shared/container/iocRoot";
+// import { connectDB } from "./db";
 dotenv.config();
 const port = process.env.PORT || 5001;
+// const mongoDB = container.resolve(MongoDBCollection)
 const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, db_1.connectDB)();
+    yield compositionRootCustom_1.mongoDBCollection.connectDB();
     app_1.app.listen(port, () => {
         console.log(`Сервер стартанул, порт ${port}`);
     });

@@ -1,13 +1,22 @@
+import "reflect-metadata"
 import { UpdateResult } from "mongodb";
-import { userSessionsRepository } from "./UserSessionsRpository/userSessionsRepository";
 import { INTERNAL_STATUS_CODE } from "../../shared/utils/utils";
 import { JwtPayload } from "jsonwebtoken";
-import { tokenService } from "../../shared/infrastructure/tokenService";
 import * as uuid from 'uuid';
+import { injectable } from "inversify";
+import { UserSessionsRepository } from "./UserSessionsRpository/userSessionsRepository";
+import { TokenService } from "../../shared/infrastructure/tokenService";
 
+@injectable()
 export class SecurityDeviceServices {
+    constructor(
+        // @inject(TYPES.UserSessionsRepository)
+        protected userSessionsRepository: UserSessionsRepository,
+        // @inject(TYPES.TokenService)
+        protected tokenService: TokenService
+    ) { }
     async createSessionServices(userId: string, ip: string, userAgent: string): Promise<{ accessToken: string, refreshToken: string } | any> {
-        const allUserSessions = await securityDeviceServices._getAllSessionByUserIdServices(userId);
+        const allUserSessions = await this._getAllSessionByUserIdServices(userId);
         const existingSession = allUserSessions.find(
             (session: { title: string; }) => session.title === userAgent
         );
@@ -23,12 +32,12 @@ export class SecurityDeviceServices {
         } else {
             // Создаём новую сессию
             const deviceId = uuid.v4();
-            const { accessToken, refreshToken } = await tokenService.generateTokens(userId, deviceId);
+            const { accessToken, refreshToken } = await this.tokenService.generateTokens(userId, deviceId);
 
             if (!accessToken || !refreshToken) {
                 return INTERNAL_STATUS_CODE.UNAUTHORIZED_TOKEN_CREATION_ERROR;
             }
-            const userToken = await tokenService.validateRefreshToken(refreshToken);
+            const userToken = await this.tokenService.validateRefreshToken(refreshToken);
 
             const session = {
                 ip,
@@ -44,7 +53,7 @@ export class SecurityDeviceServices {
                 // }),
             };
             // console.log(session)
-            const isCreatedSession = await userSessionsRepository.createSessionsRepository(session);
+            const isCreatedSession = await this.userSessionsRepository.createSessionsRepository(session);
             if (isCreatedSession.acknowledged) {
                 return { accessToken, refreshToken };
             } else {
@@ -53,12 +62,12 @@ export class SecurityDeviceServices {
         }
     }
     async updateSessionServices(userId: string, ip: string, userAgent: string, deviceId: string): Promise<UpdateResult<{ acknowledged: boolean, insertedId: number }> | any> {
-        const { accessToken, refreshToken } = await tokenService.generateTokens(userId, deviceId);
+        const { accessToken, refreshToken } = await this.tokenService.generateTokens(userId, deviceId);
 
         if (!accessToken || !refreshToken) {
             return INTERNAL_STATUS_CODE.UNAUTHORIZED_TOKEN_CREATION_ERROR;
         }
-        const userToken = await tokenService.validateRefreshToken(refreshToken);
+        const userToken = await this.tokenService.validateRefreshToken(refreshToken);
 
         const session = {
             ip,
@@ -73,7 +82,7 @@ export class SecurityDeviceServices {
             //     minutes: 0
             // }),
         };
-        const isUpdatedSession = await userSessionsRepository.updateSessionsRepository(session)
+        const isUpdatedSession = await this.userSessionsRepository.updateSessionsRepository(session)
         if (isUpdatedSession && isUpdatedSession.acknowledged) {
             return { accessToken, refreshToken };
         } else {
@@ -81,22 +90,21 @@ export class SecurityDeviceServices {
         }
     }
     async deleteSessionByDeviceIdServices(userId: string, deviceId: string): Promise<{ statusCode: number; message: string; } | any> {
-        return await userSessionsRepository.deleteSessionsByDeviceIdRepository(userId, deviceId)
+        return await this.userSessionsRepository.deleteSessionsByDeviceIdRepository(userId, deviceId)
     }
     async deleteAllSessionsServices(userId: string, deviceId: string): Promise<{ statusCode: number; message: string; } | any> {
-        return await userSessionsRepository.deleteAllSessionsRepository(userId, deviceId)
+        return await this.userSessionsRepository.deleteAllSessionsRepository(userId, deviceId)
     }
     async _getAllSessionsUsersServices(): Promise<any> {
-        return await userSessionsRepository._getAllSessionyUsersRepository()
+        return await this.userSessionsRepository._getAllSessionyUsersRepository()
     }
     async _getAllSessionByUserIdServices(userId: string): Promise<any> {
-        return await userSessionsRepository._getAllSessionByUserIdRepository(userId)
+        return await this.userSessionsRepository._getAllSessionByUserIdRepository(userId)
     }
     async _getSessionByUserIdServices(userId: string, deviceId: string): Promise<any> {
-        return await userSessionsRepository._getSessionByUserIdRepository(userId, deviceId)
+        return await this.userSessionsRepository._getSessionByUserIdRepository(userId, deviceId)
     }
     async _getSessionByDeviceIdServices(deviceId: string): Promise<any> {
-        return await userSessionsRepository._getSessionDeviceByIdRepository(deviceId)
+        return await this.userSessionsRepository._getSessionDeviceByIdRepository(deviceId)
     }
 }
-export const securityDeviceServices = new SecurityDeviceServices()

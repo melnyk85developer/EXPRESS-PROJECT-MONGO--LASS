@@ -1,5 +1,5 @@
 import { SentMessageInfo } from "nodemailer";
-import { SETTINGS } from "../../settings";
+import { SETTINGS } from "../settings";
 
 export const emailAdapter = {
     async sendMail(from: string, to: string, subject: string, text: string, message: any): Promise<SentMessageInfo | boolean> {

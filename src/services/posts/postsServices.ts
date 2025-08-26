@@ -1,20 +1,34 @@
+import "reflect-metadata"
 import { DeleteResult, InsertOneResult, UpdateResult } from "mongodb";
 import { UpdatePostModel } from "./Post_DTO/UpdatePostModel"
-import { postsRepository } from "./PostRepository/postsRepository";
-import { blogsQueryRepository } from "../blogs/BlogsRepository/blogQueryRepository";
 import { CreatePostModel } from "./Post_DTO/CreatePostModel";
 import { PostTypeDB } from "./Post_DTO/postType";
-import { commentsRepository } from "../comments/CommentRepository/commentsRepository";
-import { commentsQueryRepository } from "../comments/CommentRepository/commentsQueryRepository";
 import { RequestWithParams } from "../../shared/types/typesGeneric";
+import { injectable } from "inversify";
+import { BlogsQueryRepository } from "../blogs/BlogsRepository/blogQueryRepository";
+import { CommentsRepository } from "../comments/CommentRepository/commentsRepository";
+import { CommentsQueryRepository } from "../comments/CommentRepository/commentsQueryRepository";
+import { PostsRepository } from "./PostRepository/postsRepository";
 
+@injectable()
 export class PostsServices {
+    constructor(
+        // @inject(TYPES.BlogsQueryRepository)
+        protected blogsQueryRepository: BlogsQueryRepository,
+        // @inject(TYPES.CommentsRepository)
+        protected commentsRepository: CommentsRepository,
+        // @inject(TYPES.CommentsQueryRepository)
+        protected commentsQueryRepository: CommentsQueryRepository,
+        // @inject(TYPES.PostsRepository)
+        protected postsRepository: PostsRepository,
+    ) { }
+
     async createPostServices(post: CreatePostModel): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | null> {
         const { title, shortDescription, content, blogId } = post
         const date = new Date();
         // date.setMilliseconds(0);
         const createdAt = date.toISOString()
-        const isIdBlog = await blogsQueryRepository.getBlogByIdRepository(blogId)
+        const isIdBlog = await this.blogsQueryRepository.getBlogByIdRepository(blogId)
         const createPost = {
             title: title,
             shortDescription: shortDescription,
@@ -23,7 +37,7 @@ export class PostsServices {
             blogName: isIdBlog.name,
             createdAt: createdAt
         }
-        return await postsRepository.createPostRepository(createPost)
+        return await this.postsRepository.createPostRepository(createPost)
     }
     async createPostOneBlogServices(req: RequestWithParams<CreatePostModel>): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | any> {
         const { blogId } = req.params;
@@ -31,7 +45,7 @@ export class PostsServices {
         const date = new Date();
         // date.setMilliseconds(0);
         const createdAt = date.toISOString();
-        const isIdBlog = await blogsQueryRepository.getBlogByIdRepository(blogId)
+        const isIdBlog = await this.blogsQueryRepository.getBlogByIdRepository(blogId)
         const createPost = {
             title: title,
             shortDescription: shortDescription,
@@ -40,7 +54,7 @@ export class PostsServices {
             blogName: isIdBlog.name,
             createdAt: createdAt
         }
-        return await postsRepository.createPostRepository(createPost as unknown as PostTypeDB)
+        return await this.postsRepository.createPostRepository(createPost as unknown as PostTypeDB)
     }
     async updatePostServices(id: string, body: UpdatePostModel): Promise<UpdateResult<{ acknowledged: boolean, insertedId: number }> | null> {
         const updatedPost = {
@@ -49,18 +63,17 @@ export class PostsServices {
             content: body.content,
             blogId: body.blogId
         }
-        return await postsRepository.updatePostRepository(id, updatedPost)
+        return await this.postsRepository.updatePostRepository(id, updatedPost)
     }
     async deletePostServices(id: string): Promise<DeleteResult | null> {
         // console.log('deletePostServices: - req id', id)
-        const isComments = await commentsQueryRepository.getAllCommentssRepository(id, '')
+        const isComments = await this.commentsQueryRepository.getAllCommentssRepository(id, '')
         // console.log('deletePostServices deleteAllComments: - req id, isComments', id, isComments)
         // if(isComments && isComments.items.length > 0){
         // console.log('deleteAllComments: - res id, isComments', id, isComments)
-        const commsntExists = await commentsRepository.deleteAllCommentsFromPostRepository(id)
+        const commsntExists = await this.commentsRepository.deleteAllCommentsFromPostRepository(id)
         // console.log('deleteAllComments: - res ', id, commsntExists)
         // }
-        return await postsRepository.deletePostRepository(id)
+        return await this.postsRepository.deletePostRepository(id)
     }
 }
-export const postsServices = new PostsServices()

@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,26 +17,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.testsRouter = exports.testsController = exports.TestsController = void 0;
-const express_1 = __importDefault(require("express"));
+exports.TestsController = void 0;
+require("reflect-metadata");
+const inversify_1 = require("inversify");
 const db_1 = require("../../db");
 const utils_1 = require("../../shared/utils/utils");
 const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
-class TestsController {
-    constructor() {
+let TestsController = class TestsController {
+    constructor(
+    // @inject(TYPES.MongoDBCollection)
+    mongoDB) {
+        this.mongoDB = mongoDB;
         this.deleteAllEntity = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const deleteUsersResult = yield db_1.usersCollection.deleteMany({});
-                const deleteBlogsResult = yield db_1.blogsCollection.deleteMany({});
-                const deletePostsResult = yield db_1.postsCollection.deleteMany({});
-                const deleteCommentsResult = yield db_1.commentsCollection.deleteMany({});
-                const deleteTokenResult = yield db_1.tokensCollection.deleteMany({});
-                const deleteRequestsResult = yield db_1.requestsCollection.deleteMany({});
-                const devicesResult = yield db_1.devicesCollection.deleteMany({});
+                yield this.mongoDB.connectDB();
+                const deleteUsersResult = yield this.clearUsersCollection();
+                const deleteBlogsResult = yield this.clearBlogsCollection();
+                const deletePostsResult = yield this.clearPostsCollection();
+                const deleteCommentsResult = yield this.clearCommentsCollection();
+                const deleteTokenResult = yield this.clearTokensCollection();
+                const deleteRequestsResult = yield this.clearRequestsCollection();
+                const devicesResult = yield this.clearDevicesCollection();
                 if (deleteBlogsResult.acknowledged &&
                     deletePostsResult.acknowledged &&
                     deleteUsersResult.acknowledged &&
@@ -44,8 +55,73 @@ class TestsController {
             }
         });
     }
-}
+    clearUsersCollection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.mongoDB.usersCollection.deleteMany({});
+        });
+    }
+    clearBlogsCollection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.mongoDB.blogsCollection.deleteMany({});
+        });
+    }
+    clearPostsCollection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.mongoDB.postsCollection.deleteMany({});
+        });
+    }
+    clearCommentsCollection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.mongoDB.commentsCollection.deleteMany({});
+        });
+    }
+    clearTokensCollection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.mongoDB.tokensCollection.deleteMany({});
+        });
+    }
+    clearRequestsCollection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.mongoDB.requestsCollection.deleteMany({});
+        });
+    }
+    clearDevicesCollection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.mongoDB.devicesCollection.deleteMany({});
+        });
+    }
+};
 exports.TestsController = TestsController;
-exports.testsController = new TestsController();
-exports.testsRouter = express_1.default.Router();
-exports.testsRouter.delete('/all-data', exports.testsController.deleteAllEntity);
+exports.TestsController = TestsController = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [db_1.MongoDBCollection])
+], TestsController);
+// export const testsController = () => {
+//     const router = express.Router()
+//     router.delete('/all-data', async (req, res) => {
+//         console.log('testsController: - 😡')
+//         try {
+//             const deleteUsersResult = await usersCollection.deleteMany({});
+//             const deleteBlogsResult = await blogsCollection.deleteMany({});
+//             const deletePostsResult = await postsCollection.deleteMany({});
+//             const deleteCommentsResult = await commentsCollection.deleteMany({});
+//             const deleteTokenResult = await tokensCollection.deleteMany({});
+//             const deleteRequestsResult = await requestsCollection.deleteMany({});
+//             const devicesResult = await devicesCollection.deleteMany({});
+//             if (deleteBlogsResult.acknowledged
+//                 && deletePostsResult.acknowledged
+//                 && deleteUsersResult.acknowledged
+//                 && deleteCommentsResult.acknowledged
+//                 && deleteTokenResult.acknowledged
+//                 && deleteRequestsResult.acknowledged
+//                 && devicesResult.acknowledged) {
+//                 res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+//             } else {
+//                 return ResErrorsSwitch(res, HTTP_STATUSES.BAD_REQUEST_400, `Не удалось удалить данные из базы данных.`)
+//             }
+//         } catch (error) {
+//             return ResErrorsSwitch(res, HTTP_STATUSES.BAD_REQUEST_400, `Произошла ошибка при попытке обнуления базы данных. ${error}`)
+//         }
+//     });
+//     return router
+// }

@@ -1,15 +1,25 @@
-import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
-import { CreateUserModel } from "./Users_DTO/CreateUserModel";
-import { UpdateUserModel } from "./Users_DTO/UpdateUserModel";
-import { usersRepository } from "./UserRpository/usersRepository";
-import { usersCollection } from "../../db";
-import { INTERNAL_STATUS_CODE } from "../../shared/utils/utils";
-import { UserTypeDB } from "./Users_DTO/userTypes";
+import 'reflect-metadata';
 import * as bcrypt from 'bcryptjs'
-import * as uuid from 'uuid';
-import { add } from "date-fns";
+import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
+import { UpdateUserModel } from "./Users_DTO/UpdateUserModel";
+import { UserTypeDB } from "./Users_DTO/userTypes";
+import { inject, injectable } from "inversify";
+import { UsersRepository } from "./UserRpository/usersRepository";
+import { UsersQueryRepository } from "./UserRpository/usersQueryRepository";
+// import { usersCollection } from '../../db';
+import { MongoDBCollection } from "../../db";
 
+@injectable()
 export class UserService {
+    constructor(
+        // @ts-ignore
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection,
+        // @ts-ignore
+        @inject(UsersRepository) protected usersRepository: UsersRepository,
+        // @ts-ignore
+        @inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository,
+    ) { }
+
     async createUserServices(user: any): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | any> {
         const { accountData, emailConfirmation } = user
         if (accountData.userName && accountData.password && accountData.email) {
@@ -27,7 +37,7 @@ export class UserService {
                     isConfirmed: emailConfirmation.isConfirmed
                 }
             )
-            return await usersRepository.createUserRepository(createUser as unknown as any)
+            return await this.usersRepository.createUserRepository(createUser as unknown as any)
         }
     }
     async updateUserServices(id: string, body: UpdateUserModel): Promise<UpdateResult<{ acknowledged: boolean, insertedId: number }> | null> {
@@ -35,18 +45,18 @@ export class UserService {
             login: body.login,
             email: body.email
         }
-        return await usersRepository.updateUserRepository(id, updatedUser)
+        return await this.usersRepository.updateUserRepository(id, updatedUser)
     }
     async updateResendingUserServices(id: string, confirmationCode: string): Promise<UpdateResult<{ acknowledged: boolean, insertedId: number }> | null> {
-        return await usersRepository.updateResendingUserRepository(id, confirmationCode)
+        return await this.usersRepository.updateResendingUserRepository(id, confirmationCode)
     }
     async deleteUserServices(id: string): Promise<DeleteResult | null> {
-        return await usersRepository.deleteUserRepository(id)
+        return await this.usersRepository.deleteUserRepository(id)
     }
     async _getUserByIdRepo(id: string): Promise<UserTypeDB | any> {
         // console.log('_getUserByIdRepo: - ', id)
         try {
-            return await usersCollection.findOne({ _id: new ObjectId(id) })
+            return await this.mongoDB.usersCollection.findOne({ _id: new ObjectId(id) })
         } catch (error) {
             // console.error(error)
             return error
@@ -54,7 +64,7 @@ export class UserService {
     }
     async _getUserByLoginOrEmail(loginOrEmail: string): Promise<UserTypeDB | any> {
         try {
-            const getUser = await usersCollection.findOne({
+            const getUser = await this.mongoDB.usersCollection.findOne({
                 $or: [
                     { 'accountData.userName': loginOrEmail },
                     { 'accountData.email': loginOrEmail },
@@ -68,7 +78,7 @@ export class UserService {
     }
     async _getUserByEmail(email: string): Promise<UserTypeDB | any> {
         try {
-            const getUser = await usersCollection.findOne({ 'accountData.email': email })
+            const getUser = await this.mongoDB.usersCollection.findOne({ 'accountData.email': email })
             if (getUser) { return getUser }
         } catch (error) {
             // console.error(error);
@@ -77,7 +87,7 @@ export class UserService {
     }
     async _findUserByConfirmationCode(code: string): Promise<UserTypeDB | any> {
         try {
-            const getUser = await usersCollection.findOne({ 'emailConfirmation.confirmationCode': code })
+            const getUser = await this.mongoDB.usersCollection.findOne({ 'emailConfirmation.confirmationCode': code })
             // console.log('_findUserByConfirmationCode - ', getUser)
             if (getUser) {
                 return getUser
@@ -88,4 +98,3 @@ export class UserService {
         }
     }
 }
-export const usersServices = new UserService()

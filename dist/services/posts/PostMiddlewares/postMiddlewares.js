@@ -11,13 +11,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postOneBlogMiddlewares = exports.postMiddlewares = void 0;
 const express_validator_1 = require("express-validator");
-const blogQueryRepository_1 = require("../../blogs/BlogsRepository/blogQueryRepository");
+// import { container } from '../../../shared/container/iocRoot';
+const compositionRootCustom_1 = require("../../../shared/container/compositionRootCustom");
+// const blogsQueryRepository: BlogsQueryRepository = container.resolve(BlogsQueryRepository)
 exports.postMiddlewares = [
     (0, express_validator_1.body)('blogId')
         .notEmpty()
         .isString()
         .custom((blogId) => __awaiter(void 0, void 0, void 0, function* () {
-        const blog = yield blogQueryRepository_1.blogsQueryRepository.getBlogByIdRepository(blogId);
+        const blog = yield compositionRootCustom_1.blogsQueryRepository.getBlogByIdRepository(blogId);
         if (!blog) {
             throw new Error('Блога с таким blogId не найденно!');
         }

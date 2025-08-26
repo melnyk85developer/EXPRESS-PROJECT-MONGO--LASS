@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,16 +18,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userIdMiddleware = void 0;
+exports.UsersMiddlewares = void 0;
+require("reflect-metadata");
 const utils_1 = require("../../../shared/utils/utils");
 const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
+const inversify_1 = require("inversify");
 const usersServices_1 = require("../usersServices");
-const userIdMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const found = yield usersServices_1.usersServices._getUserByIdRepo(req.params.id);
-    if (!found) {
-        return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.USER_NOT_FOUND);
+let UsersMiddlewares = class UsersMiddlewares {
+    constructor(
+    // @inject(TYPES.UserService)
+    usersServices) {
+        this.usersServices = usersServices;
+        this.userIdMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const found = yield this.usersServices._getUserByIdRepo(req.params.id);
+            if (!found) {
+                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.USER_NOT_FOUND);
+            }
+            next();
+            return;
+        });
     }
-    next();
-    return;
-});
-exports.userIdMiddleware = userIdMiddleware;
+};
+exports.UsersMiddlewares = UsersMiddlewares;
+exports.UsersMiddlewares = UsersMiddlewares = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [usersServices_1.UserService])
+], UsersMiddlewares);

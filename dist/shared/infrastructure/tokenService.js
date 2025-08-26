@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,11 +21,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tokenService = void 0;
+exports.TokenService = void 0;
+require("reflect-metadata");
+const inversify_1 = require("inversify");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const utils_1 = require("../utils/utils");
+// import { tokensCollection } from "../../db";
 const db_1 = require("../../db");
-exports.tokenService = {
+let TokenService = class TokenService {
+    constructor(
+    // @inject(TYPES.MongoDBCollection)
+    mongoDB) {
+        this.mongoDB = mongoDB;
+    }
     generateTokens(payload, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!payload || !deviceId) {
@@ -31,7 +48,7 @@ exports.tokenService = {
             }, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' });
             return { accessToken, refreshToken };
         });
-    },
+    }
     validateAccessToken(token) {
         return __awaiter(this, void 0, void 0, function* () {
             // Проверка формата JWT токена
@@ -52,7 +69,7 @@ exports.tokenService = {
                 return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_ACCESS_TOKEN;
             }
         });
-    },
+    }
     validateRefreshToken(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof refreshToken !== 'string' || !refreshToken) {
@@ -83,12 +100,12 @@ exports.tokenService = {
                 return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN;
             }
         });
-    },
+    }
     saveRefreshTokenBlackList(userId, refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('tokenService - saveBlackListToken: refreshToken', refreshToken)
             try {
-                const isSave = yield db_1.tokensCollection.insertOne({ userId, refreshToken });
+                const isSave = yield this.mongoDB.tokensCollection.insertOne({ userId, refreshToken });
                 // console.log('saveRefreshTokenBlackList: - isSave', isSave)
                 return isSave;
                 // if(isSave){
@@ -103,11 +120,11 @@ exports.tokenService = {
                 return utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_WHEN_ADDING_A_TOKEN_TO_THE_BLACKLIST;
             }
         });
-    },
+    }
     deleteRefreshTokenByTokenInBlackList(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const tokenData = yield db_1.tokensCollection.deleteOne({ refreshToken });
+                const tokenData = yield this.mongoDB.tokensCollection.deleteOne({ refreshToken });
                 // console.log('deleteRefreshTokenByTokenInBlackList - tokenData', tokenData)
                 return tokenData;
             }
@@ -116,11 +133,11 @@ exports.tokenService = {
                 return null;
             }
         });
-    },
+    }
     getRefreshTokenByTokenInBlackList(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const tokenData = yield db_1.tokensCollection.findOne({ refreshToken });
+                const tokenData = yield this.mongoDB.tokensCollection.findOne({ refreshToken });
                 // console.log('tokenService getRefreshTokenByTokenInBlackList - tokenData', tokenData)
                 return tokenData;
             }
@@ -131,3 +148,8 @@ exports.tokenService = {
         });
     }
 };
+exports.TokenService = TokenService;
+exports.TokenService = TokenService = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [db_1.MongoDBCollection])
+], TokenService);

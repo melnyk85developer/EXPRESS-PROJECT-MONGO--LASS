@@ -1,26 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.meMiddlewares = exports.registrationEmailResendingMiddlewares = exports.registrationConfirmMiddlewares = exports.confirmationEmailMiddlewares = exports.refreshTokenMiddlewares = exports.logoutMiddlewares = exports.loginMiddlewares = exports.registrationMiddlewares = void 0;
-const input_validation_middleware_1 = require("../../../input-validation-middleware");
+// import { authMiddlewares } from "../../../shared/container/compositionRootCustom";
+// import { container } from "../../../shared/container/iocRoot";
+const compositionRootCustom_1 = require("../../../shared/container/compositionRootCustom");
+const input_validation_middleware_1 = require("../../../shared/input-validation-middleware");
 const userMiddlewares_1 = require("../../users/UserMiddlewares/userMiddlewares");
-const authGuardMiddleware_1 = require("./authGuardMiddleware");
 const imputAuthMiddlewares_1 = require("./imputAuthMiddlewares");
 const postMiddlewares_1 = require("./postMiddlewares");
+// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
 exports.registrationMiddlewares = [
     ...userMiddlewares_1.userMiddlewares, // Распаковываем массив, если это ValidationChain[]
     input_validation_middleware_1.inputValidationMiddleware, // Одиночный middleware
 ];
 exports.loginMiddlewares = [
     ...imputAuthMiddlewares_1.inputMiddlewares, // Распаковываем массив
-    authGuardMiddleware_1.authLoginMiddleware, // Одиночный middleware
+    compositionRootCustom_1.authMiddlewares.authLoginMiddleware, // Одиночный middleware
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.logoutMiddlewares = [
-    authGuardMiddleware_1.refreshTokenMiddleware, // Одиночный middleware
+    compositionRootCustom_1.authMiddlewares.refreshTokenMiddleware, // Одиночный middleware
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.refreshTokenMiddlewares = [
-    authGuardMiddleware_1.refreshTokenMiddleware, // Одиночный middleware
+    compositionRootCustom_1.authMiddlewares.refreshTokenMiddleware, // Одиночный middleware
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.confirmationEmailMiddlewares = [
@@ -35,6 +38,6 @@ exports.registrationEmailResendingMiddlewares = [
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.meMiddlewares = [
-    authGuardMiddleware_1.accessTokenMiddleware,
+    compositionRootCustom_1.authMiddlewares.accessTokenMiddleware,
     input_validation_middleware_1.inputValidationMiddleware,
 ];

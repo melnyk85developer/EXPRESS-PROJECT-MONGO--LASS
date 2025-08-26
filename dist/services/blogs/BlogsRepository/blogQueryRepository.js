@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,10 +18,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsQueryRepository = exports.BlogsQueryRepository = void 0;
+exports.BlogsQueryRepository = void 0;
+require("reflect-metadata");
 const mongodb_1 = require("mongodb");
+const inversify_1 = require("inversify");
+// import { blogsCollection } from "../../../db";
 const db_1 = require("../../../db");
-class BlogsQueryRepository {
+let BlogsQueryRepository = class BlogsQueryRepository {
+    constructor(
+    // @inject(TYPES.MongoDBCollection)
+    mongoDB) {
+        this.mongoDB = mongoDB;
+    }
     getAllBlogsRepository(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const sanitizedQuery = yield this._helper(req.query);
@@ -24,7 +41,7 @@ class BlogsQueryRepository {
                 if (searchNameTerm) {
                     filter.name = { $regex: searchNameTerm, $options: 'i' };
                 }
-                const blogs = yield db_1.blogsCollection
+                const blogs = yield this.mongoDB.blogsCollection
                     .find(filter)
                     .sort({ [sortBy]: sortDirectionValue, _id: 1 })
                     .skip((pageNumber - 1) * pageSize)
@@ -44,7 +61,7 @@ class BlogsQueryRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (id) {
-                    const foundBlog = yield db_1.blogsCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+                    const foundBlog = yield this.mongoDB.blogsCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
                     if (foundBlog) {
                         return yield this._blogMapForRender(foundBlog);
                     }
@@ -65,7 +82,7 @@ class BlogsQueryRepository {
                 filter.name = { $regex: searchNameTerm, $options: 'i' };
             }
             try {
-                return yield db_1.blogsCollection.countDocuments(filter);
+                return yield this.mongoDB.blogsCollection.countDocuments(filter);
             }
             catch (e) {
                 console.error(e);
@@ -112,6 +129,9 @@ class BlogsQueryRepository {
             };
         });
     }
-}
+};
 exports.BlogsQueryRepository = BlogsQueryRepository;
-exports.blogsQueryRepository = new BlogsQueryRepository();
+exports.BlogsQueryRepository = BlogsQueryRepository = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [db_1.MongoDBCollection])
+], BlogsQueryRepository);

@@ -1,9 +1,9 @@
 import request from "supertest";
-import { SETTINGS } from "../../../src/settings";
 import {app} from "../../../src/app";
 import { JwtPayload } from "jsonwebtoken";
 import { CreateUserModel } from "../../../src/services/users/Users_DTO/CreateUserModel";
 import { HTTP_STATUSES, HttpStatusType } from "../../../src/shared/utils/utils";
+import { SETTINGS } from "../../../src/shared/settings";
 
 export const getRequest = () => {
     return request(app)

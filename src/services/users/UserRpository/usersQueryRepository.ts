@@ -1,11 +1,20 @@
-import { ObjectId, SortDirection } from "mongodb";
-import { usersCollection } from "../../../db";
+import 'reflect-metadata';
+import { ObjectId, SortDirection } from "mongodb";;
 import { URIParamsUserIdModel } from "../Users_DTO/URIParamsUserIdModel";
 import { ResponseUserType, UserType, UserTypeDB } from "../Users_DTO/userTypes";
 import { RequestWithParams, RequestWithQuery } from "../../../shared/types/typesGeneric";
 import { sanitizedQueryType } from "../../../shared/types/types";
+import { injectable } from "inversify";
+// import { usersCollection } from '../../../db';
+import { MongoDBCollection } from "../../../db";
 
+@injectable()
 export class UsersQueryRepository {
+    constructor(
+        // @inject(TYPES.MongoDBCollection)
+        private mongoDB: MongoDBCollection
+    ) { }
+
     async getAllUsersRepository(req: RequestWithParams<URIParamsUserIdModel> & RequestWithQuery<{ [key: string]: string | undefined }>): Promise<ResponseUserType | null> {
         const sanitizedQuery: sanitizedQueryType = await this._helper(req.query)
         // console.log('sanitizedQuery: ', sanitizedQuery)
@@ -36,14 +45,14 @@ export class UsersQueryRepository {
             // console.log('Filter:', filter);
 
             // Выполняем запрос с корректным фильтром
-            const users = await usersCollection
+            const users = await this.mongoDB.usersCollection
                 .find(filter)
                 .sort({ [sortBy]: sortDirectionValue })
                 .skip((pageNumber - 1) * pageSize)
                 .limit(pageSize)
                 .toArray();
 
-            const totalCount = await usersCollection.countDocuments(filter);
+            const totalCount = await this.mongoDB.usersCollection.countDocuments(filter);
 
             const result = await this._arrUsersMapForRender(sanitizedQuery, users, totalCount);
             // console.log('Result:', result);
@@ -57,7 +66,7 @@ export class UsersQueryRepository {
     }
     async getUserByIdRepository(id: string): Promise<UserType | any> {
         try {
-            const getUser = await usersCollection.findOne({ _id: new ObjectId(id) })
+            const getUser = await this.mongoDB.usersCollection.findOne({ _id: new ObjectId(id) })
             if (getUser) { return this._userMapForRender(getUser) }
         } catch (error) {
             // console.error(error)
@@ -66,7 +75,7 @@ export class UsersQueryRepository {
     }
     async getUserByLoginOrEmail(loginOrEmail: string): Promise<UserType | any> {
         try {
-            const getUser = await usersCollection.findOne({
+            const getUser = await this.mongoDB.usersCollection.findOne({
                 $or: [
                     { login: loginOrEmail },
                     { email: loginOrEmail }
@@ -97,7 +106,7 @@ export class UsersQueryRepository {
             filter.$or = orConditions;
         }
         try {
-            return await usersCollection.countDocuments(filter)
+            return await this.mongoDB.usersCollection.countDocuments(filter)
         } catch (error) {
             console.error(error);
             return 0;
@@ -137,4 +146,3 @@ export class UsersQueryRepository {
         }
     }
 }
-export const usersQueryRepository = new UsersQueryRepository()

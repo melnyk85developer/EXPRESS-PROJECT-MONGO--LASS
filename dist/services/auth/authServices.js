@@ -15,12 +15,21 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
     if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -35,24 +44,49 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authServices = exports.AuthServices = void 0;
+exports.AuthServices = void 0;
+require("reflect-metadata");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const mongodb_1 = require("mongodb");
-const usersQueryRepository_1 = require("../users/UserRpository/usersQueryRepository");
-const utils_1 = require("../../shared/utils/utils");
-const usersServices_1 = require("../users/usersServices");
-const db_1 = require("../../db");
-const usersRepository_1 = require("../users/UserRpository/usersRepository");
 const date_fns_1 = require("date-fns");
 const uuid = __importStar(require("uuid"));
-const securityDeviceService_1 = require("../usersSessions/securityDeviceService");
+const mongodb_1 = require("mongodb");
+const utils_1 = require("../../shared/utils/utils");
 const emailAdapter_1 = require("../../shared/infrastructure/emailAdapter");
+const inversify_1 = require("inversify");
+const usersServices_1 = require("../users/usersServices");
+const usersRepository_1 = require("../users/UserRpository/usersRepository");
+const usersQueryRepository_1 = require("../users/UserRpository/usersQueryRepository");
+const securityDeviceService_1 = require("../usersSessions/securityDeviceService");
 const tokenService_1 = require("../../shared/infrastructure/tokenService");
-class AuthServices {
-    registration(login, password, email) {
+// import { usersCollection } from '../../db';
+const db_1 = require("../../db");
+let AuthServices = class AuthServices {
+    constructor(
+    // @inject(TYPES.MongoDBCollection)
+    mongoDB, 
+    // @inject(new LazyServiceIdentifer(() => TYPES.UserService))
+    usersServices, 
+    // @inject(TYPES.UsersRepository)
+    usersRepository, 
+    // @inject(TYPES.UsersQueryRepository)
+    usersQueryRepository, 
+    // @inject(TYPES.SecurityDeviceServices)
+    securityDeviceServices, 
+    // @inject(TYPES.TokenService)
+    tokenService) {
+        this.mongoDB = mongoDB;
+        this.usersServices = usersServices;
+        this.usersRepository = usersRepository;
+        this.usersQueryRepository = usersQueryRepository;
+        this.securityDeviceServices = securityDeviceServices;
+        this.tokenService = tokenService;
+    }
+    registrationServices(login, password, email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const isLogin = yield usersServices_1.usersServices._getUserByLoginOrEmail(login);
-            const isEmail = yield usersServices_1.usersServices._getUserByLoginOrEmail(email);
+            // console.log('registrationServices - login, password, email', login, password, email)
+            const isLogin = yield this.usersServices._getUserByLoginOrEmail(login);
+            const isEmail = yield this.usersServices._getUserByLoginOrEmail(email);
+            // console.log('registrationServices - isLogin, isEmail: ', isLogin, isEmail)
             if (!isLogin && !isEmail) {
                 const date = new Date();
                 // date.setMilliseconds(0)
@@ -74,7 +108,7 @@ class AuthServices {
                         isConfirmed: false
                     }
                 };
-                const crestedUser = yield usersServices_1.usersServices.createUserServices(createUser);
+                const crestedUser = yield this.usersServices.createUserServices(createUser);
                 // console.log('crestedUser: - ', crestedUser)
                 const from = `IT-INCUBATOR <${process.env.SMTP_USER}>`;
                 const to = email;
@@ -95,7 +129,7 @@ class AuthServices {
                     .catch(() => console.log('Ошибка отправки сообщения на E-Mail'));
                 if (!isSend) {
                     if (crestedUser.insertedId) {
-                        yield usersServices_1.usersServices.deleteUserServices(crestedUser.insertedId.toString());
+                        yield this.usersServices.deleteUserServices(crestedUser.insertedId.toString());
                     }
                     return null;
                 }
@@ -111,15 +145,15 @@ class AuthServices {
     }
     loginServices(userId, ip, userAgent) {
         return __awaiter(this, void 0, void 0, function* () {
-            const session = yield securityDeviceService_1.securityDeviceServices.createSessionServices(userId, ip, userAgent);
+            const session = yield this.securityDeviceServices.createSessionServices(userId, ip, userAgent);
             return session;
         });
     }
     logoutServices(userId, refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userToken = yield tokenService_1.tokenService.validateRefreshToken(refreshToken);
-            const session = yield securityDeviceService_1.securityDeviceServices.deleteSessionByDeviceIdServices(userId, userToken.deviceId);
-            const isSaveRefreshTokenBlackList = yield tokenService_1.tokenService.saveRefreshTokenBlackList(userId, refreshToken);
+            const userToken = yield this.tokenService.validateRefreshToken(refreshToken);
+            const session = yield this.securityDeviceServices.deleteSessionByDeviceIdServices(userId, userToken.deviceId);
+            const isSaveRefreshTokenBlackList = yield this.tokenService.saveRefreshTokenBlackList(userId, refreshToken);
             if (session.acknowledged && isSaveRefreshTokenBlackList.acknowledged) {
                 return session.acknowledged;
             }
@@ -134,11 +168,11 @@ class AuthServices {
                 const currentDate = new Date().toISOString();
                 return Number(expirationDate) < Number(currentDate);
             };
-            const userToken = yield tokenService_1.tokenService.validateRefreshToken(refreshToken);
+            const userToken = yield this.tokenService.validateRefreshToken(refreshToken);
             if (!userToken) {
                 return utils_1.INTERNAL_STATUS_CODE.REFRESH_TOKEN_VALIDATION_ERROR;
             }
-            const device = yield securityDeviceService_1.securityDeviceServices._getSessionByDeviceIdServices(userToken.deviceId);
+            const device = yield this.securityDeviceServices._getSessionByDeviceIdServices(userToken.deviceId);
             if (!device) {
                 return utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND;
             }
@@ -149,9 +183,9 @@ class AuthServices {
             // console.log('refreshTokenOrSessionService: - noExpSession', noExpSession)
             // console.log('refreshTokenOrSessionService: - device.lastActiveDate IF', device.lastActiveDate === new Date((userToken! as JwtPayload & { iat: number }).iat).toISOString())
             if (noExpSession && device.lastActiveDate === new Date(userToken.iat).toISOString()) {
-                const isSaveRefreshTokenBlackList = yield tokenService_1.tokenService.saveRefreshTokenBlackList(userId, refreshToken);
+                const isSaveRefreshTokenBlackList = yield this.tokenService.saveRefreshTokenBlackList(userId, refreshToken);
                 if (isSaveRefreshTokenBlackList.acknowledged) {
-                    const isUpdatedSession = yield securityDeviceService_1.securityDeviceServices.updateSessionServices(userId, ip, userAgent, String(userToken.deviceId));
+                    const isUpdatedSession = yield this.securityDeviceServices.updateSessionServices(userId, ip, userAgent, String(userToken.deviceId));
                     if (isUpdatedSession) {
                         return isUpdatedSession;
                     }
@@ -170,7 +204,7 @@ class AuthServices {
     }
     confirmEmail(code) {
         return __awaiter(this, void 0, void 0, function* () {
-            let user = yield usersServices_1.usersServices._findUserByConfirmationCode(code);
+            let user = yield this.usersServices._findUserByConfirmationCode(code);
             if (!user)
                 return false;
             if (user.emailConfirmation.isConfirmed)
@@ -181,7 +215,7 @@ class AuthServices {
             const currentDate = new Date();
             if (expirationDate < currentDate)
                 return false;
-            return yield usersRepository_1.usersRepository.updateConfirmationUserRepository(user._id);
+            return yield this.usersRepository.updateConfirmationUserRepository(user._id);
         });
     }
     emailResending(email) {
@@ -208,7 +242,7 @@ class AuthServices {
                 <a href="${process.env.API_URL}/auth/confirm-email?code=${confirmationCode}">Заблокировать</a>
             </button>
         </div>`;
-            const getUser = yield usersServices_1.usersServices._getUserByEmail(email);
+            const getUser = yield this.usersServices._getUserByEmail(email);
             if (!getUser)
                 return null;
             if (getUser.emailConfirmation.isConfirmed)
@@ -217,15 +251,15 @@ class AuthServices {
                 .catch(() => console.log('Ошибка отправки сообщения на E-Mail'));
             if (!isSend)
                 return null;
-            return yield usersServices_1.usersServices.updateResendingUserServices(String(getUser._id), confirmationCode);
+            return yield this.usersServices.updateResendingUserServices(String(getUser._id), confirmationCode);
         });
     }
     me(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getUser = yield db_1.usersCollection.findOne({ _id: new mongodb_1.ObjectId(userId) });
+                const getUser = yield this.mongoDB.usersCollection.findOne({ _id: new mongodb_1.ObjectId(userId) });
                 if (getUser) {
-                    const userInfo = usersQueryRepository_1.usersQueryRepository._userMapForRender(getUser);
+                    const userInfo = this.usersQueryRepository._userMapForRender(getUser);
                     return {
                         email: userInfo.email,
                         login: userInfo.login,
@@ -241,7 +275,7 @@ class AuthServices {
     }
     _isAuthServiceForMiddleware(loginOrEmail, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield usersServices_1.usersServices._getUserByLoginOrEmail(loginOrEmail);
+            const user = yield this.usersServices._getUserByLoginOrEmail(loginOrEmail);
             if (!user)
                 return null;
             // TODO Написать смс: Активируйте аккаунт!
@@ -255,6 +289,14 @@ class AuthServices {
             }
         });
     }
-}
+};
 exports.AuthServices = AuthServices;
-exports.authServices = new AuthServices();
+exports.AuthServices = AuthServices = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [db_1.MongoDBCollection,
+        usersServices_1.UserService,
+        usersRepository_1.UsersRepository,
+        usersQueryRepository_1.UsersQueryRepository,
+        securityDeviceService_1.SecurityDeviceServices,
+        tokenService_1.TokenService])
+], AuthServices);

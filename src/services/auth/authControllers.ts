@@ -1,28 +1,41 @@
+import "reflect-metadata";
 import express, { Response } from 'express';
+import { TYPES } from '../../shared/container/types';
+import { inject, injectable } from 'inversify';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
 import { CreateUserModel } from '../users/Users_DTO/CreateUserModel';
-import { authServices } from './authServices';
 import { UserType } from '../users/Users_DTO/userTypes';
-import { usersQueryRepository } from '../users/UserRpository/usersQueryRepository';
 import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
 import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
-import { confirmationEmailMiddlewares, loginMiddlewares, logoutMiddlewares, meMiddlewares, refreshTokenMiddlewares, registrationConfirmMiddlewares, registrationEmailResendingMiddlewares, registrationMiddlewares } from './AuthMiddlewares/authArrayMiddlewares';
-import * as uuid from 'uuid';
-import { JwtPayload } from 'jsonwebtoken';
 import { RequestWithParams } from '../../shared/types/typesGeneric';
+import { AuthServices } from './authServices';
+import { UsersQueryRepository } from '../users/UserRpository/usersQueryRepository';
+import * as uuid from 'uuid';
 
+@injectable()
 export class AuthControllers {
-    async registration(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | number>) {
-        const result = await authServices.registration(
+    constructor(
+        // @inject(AuthServices)
+        public readonly  authServices: AuthServices,
+        // @inject(TYPES.UsersQueryRepository)
+        public readonly  usersQueryRepository: UsersQueryRepository,
+    ) { }
+    async registrationController(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | number>) {
+        // console.log('AuthControllers - data 😡',
+        //     req.body.login,
+        //     req.body.password,
+        //     req.body.email
+        // )
+        const result = await this.authServices.registrationServices(
             req.body.login,
             req.body.password,
             req.body.email
         )
-        // console.log('result: - ', result)
+        console.log('AuthControllers - registration: - result ', result)
         if (result.insertedId) {
-            const foundUser: UserType | null = await usersQueryRepository.getUserByIdRepository(
+            const foundUser: UserType | null = await this.usersQueryRepository.getUserByIdRepository(
                 result.insertedId
-            );
+            )
             if (foundUser) {
                 return SuccessfulResponse(res, INTERNAL_STATUS_CODE.NO_CONTENT)
             }
@@ -30,7 +43,7 @@ export class AuthControllers {
             return ResErrorsSwitch(res, result)
         }
     }
-    async login(req: RequestWithParams<any>, res: Response<any>) {
+    async loginControllers(req: RequestWithParams<any>, res: Response<any>) {
         // @ts-ignore
         // console.log('authControllers: login - userId', String(req.user._id))
         let ip;
@@ -39,7 +52,7 @@ export class AuthControllers {
         req.ip ? ip = req.ip : ip = `There's no ip address on the darknet`
         req.headers['user-agent'] ? title = req.headers['user-agent'] : title = `device unknown='${uuid.v4()}'`
         // @ts-ignore
-        const result = await authServices.loginServices(String(req.user._id), ip, title)
+        const result = await this.authServices.loginServices(String(req.user._id), ip, title)
         // console.log('authControllers: result - ', result)
 
         if (result) {
@@ -54,10 +67,10 @@ export class AuthControllers {
                 .json({ "accessToken": result.accessToken })
         }
     }
-    async logout(req: RequestWithParams<CreateUserModel>, res: Response<any>) {
+    async logoutControllers(req: RequestWithParams<CreateUserModel>, res: Response<any>) {
         // console.log('authControllers: - logout', String(req.user!.id))
 
-        const isLogout = await authServices.logoutServices(
+        const isLogout = await this.authServices.logoutServices(
             String(req.user!.id),
             req.cookies.refreshToken
         )
@@ -68,10 +81,10 @@ export class AuthControllers {
             return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_WHEN_ADDING_A_TOKEN_TO_THE_BLACKLIST)
         }
     }
-    async refresh(req: RequestWithParams<any>, res: Response<any>) {
+    async refreshControllers(req: RequestWithParams<any>, res: Response<any>) {
         // console.log('authControllers: - refresh-token', String(req.user!.id))
 
-        const isRefresh = await authServices.refreshTokenOrSessionService(
+        const isRefresh = await this.authServices.refreshTokenOrSessionService(
             req.ip ? req.ip : `There's no ip address on the darknet`,
             req.headers['user-agent'] ? req.headers['user-agent'] : `device unknown='${uuid.v4()}'`,
             String(req.user!.id),
@@ -96,30 +109,32 @@ export class AuthControllers {
         }
 
     }
-    async confirmationEmail(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | string | any>) {
-        const result = await authServices.confirmEmail(req.query.code)
+    async confirmationEmailControllers(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | string | any>) {
+        const result = await this.authServices.confirmEmail(req.query.code)
         if (result) {
             return SuccessfulResponse(res, INTERNAL_STATUS_CODE.ACCOUNT_SUCCESSFULLY_CONFIRMED)
         } else {
             return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BAD_REQUEST_THE_CONFIRMATION_CODE_IS_INCORRECT)
         }
     }
-    async registrationConfirmation(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | string | any>) {
-        const result = await authServices.confirmEmail(req.body.code)
+    async registrationConfirmationControllers(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | string | any>) {
+        const result = await this.authServices.confirmEmail(req.body.code)
         if (result) {
             return SuccessfulResponse(res, INTERNAL_STATUS_CODE.ACCOUNT_SUCCESSFULLY_CONFIRMED)
         } else {
             return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BAD_REQUEST_THE_CONFIRMATION_CODE_IS_INCORRECT)
         }
     }
-    async registrationEmailResending(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | number>) {
-        const result = await authServices.emailResending(req.body.email);
-        if (result === null) { return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BAD_REQUEST_USER_NOT_FOUND_OR_EMAIL_ALREADY_CONFIRMED) }
+    async registrationEmailResendingControllers(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | number>) {
+        const result = await this.authServices.emailResending(req.body.email);
+        if (result === null) {
+            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BAD_REQUEST_USER_NOT_FOUND_OR_EMAIL_ALREADY_CONFIRMED)
+        }
         if (result === false) { return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNPROCESSABLE_ENTITY) }
         return SuccessfulResponse(res, INTERNAL_STATUS_CODE.NO_CONTENT)
     }
-    async me(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | string>) {
-        const authUser = await authServices.me(String(req.user!.id))
+    async meControllers(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | string>) {
+        const authUser = await this.authServices.me(String(req.user!.id))
         if (authUser) {
             return SuccessfulResponse(res, INTERNAL_STATUS_CODE.SUCCESS, '', authUser)
         } else {
@@ -127,4 +142,3 @@ export class AuthControllers {
         }
     }
 }
-export const authController = new AuthControllers()

@@ -1,12 +1,21 @@
+import "reflect-metadata"
 import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
-import { devicesCollection, usersCollection } from "../../../db";
 import { add } from "date-fns";
 import { SessionType } from "../Sessions_DTO/sessionsType";
+import { injectable } from "inversify";
+// import { devicesCollection } from "../../../db";
+import { MongoDBCollection } from "../../../db";
 
+@injectable()
 export class UserSessionsRepository {
+    constructor(
+        // @inject(TYPES.MongoDBCollection)
+        private mongoDB: MongoDBCollection
+    ) { }
+
     async createSessionsRepository(session: SessionType): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | any> {
         try {
-            return await devicesCollection.insertOne(session)
+            return await this.mongoDB.devicesCollection.insertOne(session)
         } catch (error) {
             console.error(error)
             return null
@@ -14,7 +23,7 @@ export class UserSessionsRepository {
     }
     async updateSessionsRepository(session: SessionType): Promise<UpdateResult | null> {
         try {
-            const isUpdateSessionRepository = await devicesCollection.updateOne(
+            const isUpdateSessionRepository = await this.mongoDB.devicesCollection.updateOne(
                 { deviceId: session.deviceId },
                 { $set: session } // Используем $set для обновления полей
             );
@@ -27,7 +36,7 @@ export class UserSessionsRepository {
     }
     async deleteSessionsByDeviceIdRepository(userId: string, deviceId: string): Promise<DeleteResult | null> {
         try {
-            const isDeleted = await devicesCollection.deleteOne({ userId, deviceId })
+            const isDeleted = await this.mongoDB.devicesCollection.deleteOne({ userId, deviceId })
             // console.log('deleteSessionsByDeviceIdRepository: - isDeleted', isDeleted)
             return isDeleted
         } catch (error) {
@@ -38,7 +47,7 @@ export class UserSessionsRepository {
     async deleteAllSessionsRepository(userId: string, deviceId: string): Promise<{ statusCode: number, message: string } | any> {
         // console.log('deleteAllSessionsRepository: - userId & deviceId', userId, deviceId)
         try {
-            return await devicesCollection.deleteMany({
+            return await this.mongoDB.devicesCollection.deleteMany({
                 userId,
                 deviceId: { $ne: deviceId } // Удаляем все, где deviceId НЕ равно переданному
             });
@@ -49,7 +58,7 @@ export class UserSessionsRepository {
     }
     async _getAllSessionyUsersRepository(): Promise<any> {
         try {
-            return await devicesCollection.find().toArray();
+            return await this.mongoDB.devicesCollection.find().toArray();
         } catch (error) {
             console.error(error)
             return null
@@ -57,7 +66,7 @@ export class UserSessionsRepository {
     }
     async _getAllSessionByUserIdRepository(userId: string): Promise<any> {
         try {
-            return await devicesCollection.find({ userId }).toArray();
+            return await this.mongoDB.devicesCollection.find({ userId }).toArray();
         } catch (error) {
             console.error(error);
             return error;
@@ -65,7 +74,7 @@ export class UserSessionsRepository {
     }
     async _getSessionByUserIdRepository(userId: string, deviceId: string): Promise<any> {
         try {
-            const session = await devicesCollection.findOne({ userId, deviceId });
+            const session = await this.mongoDB.devicesCollection.findOne({ userId, deviceId });
             // console.log('_getSessionByUserIdRepository session: - ', session)
             return session
         } catch (error) {
@@ -75,7 +84,7 @@ export class UserSessionsRepository {
     }
     async _getSessionDeviceByIdRepository(deviceId: string): Promise<{ statusCode: number, message: string } | string> {
         try {
-            const device = await devicesCollection.findOne({ deviceId }); // Ищем по deviceId
+            const device = await this.mongoDB.devicesCollection.findOne({ deviceId }); // Ищем по deviceId
             // console.log('_getSessionDeviceByIdRepository: - device', device)
             return device
         } catch (error) {
@@ -84,4 +93,3 @@ export class UserSessionsRepository {
         }
     }
 }
-export const userSessionsRepository = new UserSessionsRepository()

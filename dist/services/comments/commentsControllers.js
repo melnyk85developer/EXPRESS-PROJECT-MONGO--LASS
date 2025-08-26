@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,16 +18,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commentsController = exports.CommentsControllers = void 0;
+exports.CommentsControllers = void 0;
+require("reflect-metadata");
 const utils_1 = require("../../shared/utils/utils");
-const commentsServices_1 = require("./commentsServices");
-const commentsQueryRepository_1 = require("./CommentRepository/commentsQueryRepository");
 const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
 const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
-class CommentsControllers {
+const inversify_1 = require("inversify");
+const commentsServices_1 = require("./commentsServices");
+const commentsQueryRepository_1 = require("./CommentRepository/commentsQueryRepository");
+let CommentsControllers = class CommentsControllers {
+    constructor(
+    // @inject(TYPES.CommentsServices)
+    commentsServices, 
+    // @inject(TYPES.CommentsQueryRepository)
+    commentsQueryRepository) {
+        this.commentsServices = commentsServices;
+        this.commentsQueryRepository = commentsQueryRepository;
+    }
     getCommentByIdController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundComment = yield commentsQueryRepository_1.commentsQueryRepository.getCommentByIdRepository(req.params.id);
+            const foundComment = yield this.commentsQueryRepository.getCommentByIdRepository(req.params.id);
             if (foundComment && foundComment.id) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, foundComment);
             }
@@ -29,7 +48,7 @@ class CommentsControllers {
     }
     updateCommentController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updateComment = yield commentsServices_1.commentsServices.updateCommentServices(req.params.commentId, req.user.id, req.body);
+            const updateComment = yield this.commentsServices.updateCommentServices(req.params.commentId, req.user.id, req.body);
             if (updateComment.acknowledged === true) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_COMMENT);
             }
@@ -40,7 +59,7 @@ class CommentsControllers {
     }
     deleteCommentController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const commsnt = yield commentsServices_1.commentsServices.deleteCommentServices(req.params.commentId, req.user.id);
+            const commsnt = yield this.commentsServices.deleteCommentServices(req.params.commentId, req.user.id);
             if (commsnt && commsnt.acknowledged === true) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_COMMENT);
             }
@@ -49,6 +68,10 @@ class CommentsControllers {
             }
         });
     }
-}
+};
 exports.CommentsControllers = CommentsControllers;
-exports.commentsController = new CommentsControllers();
+exports.CommentsControllers = CommentsControllers = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [commentsServices_1.CommentsServices,
+        commentsQueryRepository_1.CommentsQueryRepository])
+], CommentsControllers);

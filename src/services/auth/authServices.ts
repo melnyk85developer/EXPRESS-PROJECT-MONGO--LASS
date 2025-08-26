@@ -1,23 +1,42 @@
+import 'reflect-metadata';
 import bcrypt from 'bcrypt';
-import { ObjectId, UpdateResult } from "mongodb";
-import { usersQueryRepository } from "../users/UserRpository/usersQueryRepository";
-import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
-import { usersServices } from '../users/usersServices';
-import { usersCollection } from '../../db';
-import { UserType, UserTypeDB } from '../users/Users_DTO/userTypes';
-import { usersRepository } from '../users/UserRpository/usersRepository';
 import { add } from "date-fns";
 import * as uuid from 'uuid';
-import { securityDeviceServices } from '../usersSessions/securityDeviceService';
+import { ObjectId, UpdateResult } from "mongodb";
+import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
+import { UserType, UserTypeDB } from '../users/Users_DTO/userTypes';
 import { JwtPayload } from 'jsonwebtoken';
 import { emailAdapter } from '../../shared/infrastructure/emailAdapter';
-import { tokenService } from '../../shared/infrastructure/tokenService';
+import { injectable } from 'inversify';
+import { UserService } from '../users/usersServices';
+import { UsersRepository } from '../users/UserRpository/usersRepository';
+import { UsersQueryRepository } from '../users/UserRpository/usersQueryRepository';
+import { SecurityDeviceServices } from '../usersSessions/securityDeviceService';
+import { TokenService } from '../../shared/infrastructure/tokenService';
+// import { usersCollection } from '../../db';
+import { MongoDBCollection } from '../../db';
 
+@injectable()
 export class AuthServices {
-    async registration(login: string, password: string, email: string): Promise<UserType | null | any> {
-        const isLogin = await usersServices._getUserByLoginOrEmail(login)
-        const isEmail = await usersServices._getUserByLoginOrEmail(email)
-
+    constructor(
+        // @inject(TYPES.MongoDBCollection)
+        private mongoDB: MongoDBCollection,
+        // @inject(new LazyServiceIdentifer(() => TYPES.UserService))
+        private readonly usersServices: UserService,
+        // @inject(TYPES.UsersRepository)
+        private readonly usersRepository: UsersRepository,
+        // @inject(TYPES.UsersQueryRepository)
+        private readonly usersQueryRepository: UsersQueryRepository,
+        // @inject(TYPES.SecurityDeviceServices)
+        private readonly securityDeviceServices: SecurityDeviceServices,
+        // @inject(TYPES.TokenService)
+        private readonly tokenService: TokenService,
+    ) { }
+    async registrationServices(login: string, password: string, email: string): Promise<UserType | null | any> {
+        // console.log('registrationServices - login, password, email', login, password, email)
+        const isLogin = await this.usersServices._getUserByLoginOrEmail(login)
+        const isEmail = await this.usersServices._getUserByLoginOrEmail(email)
+        // console.log('registrationServices - isLogin, isEmail: ', isLogin, isEmail)
         if (!isLogin && !isEmail) {
             const date = new Date()
             // date.setMilliseconds(0)
@@ -39,7 +58,7 @@ export class AuthServices {
                     isConfirmed: false
                 }
             }
-            const crestedUser = await usersServices.createUserServices(createUser as unknown as UserTypeDB)
+            const crestedUser = await this.usersServices.createUserServices(createUser as unknown as UserTypeDB)
             // console.log('crestedUser: - ', crestedUser)
             const from = `IT-INCUBATOR <${process.env.SMTP_USER}>`
             const to = email
@@ -61,7 +80,7 @@ export class AuthServices {
                 .catch(() => console.log('Ошибка отправки сообщения на E-Mail'))
             if (!isSend) {
                 if (crestedUser.insertedId) {
-                    await usersServices.deleteUserServices(crestedUser.insertedId.toString())
+                    await this.usersServices.deleteUserServices(crestedUser.insertedId.toString())
                 }
                 return null
             }
@@ -75,16 +94,16 @@ export class AuthServices {
         }
     }
     async loginServices(userId: string, ip: string, userAgent: string): Promise<any> {
-        const session = await securityDeviceServices.createSessionServices(userId, ip, userAgent)
+        const session = await this.securityDeviceServices.createSessionServices(userId, ip, userAgent)
         return session
     }
     async logoutServices(userId: string, refreshToken: string): Promise<any> {
-        const userToken = await tokenService.validateRefreshToken(refreshToken);
-        const session = await securityDeviceServices.deleteSessionByDeviceIdServices(
+        const userToken = await this.tokenService.validateRefreshToken(refreshToken);
+        const session = await this.securityDeviceServices.deleteSessionByDeviceIdServices(
             userId,
             (userToken! as JwtPayload & { deviceId: string }).deviceId
         )
-        const isSaveRefreshTokenBlackList = await tokenService.saveRefreshTokenBlackList(
+        const isSaveRefreshTokenBlackList = await this.tokenService.saveRefreshTokenBlackList(
             userId,
             refreshToken
         );
@@ -100,11 +119,11 @@ export class AuthServices {
             const currentDate = new Date().toISOString();
             return Number(expirationDate) < Number(currentDate);
         };
-        const userToken = await tokenService.validateRefreshToken(refreshToken);
+        const userToken = await this.tokenService.validateRefreshToken(refreshToken);
 
         if (!userToken) { return INTERNAL_STATUS_CODE.REFRESH_TOKEN_VALIDATION_ERROR }
 
-        const device = await securityDeviceServices._getSessionByDeviceIdServices(
+        const device = await this.securityDeviceServices._getSessionByDeviceIdServices(
             (userToken as JwtPayload & { deviceId: string }).deviceId
         )
         if (!device) { return INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND }
@@ -119,12 +138,12 @@ export class AuthServices {
 
         if (noExpSession && device.lastActiveDate === new Date((userToken! as JwtPayload & { iat: number }).iat).toISOString()) {
 
-            const isSaveRefreshTokenBlackList = await tokenService.saveRefreshTokenBlackList(
+            const isSaveRefreshTokenBlackList = await this.tokenService.saveRefreshTokenBlackList(
                 userId,
                 refreshToken
             )
             if (isSaveRefreshTokenBlackList.acknowledged) {
-                const isUpdatedSession = await securityDeviceServices.updateSessionServices(
+                const isUpdatedSession = await this.securityDeviceServices.updateSessionServices(
                     userId,
                     ip,
                     userAgent,
@@ -143,14 +162,14 @@ export class AuthServices {
         }
     }
     async confirmEmail(code: any): Promise<boolean> {
-        let user = await usersServices._findUserByConfirmationCode(code)
+        let user = await this.usersServices._findUserByConfirmationCode(code)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
         if (user.emailConfirmation.confirmationCode !== code) return false
         const expirationDate = new Date(user.emailConfirmation.expirationDate)
         const currentDate = new Date()
         if (expirationDate < currentDate) return false
-        return await usersRepository.updateConfirmationUserRepository(user._id)
+        return await this.usersRepository.updateConfirmationUserRepository(user._id)
     }
     async emailResending(email: any): Promise<UpdateResult<{ acknowledged: boolean; insertedId: number; }> | null | boolean> {
         const confirmationCode = uuid.v4()
@@ -175,20 +194,20 @@ export class AuthServices {
                 <a href="${process.env.API_URL}/auth/confirm-email?code=${confirmationCode}">Заблокировать</a>
             </button>
         </div>`
-        const getUser = await usersServices._getUserByEmail(email)
+        const getUser = await this.usersServices._getUserByEmail(email)
         if (!getUser) return null
         if (getUser.emailConfirmation.isConfirmed) return null
         const isSend = emailAdapter.sendMail(from, to, subject, text, html)
             .catch(() => console.log('Ошибка отправки сообщения на E-Mail'))
         if (!isSend) return null
-        return await usersServices.updateResendingUserServices(String(getUser._id), confirmationCode as unknown as any)
+        return await this.usersServices.updateResendingUserServices(String(getUser._id), confirmationCode as unknown as any)
 
     }
     async me(userId: string): Promise<any> {
         try {
-            const getUser = await usersCollection.findOne({ _id: new ObjectId(userId) })
+            const getUser = await this.mongoDB.usersCollection.findOne({ _id: new ObjectId(userId) })
             if (getUser) {
-                const userInfo = usersQueryRepository._userMapForRender(getUser)
+                const userInfo = this.usersQueryRepository._userMapForRender(getUser)
                 return {
                     email: userInfo.email,
                     login: userInfo.login,
@@ -201,7 +220,7 @@ export class AuthServices {
         }
     }
     async _isAuthServiceForMiddleware(loginOrEmail: string, password: string): Promise<any> {
-        const user = await usersServices._getUserByLoginOrEmail(loginOrEmail);
+        const user = await this.usersServices._getUserByLoginOrEmail(loginOrEmail);
         if (!user) return null
         // TODO Написать смс: Активируйте аккаунт!
         // if(!user.emailConfirmation.isConfirmed) return null
@@ -216,4 +235,3 @@ export class AuthServices {
         }
     }
 }
-export const authServices = new AuthServices()

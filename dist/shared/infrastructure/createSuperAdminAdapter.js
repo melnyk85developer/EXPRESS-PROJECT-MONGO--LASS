@@ -15,12 +15,21 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
     if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -32,16 +41,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.superAdminAdapter = void 0;
+exports.SuperAdminAdapter = void 0;
+require("reflect-metadata");
 const uuid = __importStar(require("uuid"));
 const date_fns_1 = require("date-fns");
-const usersServices_1 = require("../../services/users/usersServices");
+;
 const utils_1 = require("../utils/utils");
-exports.superAdminAdapter = {
+const inversify_1 = require("inversify");
+const usersServices_1 = require("../../services/users/usersServices");
+let SuperAdminAdapter = class SuperAdminAdapter {
+    constructor(
+    // @inject(TYPES.UserService)
+    usersServices) {
+        this.usersServices = usersServices;
+    }
     createUser(login, email, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const isLogin = yield usersServices_1.usersServices._getUserByLoginOrEmail(login);
-            const isEmail = yield usersServices_1.usersServices._getUserByLoginOrEmail(email);
+            const isLogin = yield this.usersServices._getUserByLoginOrEmail(login);
+            const isEmail = yield this.usersServices._getUserByLoginOrEmail(email);
             if (!isLogin && !isEmail) {
                 const date = new Date();
                 // date.setMilliseconds(0)
@@ -74,3 +91,8 @@ exports.superAdminAdapter = {
         });
     }
 };
+exports.SuperAdminAdapter = SuperAdminAdapter;
+exports.SuperAdminAdapter = SuperAdminAdapter = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [usersServices_1.UserService])
+], SuperAdminAdapter);

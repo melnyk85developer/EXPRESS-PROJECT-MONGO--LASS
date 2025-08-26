@@ -1,20 +1,25 @@
+import { authMiddlewares, commentsMiddlewares } from "../../../shared/container/compositionRootCustom";
+// import { container } from "../../../shared/container/iocRoot";
 import { inputValidationMiddleware } from "../../../shared/middlewares/input-validation-middleware";
-import { accessTokenMiddleware } from "../../auth/AuthMiddlewares/authGuardMiddleware";
+import { AuthMiddlewares } from "../../auth/AuthMiddlewares/authGuardMiddleware";
 import { commentsMiddleware } from "./commentsMiddlewares";
-import { commentCommentIdMiddleware, commentIdMiddleware } from "./isThereACommentValidation";
+import { СommentsMiddlewares } from "./isThereACommentValidation";
+
+// const commentsMiddlewares = container.resolve(СommentsMiddlewares)
+// const authMiddlewares = container.resolve(AuthMiddlewares)
 
 export const getCommentIdMiddlewares = [
-    commentIdMiddleware,
+    commentsMiddlewares.commentIdMiddleware,
     inputValidationMiddleware,
 ]
 export const updateCommentMiddlewares = [
-    accessTokenMiddleware,
-    commentCommentIdMiddleware,
+    authMiddlewares.accessTokenMiddleware,
+    commentsMiddlewares.commentCommentIdMiddleware,
     ...commentsMiddleware,
     inputValidationMiddleware,
 ]
 export const deleteCommentMiddlewares = [
-    accessTokenMiddleware,
-    commentCommentIdMiddleware,
+    authMiddlewares.accessTokenMiddleware,
+    commentsMiddlewares.commentCommentIdMiddleware,
     inputValidationMiddleware, 
 ]

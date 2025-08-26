@@ -4,14 +4,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postRouter = void 0;
+require("reflect-metadata");
 const express_1 = __importDefault(require("express"));
-const postControllers_1 = require("./postControllers");
 const postArrayMiddlewares_1 = require("./PostMiddlewares/postArrayMiddlewares");
+const compositionRootCustom_1 = require("../../shared/container/compositionRootCustom");
 exports.postRouter = express_1.default.Router();
-exports.postRouter.get('/', postArrayMiddlewares_1.getAllPostMiddlewares, postControllers_1.postsController.getAllPostsController);
-exports.postRouter.get('/:id', postArrayMiddlewares_1.getPostIdMiddlewares, postControllers_1.postsController.getPostByIdController);
-exports.postRouter.post('/', postArrayMiddlewares_1.postPostMiddlewares, postControllers_1.postsController.createPostController);
-exports.postRouter.get('/:postId/comments', postArrayMiddlewares_1.getPostIdAllCommentsMiddlewares, postControllers_1.postsController.getAllCommentsByPostIdController);
-exports.postRouter.post('/:postId/comments', postArrayMiddlewares_1.postPostIdCommentsMiddlewares, postControllers_1.postsController.createCommentByPostIdController);
-exports.postRouter.put('/:id', postArrayMiddlewares_1.updatePostMiddlewares, postControllers_1.postsController.updatePostController);
-exports.postRouter.delete('/:id', postArrayMiddlewares_1.deletePostMiddlewares, postControllers_1.postsController.deletePostController);
+// const postsControllers: PostsControllers = container.resolve(PostsControllers)
+exports.postRouter.get('/', postArrayMiddlewares_1.getAllPostMiddlewares, compositionRootCustom_1.postsControllers.getAllPostsController.bind(compositionRootCustom_1.postsControllers));
+exports.postRouter.get('/:id', postArrayMiddlewares_1.getPostIdMiddlewares, compositionRootCustom_1.postsControllers.getPostByIdController.bind(compositionRootCustom_1.postsControllers));
+exports.postRouter.post('/', postArrayMiddlewares_1.postPostMiddlewares, compositionRootCustom_1.postsControllers.createPostController.bind(compositionRootCustom_1.postsControllers));
+exports.postRouter.get('/:postId/comments', postArrayMiddlewares_1.getPostIdAllCommentsMiddlewares, compositionRootCustom_1.postsControllers.getAllCommentsByPostIdController.bind(compositionRootCustom_1.postsControllers));
+exports.postRouter.post('/:postId/comments', postArrayMiddlewares_1.postPostIdCommentsMiddlewares, compositionRootCustom_1.postsControllers.createCommentByPostIdController.bind(compositionRootCustom_1.postsControllers));
+exports.postRouter.put('/:id', postArrayMiddlewares_1.updatePostMiddlewares, compositionRootCustom_1.postsControllers.updatePostController.bind(compositionRootCustom_1.postsControllers));
+exports.postRouter.delete('/:id', postArrayMiddlewares_1.deletePostMiddlewares, compositionRootCustom_1.postsControllers.deletePostController.bind(compositionRootCustom_1.postsControllers));

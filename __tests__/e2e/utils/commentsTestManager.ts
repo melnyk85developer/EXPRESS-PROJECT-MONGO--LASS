@@ -1,10 +1,10 @@
-import { SETTINGS } from "../../../src/settings";
 import {app} from "../../../src/app";
 import request from "supertest";
 import { CreatePostModel } from "../../../src/services/posts/Post_DTO/CreatePostModel";
 import { CreateCommentModel } from "../../../src/services/comments/Comment_DTO/CreateCommentModel";
 import { UpdateCommentModel } from "../../../src/services/comments/Comment_DTO/UpdateCommentModel";
 import { HTTP_STATUSES, HttpStatusType } from "../../../src/shared/utils/utils";
+import { SETTINGS } from "../../../src/shared/settings";
 
 export const getRequest = () => {
     return request(app)

@@ -15,12 +15,24 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
     if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -32,13 +44,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersServices = exports.UserService = void 0;
-const mongodb_1 = require("mongodb");
-const usersRepository_1 = require("./UserRpository/usersRepository");
-const db_1 = require("../../db");
-const userTypes_1 = require("./Users_DTO/userTypes");
+exports.UserService = void 0;
+require("reflect-metadata");
 const bcrypt = __importStar(require("bcryptjs"));
-class UserService {
+const mongodb_1 = require("mongodb");
+const userTypes_1 = require("./Users_DTO/userTypes");
+const inversify_1 = require("inversify");
+const usersRepository_1 = require("./UserRpository/usersRepository");
+const usersQueryRepository_1 = require("./UserRpository/usersQueryRepository");
+// import { usersCollection } from '../../db';
+const db_1 = require("../../db");
+let UserService = class UserService {
+    constructor(mongoDB, usersRepository, usersQueryRepository) {
+        this.mongoDB = mongoDB;
+        this.usersRepository = usersRepository;
+        this.usersQueryRepository = usersQueryRepository;
+    }
     createUserServices(user) {
         return __awaiter(this, void 0, void 0, function* () {
             const { accountData, emailConfirmation } = user;
@@ -53,7 +74,7 @@ class UserService {
                     expirationDate: emailConfirmation.expirationDate,
                     isConfirmed: emailConfirmation.isConfirmed
                 });
-                return yield usersRepository_1.usersRepository.createUserRepository(createUser);
+                return yield this.usersRepository.createUserRepository(createUser);
             }
         });
     }
@@ -63,24 +84,24 @@ class UserService {
                 login: body.login,
                 email: body.email
             };
-            return yield usersRepository_1.usersRepository.updateUserRepository(id, updatedUser);
+            return yield this.usersRepository.updateUserRepository(id, updatedUser);
         });
     }
     updateResendingUserServices(id, confirmationCode) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield usersRepository_1.usersRepository.updateResendingUserRepository(id, confirmationCode);
+            return yield this.usersRepository.updateResendingUserRepository(id, confirmationCode);
         });
     }
     deleteUserServices(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield usersRepository_1.usersRepository.deleteUserRepository(id);
+            return yield this.usersRepository.deleteUserRepository(id);
         });
     }
     _getUserByIdRepo(id) {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('_getUserByIdRepo: - ', id)
             try {
-                return yield db_1.usersCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+                return yield this.mongoDB.usersCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
             }
             catch (error) {
                 // console.error(error)
@@ -91,7 +112,7 @@ class UserService {
     _getUserByLoginOrEmail(loginOrEmail) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getUser = yield db_1.usersCollection.findOne({
+                const getUser = yield this.mongoDB.usersCollection.findOne({
                     $or: [
                         { 'accountData.userName': loginOrEmail },
                         { 'accountData.email': loginOrEmail },
@@ -110,7 +131,7 @@ class UserService {
     _getUserByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getUser = yield db_1.usersCollection.findOne({ 'accountData.email': email });
+                const getUser = yield this.mongoDB.usersCollection.findOne({ 'accountData.email': email });
                 if (getUser) {
                     return getUser;
                 }
@@ -124,7 +145,7 @@ class UserService {
     _findUserByConfirmationCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getUser = yield db_1.usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
+                const getUser = yield this.mongoDB.usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
                 // console.log('_findUserByConfirmationCode - ', getUser)
                 if (getUser) {
                     return getUser;
@@ -136,6 +157,14 @@ class UserService {
             }
         });
     }
-}
+};
 exports.UserService = UserService;
-exports.usersServices = new UserService();
+exports.UserService = UserService = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(db_1.MongoDBCollection)),
+    __param(1, (0, inversify_1.inject)(usersRepository_1.UsersRepository)),
+    __param(2, (0, inversify_1.inject)(usersQueryRepository_1.UsersQueryRepository)),
+    __metadata("design:paramtypes", [db_1.MongoDBCollection,
+        usersRepository_1.UsersRepository,
+        usersQueryRepository_1.UsersQueryRepository])
+], UserService);

@@ -1,11 +1,25 @@
-import { SETTINGS } from "../../src/settings";
-import { app } from '../../src/app';
-import { authServices } from "../../src/services/auth/authServices";
+import 'reflect-metadata';
+// import { container } from "../../src/shared/container/iocRoot";
+import { AuthServices } from "../../src/services/auth/authServices";
+import { TokenService } from "../../src/shared/infrastructure/tokenService";
+// import { MongoDBCollection } from '../../src/db';
+// import { authServices, tokenService } from "../../src/shared/container/compositionRootCustom";
 import request from "supertest";
 import * as uuid from 'uuid';
+import { SETTINGS } from "../../src/shared/settings";
+import { app } from '../../src/app';
 import { emailAdapter } from "../../src/shared/infrastructure/emailAdapter";
-import { tokenService } from "../../src/shared/infrastructure/tokenService";
 import { INTERNAL_STATUS_CODE } from "../../src/shared/utils/utils";
+import { authServices, tokenService } from "../../src/shared/container/compositionRootCustom";
+
+// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
+// const authServices: AuthServices = container.resolve(AuthServices)
+// const tokenService: TokenService = container.resolve(TokenService)
+// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
+
+
+// const authServices: AuthServices = container.get(AuthServices)
+// const tokenService: TokenService = container.get(TokenService)
 
 export const getRequest = () => {
     return request(app);
@@ -18,6 +32,7 @@ describe('AUTH-INTEGRATION', () => {
     const deviceId = uuid.v4()
 
     beforeAll(async () => {
+        // await mongoDB.connectDB();
         await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`);
     });
 
@@ -28,7 +43,7 @@ describe('AUTH-INTEGRATION', () => {
         emailAdapter.sendMail = jest.fn((from, to, subject, text, html) => {
             return Promise.resolve(true)
         })
-        const result = await authServices.registration(login, password, email);
+        const result = await authServices.registrationServices(login, password, email);
         // Проверяем, что sendMail был вызван с правильными параметрами
         expect(emailAdapter.sendMail).toHaveBeenCalledWith(
             expect.any(String), // Проверка поля "from"
@@ -39,7 +54,7 @@ describe('AUTH-INTEGRATION', () => {
         );
         expect(result).not.toBeNull();
     });
-    
+
     it('Должен успешно создать access-token', async () => {
         const tokens = await tokenService.generateTokens(payload, deviceId); // Метод generateTokens должен возвращать оба токена
         accessToken = tokens.accessToken;
@@ -74,7 +89,7 @@ describe('AUTH-INTEGRATION', () => {
         const decoded = await tokenService.validateRefreshToken(invalidToken);
         expect(decoded).toBe(INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_REFRESH_TOKEN_FORMAT);
     });
-    
+
     it('Должен выбрасывать ошибку при неверном access-token', async () => {
         const invalidToken = 'Basic 245678901245678901123456';
         const decoded = await tokenService.validateAccessToken(invalidToken!);

@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,10 +18,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsQueryRepository = exports.PostsQueryRepository = void 0;
+exports.PostsQueryRepository = void 0;
+require("reflect-metadata");
 const mongodb_1 = require("mongodb");
+const inversify_1 = require("inversify");
+// import { postsCollection } from "../../../db";
 const db_1 = require("../../../db");
-class PostsQueryRepository {
+let PostsQueryRepository = class PostsQueryRepository {
+    constructor(
+    // @inject(TYPES.MongoDBCollection)
+    mongoDB) {
+        this.mongoDB = mongoDB;
+    }
     getAllPostsRepositories(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const { blogId } = req.params;
@@ -28,13 +45,13 @@ class PostsQueryRepository {
                 if (searchNameTerm) {
                     filter.title = { $regex: searchNameTerm, $options: 'i' };
                 }
-                const posts = yield db_1.postsCollection
+                const posts = yield this.mongoDB.postsCollection
                     .find(filter)
                     .sort({ [sortBy]: sortDirectionValue, _id: 1 })
                     .skip((pageNumber - 1) * pageSize)
                     .limit(pageSize)
                     .toArray();
-                return yield exports.postsQueryRepository._arrPostsMapForRender(sanitizedQuery, posts, totalCount);
+                return yield this._arrPostsMapForRender(sanitizedQuery, posts, totalCount);
             }
             catch (e) {
                 console.error(e);
@@ -46,10 +63,10 @@ class PostsQueryRepository {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('getPostByIdRepositories - ', id)
             try {
-                const getPost = yield db_1.postsCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+                const getPost = yield this.mongoDB.postsCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
                 // console.log('getPostByIdRepositories - res ', getPost)
                 if (getPost) {
-                    return yield exports.postsQueryRepository._postsMapForRender(getPost);
+                    return yield this._postsMapForRender(getPost);
                 }
             }
             catch (error) {
@@ -68,7 +85,7 @@ class PostsQueryRepository {
                 filter.title = { $regex: searchNameTerm, $options: 'i' };
             }
             try {
-                return yield db_1.postsCollection.countDocuments(filter);
+                return yield this.mongoDB.postsCollection.countDocuments(filter);
             }
             catch (e) {
                 console.error(e);
@@ -117,6 +134,9 @@ class PostsQueryRepository {
             };
         });
     }
-}
+};
 exports.PostsQueryRepository = PostsQueryRepository;
-exports.postsQueryRepository = new PostsQueryRepository();
+exports.PostsQueryRepository = PostsQueryRepository = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [db_1.MongoDBCollection])
+], PostsQueryRepository);

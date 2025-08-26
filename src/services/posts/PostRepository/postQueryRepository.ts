@@ -1,11 +1,20 @@
+import "reflect-metadata"
 import { ObjectId, SortDirection } from "mongodb";
-import { postsCollection } from "../../../db";
 import { URIParamsOnePostIdModel, URIParamsPostIdModel } from "../Post_DTO/URIParamsPostIdModel";
 import { PostType, PostTypeDB, ResponsePostsType } from "../Post_DTO/postType";
 import { RequestWithParams, RequestWithQuery } from "../../../shared/types/typesGeneric";
 import { sanitizedQueryType } from "../../../shared/types/types";
+import { injectable } from "inversify";
+// import { postsCollection } from "../../../db";
+import { MongoDBCollection } from "../../../db";
 
+@injectable()
 export class PostsQueryRepository {
+    constructor(
+        // @inject(TYPES.MongoDBCollection)
+        private mongoDB: MongoDBCollection,
+    ) { }
+
     async getAllPostsRepositories(req: RequestWithParams<URIParamsOnePostIdModel> & RequestWithQuery<{ [key: string]: string | undefined }>): Promise<ResponsePostsType | null> {
         const { blogId } = req.params;
         const sanitizedQuery: sanitizedQueryType = await this._helper(req.query)
@@ -16,13 +25,13 @@ export class PostsQueryRepository {
         try {
             if (blogId) { filter.blogId = blogId }
             if (searchNameTerm) { filter.title = { $regex: searchNameTerm, $options: 'i' } }
-            const posts = await postsCollection
+            const posts = await this.mongoDB.postsCollection
                 .find(filter)
                 .sort({ [sortBy]: sortDirectionValue, _id: 1 })
                 .skip((pageNumber - 1) * pageSize)
                 .limit(pageSize)
                 .toArray();
-            return await postsQueryRepository._arrPostsMapForRender(sanitizedQuery, posts, totalCount)
+            return await this._arrPostsMapForRender(sanitizedQuery, posts, totalCount)
 
         } catch (e) {
             console.error(e);
@@ -32,9 +41,9 @@ export class PostsQueryRepository {
     async getPostByIdRepositories(id: string): Promise<PostType | number | any> {
         // console.log('getPostByIdRepositories - ', id)
         try {
-            const getPost = await postsCollection.findOne({ _id: new ObjectId(id) })
+            const getPost = await this.mongoDB.postsCollection.findOne({ _id: new ObjectId(id) })
             // console.log('getPostByIdRepositories - res ', getPost)
-            if (getPost) { return await postsQueryRepository._postsMapForRender(getPost) }
+            if (getPost) { return await this._postsMapForRender(getPost) }
         } catch (error) {
             return error
         }
@@ -45,7 +54,7 @@ export class PostsQueryRepository {
         if (blogId) { filter.blogId = blogId }
         if (searchNameTerm) { filter.title = { $regex: searchNameTerm, $options: 'i' }; }
         try {
-            return await postsCollection.countDocuments(filter);
+            return await this.mongoDB.postsCollection.countDocuments(filter);
         } catch (e) {
             console.error(e);
             return 0;
@@ -87,4 +96,3 @@ export class PostsQueryRepository {
         }
     }
 }
-export const postsQueryRepository = new PostsQueryRepository()

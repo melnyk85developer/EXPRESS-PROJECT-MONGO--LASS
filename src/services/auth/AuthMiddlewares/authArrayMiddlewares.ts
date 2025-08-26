@@ -1,8 +1,13 @@
-import { inputValidationMiddleware } from "../../../input-validation-middleware";
+// import { authMiddlewares } from "../../../shared/container/compositionRootCustom";
+// import { container } from "../../../shared/container/iocRoot";
+import { authMiddlewares } from "../../../shared/container/compositionRootCustom";
+import { inputValidationMiddleware } from "../../../shared/input-validation-middleware";
 import { userMiddlewares } from "../../users/UserMiddlewares/userMiddlewares";
-import { accessTokenMiddleware, authLoginMiddleware, refreshTokenMiddleware } from "./authGuardMiddleware";
+import { AuthMiddlewares } from "./authGuardMiddleware";
 import { inputMiddlewares } from "./imputAuthMiddlewares";
 import { confirmEmailMiddlewares, registrationConfirmationMiddlewares } from "./postMiddlewares";
+
+// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
 
 export const registrationMiddlewares = [
     ...userMiddlewares, // Распаковываем массив, если это ValidationChain[]
@@ -10,15 +15,15 @@ export const registrationMiddlewares = [
 ]
 export const loginMiddlewares = [
     ...inputMiddlewares, // Распаковываем массив
-    authLoginMiddleware, // Одиночный middleware
+    authMiddlewares.authLoginMiddleware, // Одиночный middleware
     inputValidationMiddleware,
 ]
 export const logoutMiddlewares = [
-    refreshTokenMiddleware, // Одиночный middleware
+    authMiddlewares.refreshTokenMiddleware, // Одиночный middleware
     inputValidationMiddleware,
 ]
 export const refreshTokenMiddlewares = [
-    refreshTokenMiddleware, // Одиночный middleware
+    authMiddlewares.refreshTokenMiddleware, // Одиночный middleware
     inputValidationMiddleware,
 ]
 export const confirmationEmailMiddlewares = [
@@ -33,6 +38,6 @@ export const registrationEmailResendingMiddlewares = [
     inputValidationMiddleware,
 ]
 export const meMiddlewares = [
-    accessTokenMiddleware,
+    authMiddlewares.accessTokenMiddleware,
     inputValidationMiddleware,
 ]

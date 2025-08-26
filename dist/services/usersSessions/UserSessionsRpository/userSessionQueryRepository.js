@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,13 +18,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userSessionsQueryRepository = exports.UserSessionsQueryRepository = void 0;
+exports.UserSessionsQueryRepository = void 0;
+require("reflect-metadata");
+const inversify_1 = require("inversify");
+// import { devicesCollection } from "../../../db";
 const db_1 = require("../../../db");
-class UserSessionsQueryRepository {
+let UserSessionsQueryRepository = class UserSessionsQueryRepository {
+    constructor(
+    // @inject(TYPES.MongoDBCollection)
+    mongoDB) {
+        this.mongoDB = mongoDB;
+    }
     getAllSessionByUserIdRepository(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const devices = yield db_1.devicesCollection.find({ userId }).toArray();
+                const devices = yield this.mongoDB.devicesCollection.find({ userId }).toArray();
                 // console.log('getAllSessionByUserIdRepository: - devices', devices)
                 return this._arrUsersSessionMapForRender(devices);
             }
@@ -29,7 +46,7 @@ class UserSessionsQueryRepository {
         return __awaiter(this, void 0, void 0, function* () {
             // console.log('getSessionByIdQueryRepository: - userId', userId, 'deviceId: - ', deviceId)
             try {
-                const device = yield db_1.devicesCollection.findOne({ userId, deviceId }); // Ищем по userId и deviceId
+                const device = yield this.mongoDB.devicesCollection.findOne({ userId, deviceId }); // Ищем по userId и deviceId
                 // console.log('getSessionByIdQueryRepository: device - ', device)
                 const mapDevice = this._userSessionMapForRender(device);
                 // console.log('getSessionByIdQueryRepository: mapDevice - ', mapDevice)
@@ -57,6 +74,9 @@ class UserSessionsQueryRepository {
         }
         return Devices;
     }
-}
+};
 exports.UserSessionsQueryRepository = UserSessionsQueryRepository;
-exports.userSessionsQueryRepository = new UserSessionsQueryRepository();
+exports.UserSessionsQueryRepository = UserSessionsQueryRepository = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [db_1.MongoDBCollection])
+], UserSessionsQueryRepository);

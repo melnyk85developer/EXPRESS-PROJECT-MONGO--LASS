@@ -1,31 +1,69 @@
+import 'reflect-metadata';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { ObjectId } from 'mongodb';
-import { tokensCollection } from '../../src/db';import { tokenService } from '../../src/shared/infrastructure/tokenService';
+import { ObjectId } from 'mongodb';;
 import { INTERNAL_STATUS_CODE } from '../../src/shared/utils/utils';
-;
+// import { container } from '../../src/shared/container/iocRoot';
+import { TokenService } from '../../src/shared/infrastructure/tokenService';
+// import { tokensCollection } from '../../src/db';
+import { mongoDBCollection, tokenService } from '../../src/shared/container/compositionRootCustom';
+import { MongoDBCollection } from '../../src/db';
 
-// Мокирование зависимостей
+// import { MongoDBCollection } from '../../src/db';
+// import { mongoDBCollection, tokenService } from "../../src/shared/container/compositionRootCustom";
+// import { mongoDBCollection, tokenService } from '../../src/shared/container/compositionRootCustom';
+
+// const tokenService: TokenService = container.resolve(TokenService)
+// const mongoDBCollection: MongoDBCollection = container.resolve(MongoDBCollection)
+
+// const tokenService: TokenService = container.get(TokenService)
+// const mongoDBCollection: MongoDBCollection = container.get(MongoDBCollection)
+
+// Мокаем jsonwebtoken (функции станут jest.fn)
 jest.mock('jsonwebtoken');
-jest.mock('../../src/db', () => ({
-    tokensCollection: {
+
+// ВАЖНО: мокаем модуль БД так, чтобы был КЛАСС-конструктор.
+// И чтобы compositionRoot мог сделать: new MongoDBCollection()
+jest.mock('../../src/db', () => {
+    const makeCol = () => ({
+        findOne: jest.fn(),
         insertOne: jest.fn(),
         deleteOne: jest.fn(),
-        findOne: jest.fn(),
-    },
-}));
+        deleteMany: jest.fn(),
+        updateOne: jest.fn(),
+        createIndex: jest.fn(),
+    });
+
+    return {
+        MongoDBCollection: jest.fn().mockImplementation(() => ({
+            tokensCollection: makeCol(),
+            usersCollection: makeCol(),
+            blogsCollection: makeCol(),
+            postsCollection: makeCol(),
+            commentsCollection: makeCol(),
+            requestsCollection: makeCol(),
+            devicesCollection: makeCol(),
+            // если где-то проверяешь подключение — пусть считается подключённой
+            client: { topology: { isConnected: () => true } },
+            connect: jest.fn(),
+        })),
+    };
+});
 
 describe('tokenService', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
     describe('generateTokens', () => {
         it('Должен выдать ошибку, если полезная нагрузка равна null или не определена', async () => {
             await expect(tokenService.generateTokens(null, '-100')).rejects.toThrow('Payload cannot be null or undefined');
         });
-    
+
         it('Должны возвращать маркеры доступа и обновления', async () => {
             // Мокаем jwt.sign и указываем возвращаемые значения
             const signMock = jest.spyOn(jwt, 'sign')
-            .mockImplementationOnce(() => 'mockAccessToken')
-            .mockImplementationOnce(() => 'mockRefreshToken');
+                .mockImplementationOnce(() => 'mockAccessToken')
+                .mockImplementationOnce(() => 'mockRefreshToken');
             const result = await tokenService.generateTokens('123', '321');
             expect(result.accessToken).toBe('mockAccessToken');
             expect(result.refreshToken).toBe('mockRefreshToken');
@@ -56,7 +94,7 @@ describe('tokenService', () => {
             const result = await tokenService.validateAccessToken(mockToken);
             expect(result).toBe(INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT);
         });
-        
+
     });
 
     describe('validateRefreshToken', () => {
@@ -80,36 +118,36 @@ describe('tokenService', () => {
             const mockUserId = '123';
             const mockRefreshToken = 'mockRefreshToken';
             // Мокируем MongoDB метод insertOne, используя типизацию
-            (tokensCollection.insertOne as jest.Mock).mockResolvedValueOnce({ insertedId: new ObjectId() });
+            (mongoDBCollection.tokensCollection.insertOne as jest.Mock).mockResolvedValueOnce({ insertedId: new ObjectId() });
             const result = await tokenService.saveRefreshTokenBlackList(mockUserId, mockRefreshToken);
             expect(result).toEqual({ insertedId: expect.any(ObjectId) });
-            expect(tokensCollection.insertOne).toHaveBeenCalledWith({ userId: mockUserId, refreshToken: mockRefreshToken });
+            expect(mongoDBCollection.tokensCollection.insertOne).toHaveBeenCalledWith({ userId: mockUserId, refreshToken: mockRefreshToken });
         });
 
         it('Должен возвращать объект ошибки, если произошла ошибка', async () => {
             const mockUserId = '123';
             const mockRefreshToken = 'mockRefreshToken';
-            
+
             // Мокируем MongoDB метод insertOne, используя типизацию
             const mockError = INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_WHEN_ADDING_A_TOKEN_TO_THE_BLACKLIST;
-            (tokensCollection.insertOne as jest.Mock).mockRejectedValueOnce(mockError);
-        
+            (mongoDBCollection.tokensCollection.insertOne as jest.Mock).mockRejectedValueOnce(mockError);
+
             const result = await tokenService.saveRefreshTokenBlackList(mockUserId, mockRefreshToken);
-        
+
             // Проверяем, что результат равен объекту ошибки
             expect(result).toBe(mockError);
         });
-        
+
     });
 
     describe('removeToken', () => {
         it('Должен удалить токен из базы данных', async () => {
             const mockRefreshToken = 'mockRefreshToken';
             // Мокируем MongoDB метод deleteOne, используя типизацию
-            (tokensCollection.deleteOne as jest.Mock).mockResolvedValueOnce({ deletedCount: 1 });
+            (mongoDBCollection.tokensCollection.deleteOne as jest.Mock).mockResolvedValueOnce({ deletedCount: 1 });
             const result = await tokenService.deleteRefreshTokenByTokenInBlackList(mockRefreshToken);
             expect(result).toEqual({ deletedCount: 1 });
-            expect(tokensCollection.deleteOne).toHaveBeenCalledWith({ refreshToken: mockRefreshToken });
+            expect(mongoDBCollection.tokensCollection.deleteOne).toHaveBeenCalledWith({ refreshToken: mockRefreshToken });
         });
     });
 
@@ -118,7 +156,7 @@ describe('tokenService', () => {
             const mockRefreshToken = 'mockRefreshToken';
             const mockTokenData = { userId: '123', refreshToken: mockRefreshToken };
             // Мокируем MongoDB метод findOne, используя типизацию
-            (tokensCollection.findOne as jest.Mock).mockResolvedValueOnce(mockTokenData);
+            (mongoDBCollection.tokensCollection.findOne as jest.Mock).mockResolvedValueOnce(mockTokenData);
             const result = await tokenService.getRefreshTokenByTokenInBlackList(mockRefreshToken);
             expect(result).toEqual(mockTokenData);
         });
@@ -126,7 +164,7 @@ describe('tokenService', () => {
         it('Должен возвращать null, если токен не найден', async () => {
             const mockRefreshToken = 'mockRefreshToken';
             // Мокируем MongoDB метод findOne, используя типизацию
-            (tokensCollection.findOne as jest.Mock).mockResolvedValueOnce(null);
+            (mongoDBCollection.tokensCollection.findOne as jest.Mock).mockResolvedValueOnce(null);
             const result = await tokenService.getRefreshTokenByTokenInBlackList(mockRefreshToken);
             expect(result).toBeNull();
         });

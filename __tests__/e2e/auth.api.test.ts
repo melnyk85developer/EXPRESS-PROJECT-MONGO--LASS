@@ -1,14 +1,25 @@
-import { SETTINGS } from "../../src/settings";
+import 'reflect-metadata';
+import { SETTINGS } from "../../src/shared/settings";
 import { authTestManager } from "./utils/authTestManager";
 import { getRequest } from "./utils/blogsTestManager";
-import { authServices } from "../../src/services/auth/authServices";
 import { emailAdapter } from "../../src/shared/infrastructure/emailAdapter";
 import { HTTP_STATUSES } from "../../src/shared/utils/utils";
+// import { container } from "../../src/shared/container/iocRoot";
+import { AuthServices } from "../../src/services/auth/authServices";
+// import { MongoDBCollection } from '../../src/db';
+import { authServices } from "../../src/shared/container/compositionRootCustom";
+
+// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
+// const authServices: AuthServices = container.resolve(AuthServices)
+// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
+
+
+// const authServices: AuthServices = container.get(AuthServices)
 
 export const delay = (milliseconds: number) =>
     new Promise((resolve) => {
-      return setTimeout(() => resolve(true), milliseconds);
-});
+        return setTimeout(() => resolve(true), milliseconds);
+    });
 
 describe('test for /auth', () => {
     let sendMailParams: any = null;
@@ -21,6 +32,7 @@ describe('test for /auth', () => {
     let RefreshTokens2: any = null
 
     beforeAll(async () => {
+        // await mongoDB.connectDB();
         await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`);
     })
     it('Должен возвращать 204 при успешной регистрации!', async () => {
@@ -30,7 +42,7 @@ describe('test for /auth', () => {
         emailAdapter.sendMail = jest.fn((from, to, subject, text, html) => {
             return Promise.resolve(true)
         })
-        const response = await authServices.registration(login, password, email);
+        const response = await authServices.registrationServices(login, password, email);
         expect(response).toHaveProperty('insertedId')
         expect(emailAdapter.sendMail).toHaveBeenCalledWith(
             expect.any(String), // Проверка поля "from"
@@ -52,8 +64,8 @@ describe('test for /auth', () => {
             password: userData.password
         }
         const { accessToken, refreshToken } = await authTestManager.login(
-            authData, 
-            `user-agent/auth`, 
+            authData,
+            `user-agent/auth`,
             HTTP_STATUSES.OK_200
         )
         AccessTokens = accessToken
@@ -69,7 +81,7 @@ describe('test for /auth', () => {
     it('Должен возвращать 200, выдавать новую пару access и refresh tokens при посещении refresh-token, а так же заносить старый refreshToken в черный список!', async () => {
         const { response, refresh } = await authTestManager.refreshToken(
             AccessTokens,
-            RefreshTokens, 
+            RefreshTokens,
             HTTP_STATUSES.OK_200
         )
         AccessTokens = response.body.accessToken
@@ -87,10 +99,10 @@ describe('test for /auth', () => {
             email: 'melnyk85developer@gmail.com',
         }
 
-        const authData = {loginOrEmail: userData.login, password: userData.password}
+        const authData = { loginOrEmail: userData.login, password: userData.password }
         const { accessToken, refreshToken } = await authTestManager.login(
-            authData, 
-            `user-agent/auth`, 
+            authData,
+            `user-agent/auth`,
             HTTP_STATUSES.OK_200
         )
         AccessTokens2 = accessToken
@@ -101,14 +113,14 @@ describe('test for /auth', () => {
         expect(typeof RefreshTokens2).toBe('string')
 
         await authTestManager.logout(
-            AccessTokens2, 
-            RefreshTokens2, 
+            AccessTokens2,
+            RefreshTokens2,
             HTTP_STATUSES.NO_CONTENT_204
         )
 
-        const {response} = await authTestManager.refreshToken(
-            AccessTokens2, 
-            RefreshTokens2, 
+        const { response } = await authTestManager.refreshToken(
+            AccessTokens2,
+            RefreshTokens2,
             HTTP_STATUSES.UNAUTHORIZED_401
         )
         // console.log('TEST response: - ', response.body)

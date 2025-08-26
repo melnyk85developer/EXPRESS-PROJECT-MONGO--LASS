@@ -1,4 +1,3 @@
-import { SETTINGS } from "../../src/settings";
 import { authTestManager } from "./utils/authTestManager";
 import { getRequest } from "./utils/blogsTestManager";
 import { usersTestManager } from "./utils/usersTestManager";
@@ -7,9 +6,9 @@ import { JwtPayload } from "jsonwebtoken";
 import { UserType } from "../../src/services/users/Users_DTO/userTypes";
 import { SessionType } from "../../src/services/usersSessions/Sessions_DTO/sessionsType";
 import { CreateUserModel } from "../../src/services/users/Users_DTO/CreateUserModel";
+import { SETTINGS } from "../../src/shared/settings";
 import { HTTP_STATUSES } from "../../src/shared/utils/utils";
-import { tokenService } from "../../src/shared/infrastructure/tokenService";
-import { securityDeviceServices } from "../../src/services/usersSessions/securityDeviceService";
+import { securityDeviceServices, tokenService } from "../../src/shared/container/compositionRootCustom";
 
 export const delay = (milliseconds: number) =>
     new Promise((resolve) => {

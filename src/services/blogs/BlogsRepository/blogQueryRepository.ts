@@ -1,11 +1,19 @@
+import "reflect-metadata"
 import { ObjectId, SortDirection } from "mongodb";
-import { blogsCollection } from "../../../db";
 import { QueryBlogModel } from "../Blogs_DTO/QueryBlogsModel";
 import { BlogsType, BlogsTypeDB, ResponseBlogType } from "../Blogs_DTO/blogTypes";
 import { RequestWithQuery } from "../../../shared/types/typesGeneric";
 import { sanitizedQueryType } from "../../../shared/types/types";
+import { injectable } from "inversify";
+// import { blogsCollection } from "../../../db";
+import { MongoDBCollection } from "../../../db";
 
+@injectable()
 export class BlogsQueryRepository {
+    constructor(
+        // @inject(TYPES.MongoDBCollection)
+        private mongoDB: MongoDBCollection
+    ) { }
     async getAllBlogsRepository(req: RequestWithQuery<QueryBlogModel> & RequestWithQuery<{ [key: string]: string | undefined }>): Promise<ResponseBlogType | any> {
         const sanitizedQuery: sanitizedQueryType = await this._helper(req.query)
         const totalCount = await this._getBlogsCount(sanitizedQuery)
@@ -17,7 +25,7 @@ export class BlogsQueryRepository {
             if (searchNameTerm) {
                 filter.name = { $regex: searchNameTerm, $options: 'i' }
             }
-            const blogs = await blogsCollection
+            const blogs = await this.mongoDB.blogsCollection
                 .find(filter)
                 .sort({ [sortBy]: sortDirectionValue, _id: 1 })
                 .skip((pageNumber - 1) * pageSize)
@@ -35,7 +43,7 @@ export class BlogsQueryRepository {
     async getBlogByIdRepository(id: string): Promise<BlogsType | any> {
         try {
             if (id) {
-                const foundBlog = await blogsCollection.findOne({ _id: new ObjectId(id) })
+                const foundBlog = await this.mongoDB.blogsCollection.findOne({ _id: new ObjectId(id) })
                 if (foundBlog) { return await this._blogMapForRender(foundBlog) }
             }
             return null
@@ -49,7 +57,7 @@ export class BlogsQueryRepository {
         const { searchNameTerm } = sanitizedQuery;
         if (searchNameTerm) { filter.name = { $regex: searchNameTerm, $options: 'i' } }
         try {
-            return await blogsCollection.countDocuments(filter);
+            return await this.mongoDB.blogsCollection.countDocuments(filter);
         } catch (e) {
             console.error(e);
             return 0;
@@ -90,4 +98,3 @@ export class BlogsQueryRepository {
         }
     }
 }
-export const blogsQueryRepository = new BlogsQueryRepository()

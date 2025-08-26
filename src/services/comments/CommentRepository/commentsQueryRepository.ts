@@ -1,9 +1,17 @@
+import "reflect-metadata"
 import { ObjectId, SortDirection } from "mongodb";
-import { commentsCollection } from "../../../db";
 import { CommentType, CommentTypeDB, ResponseCommentsType } from "../Comment_DTO/commentType";
 import { sanitizedQueryType } from "../../../shared/types/types";
+import { injectable } from "inversify";
+// import { commentsCollection } from "../../../db";
+import { MongoDBCollection } from "../../../db";
 
+@injectable()
 export class CommentsQueryRepository {
+    constructor(
+        // @inject(TYPES.MongoDBCollection)
+        private mongoDB: MongoDBCollection
+    ) { }
     async getAllCommentssRepository(postId: string, query: any): Promise<ResponseCommentsType | null> {
         // console.log('getAllCommentssRepository: - postId, query', postId, query)
         const sanitizedQuery: sanitizedQueryType = await this._helper(query);
@@ -16,13 +24,13 @@ export class CommentsQueryRepository {
             if (searchNameTerm) {
                 filter.content = { $regex: searchNameTerm, $options: 'i' };
             }
-            const comments = await commentsCollection
+            const comments = await this.mongoDB.commentsCollection
                 .find(filter)
                 .sort({ [sortBy]: sortDirectionValue, _id: 1 })
                 .skip((pageNumber - 1) * pageSize)
                 .limit(pageSize)
                 .toArray();
-            const isComments = await commentsQueryRepository._arrCommentsMapForRender(sanitizedQuery, comments, totalCount);;
+            const isComments = await this._arrCommentsMapForRender(sanitizedQuery, comments, totalCount);;
             // console.log('getAllCommentssRepository: - isComments', isComments)
             if (isComments && isComments !== undefined) {
                 // console.log('getAllCommentssRepository: - isComments', isComments)
@@ -38,9 +46,9 @@ export class CommentsQueryRepository {
     }
     async getCommentByIdRepository(id: string): Promise<CommentType | any> {
         try {
-            const getComment = await commentsCollection.findOne({ _id: new ObjectId(id) })
+            const getComment = await this.mongoDB.commentsCollection.findOne({ _id: new ObjectId(id) })
             if (getComment) {
-                return await commentsQueryRepository._commentsMapForRender(getComment)
+                return await this._commentsMapForRender(getComment)
             }
         } catch (error) {
             // console.error(error)
@@ -53,7 +61,7 @@ export class CommentsQueryRepository {
         if (postId) { filter.postId = postId }
         if (searchNameTerm) { filter.content = { $regex: searchNameTerm, $options: 'i' }; }
         try {
-            return await commentsCollection.countDocuments(filter);
+            return await this.mongoDB.commentsCollection.countDocuments(filter);
         } catch (e) {
             console.error(e);
             return 0;
@@ -92,4 +100,3 @@ export class CommentsQueryRepository {
         }
     }
 }
-export const commentsQueryRepository = new CommentsQueryRepository()

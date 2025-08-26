@@ -1,4 +1,7 @@
-import { SETTINGS } from "../../src/settings"
+import 'reflect-metadata';
+// import { container } from '../../src/shared/container/iocRoot';
+// import { MongoDBCollection } from '../../src/db'
+import { SETTINGS } from "../../src/shared/settings"
 import { postsTestManager } from "./utils/postsTestManager"
 import { blogsTestManager } from "./utils/blogsTestManager"
 import { usersTestManager } from "./utils/usersTestManager"
@@ -10,10 +13,13 @@ import { CreateCommentModel } from "../../src/services/comments/Comment_DTO/Crea
 import { UpdateCommentModel } from "../../src/services/comments/Comment_DTO/UpdateCommentModel"
 import { HTTP_STATUSES } from "../../src/shared/utils/utils"
 
+// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
+// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
+
 describe('test for /comments', () => {
     const buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')
     const codedAuth = buff2.toString('base64')
-    
+
     let cookies: string[] = [];
     let createdUser1: any = null
     let createdBlog1: any = null
@@ -23,9 +29,10 @@ describe('test for /comments', () => {
     let createdPost2: any = null
     let createdComment2: any = null
     let authToken: any = null
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3M2FjYzZzMzc3NGI4MDhmMDY0NmVmYyIsImlhdCI6MTczMTkwNjY2MiwiZXhwIjoxNzMxOTkzMDYyfQ.5WhzwZebmRvp5V19TtJAHk3JamPqWp-lxRSGEQKDsXc' 
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3M2FjYzZzMzc3NGI4MDhmMDY0NmVmYyIsImlhdCI6MTczMTkwNjY2MiwiZXhwIjoxNzMxOTkzMDYyfQ.5WhzwZebmRvp5V19TtJAHk3JamPqWp-lxRSGEQKDsXc'
 
     beforeAll(async () => {
+        // await mongoDB.connectDB();
         await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`);
     })
     it('Должен вернуть 200, массив комментариев - should return 200 and comments array', async () => {
@@ -34,7 +41,7 @@ describe('test for /comments', () => {
             password: 'password',
             email: 'webmars@mars.com'
         }
-        const {createdEntity} = await usersTestManager.createUser(userData, codedAuth, HTTP_STATUSES.CREATED_201)
+        const { createdEntity } = await usersTestManager.createUser(userData, codedAuth, HTTP_STATUSES.CREATED_201)
         createdUser1 = createdEntity;
         const authData = {
             loginOrEmail: "MyLogin",
@@ -61,16 +68,16 @@ describe('test for /comments', () => {
 
         const { getAllComments } = await commetsTestManager.getAllComments(createdPost1.id, HTTP_STATUSES.OK_200)
         expect(getAllComments).toEqual(
-        expect.objectContaining({
-            pagesCount: 0,
-            page: 1,
-            pageSize: 10,
-            totalCount: 0,
-            items: []
-        })) 
+            expect.objectContaining({
+                pagesCount: 0,
+                page: 1,
+                pageSize: 10,
+                totalCount: 0,
+                items: []
+            }))
     })
     it('Должен возвращать 404 для несуществующего комментария - should return 404 for a non-existent comment', async () => {
-        await commetsTestManager.getCommentById('66b9413b36f75d0b44ad1c57',HTTP_STATUSES.NOT_FOUND_404)
+        await commetsTestManager.getCommentById('66b9413b36f75d0b44ad1c57', HTTP_STATUSES.NOT_FOUND_404)
     })
     it(`Вы не должны создавать комментарии от неавторизованных пользователей! - You shouldn't create a comment by an unauthorized user!`, async () => {
         const dataComment: CreateCommentModel = {
@@ -88,7 +95,7 @@ describe('test for /comments', () => {
                 pageSize: 10,
                 totalCount: 0,
                 items: []
-            })) 
+            }))
     })
     it(`Не следует создавать комментарий с невалидными исходными данными - You should not create a post with incorrect initial data`, async () => {
         const data: CreateCommentModel = {
@@ -104,7 +111,7 @@ describe('test for /comments', () => {
                 pageSize: 10,
                 totalCount: 0,
                 items: []
-            })) 
+            }))
     })
     it(`Необходимо создать комментарий с правильными исходными данными - it is necessary to create a comment with the correct initial data`, async () => {
         const data: CreateCommentModel = {
@@ -121,7 +128,7 @@ describe('test for /comments', () => {
                 pageSize: 10,
                 totalCount: 1,
                 items: [createdComment1]
-            })) 
+            }))
     })
     it(`Создать еще один комментарий - create another comment`, async () => {
         const data: CreateCommentModel = {
@@ -138,7 +145,7 @@ describe('test for /comments', () => {
                 pageSize: 10,
                 totalCount: 2,
                 items: [createdComment2, createdComment1]
-            })) 
+            }))
     })
     it(`Не следует обновлять комментарий с невалидными данными. - You should not update a comment with incorrect post data`, async () => {
         const data: UpdateCommentModel = {
@@ -149,8 +156,8 @@ describe('test for /comments', () => {
         const { getCommentById } = await commetsTestManager.getCommentById(createdComment1.id, HTTP_STATUSES.OK_200);
         // console.log('getCommentById: - ', getCommentById)
         expect(getCommentById).toEqual(
-            expect.objectContaining(createdComment1)) 
-            
+            expect.objectContaining(createdComment1))
+
     })
     it(`Не следует обновлять несуществующий комментарий - You should not update a comment that does not exist`, async () => {
         const data: UpdateCommentModel = {
@@ -165,14 +172,14 @@ describe('test for /comments', () => {
             postId: createdPost1.id
         }
         await commetsTestManager.updateComment(createdComment1.id, updatedComment, authToken, HTTP_STATUSES.NO_CONTENT_204);
-        const {getCommentById} = await commetsTestManager.getCommentById(createdComment1.id, HTTP_STATUSES.OK_200)
+        const { getCommentById } = await commetsTestManager.getCommentById(createdComment1.id, HTTP_STATUSES.OK_200)
         expect(getCommentById).toEqual(
             expect.objectContaining({
                 ...createdComment1,
                 content: updatedComment.content
             })
-        )           
-        const {response} = await commetsTestManager.getCommentById(createdComment2.id, HTTP_STATUSES.OK_200)
+        )
+        const { response } = await commetsTestManager.getCommentById(createdComment2.id, HTTP_STATUSES.OK_200)
         expect(response.body).toEqual(expect.objectContaining(createdComment2))
     })
     it(`Следует удалить оба комментария - should delete both comments`, async () => {
@@ -188,7 +195,7 @@ describe('test for /comments', () => {
                 pageSize: 10,
                 totalCount: 0,
                 items: []
-            })) 
+            }))
     })
     afterAll(done => {
         done();

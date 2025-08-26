@@ -1,39 +1,45 @@
+// ;import { authMiddlewares, blogValidationMiddlewares } from "../../../shared/container/compositionRootCustom";
+// import { container } from "../../../shared/container/iocRoot";
+import { authMiddlewares, blogValidationMiddlewares } from "../../../shared/container/compositionRootCustom";
 import { inputValidationMiddleware } from "../../../shared/middlewares/input-validation-middleware";
-import { oldAuthGuardMiddleware } from "../../auth/AuthMiddlewares/authGuardMiddleware";
+import { AuthMiddlewares } from "../../auth/AuthMiddlewares/authGuardMiddleware";
 import { postOneBlogMiddlewares } from "../../posts/PostMiddlewares/postMiddlewares";
 import { blogMiddlewares } from "./blogMiddlewares";
-import { blogIdMiddleware, isBlogIdMiddleware } from "./isThereABlogValidation";
+import { BlogValidationMiddlewares } from "./isThereABlogValidation";
+
+// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
+// const blogValidationMiddlewares: BlogValidationMiddlewares = container.resolve(BlogValidationMiddlewares)
 
 export const getBlogsMiddlewares = [
     inputValidationMiddleware,
 ]
 export const getBlogIdAllPostsMiddlewares = [
-    isBlogIdMiddleware,
+    blogValidationMiddlewares.isBlogIdMiddleware,
     inputValidationMiddleware,
 ]
 export const getBlogIdMiddlewares = [
-    blogIdMiddleware, 
+    blogValidationMiddlewares.blogIdMiddleware, 
     inputValidationMiddleware, 
 ]
 export const postBlogMiddlewares = [
-    oldAuthGuardMiddleware,
+    authMiddlewares.oldAuthGuardMiddleware,
     ...blogMiddlewares, 
     inputValidationMiddleware, 
 ]
 export const postBlogIdOnePostMiddlewares = [
-    oldAuthGuardMiddleware,
-    isBlogIdMiddleware,
+    authMiddlewares.oldAuthGuardMiddleware,
+    blogValidationMiddlewares.isBlogIdMiddleware,
     ...postOneBlogMiddlewares,
     inputValidationMiddleware,
 ]
 export const updateBlogMiddlewares = [
-    oldAuthGuardMiddleware,
-    blogIdMiddleware, 
+    authMiddlewares.oldAuthGuardMiddleware,
+    blogValidationMiddlewares.blogIdMiddleware, 
     ...blogMiddlewares, 
     inputValidationMiddleware
 ]
 export const deleteBlogMiddlewares = [
-    oldAuthGuardMiddleware,
-    blogIdMiddleware, 
+    authMiddlewares.oldAuthGuardMiddleware,
+    blogValidationMiddlewares.blogIdMiddleware, 
     inputValidationMiddleware,
 ]

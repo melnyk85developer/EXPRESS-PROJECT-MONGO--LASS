@@ -1,13 +1,18 @@
+import "reflect-metadata"
 import express, { Response } from 'express';
-import { postsController } from './postControllers';
 import { deletePostMiddlewares, getAllPostMiddlewares, getPostIdAllCommentsMiddlewares, getPostIdMiddlewares, postPostIdCommentsMiddlewares, postPostMiddlewares, updatePostMiddlewares } from './PostMiddlewares/postArrayMiddlewares';
+// import { container } from '../../shared/container/iocRoot';
+import { PostsControllers } from './postControllers';
+import { postsControllers } from '../../shared/container/compositionRootCustom';
 
 export const postRouter = express.Router()
 
-postRouter.get('/', getAllPostMiddlewares, postsController.getAllPostsController)
-postRouter.get('/:id', getPostIdMiddlewares, postsController.getPostByIdController)
-postRouter.post('/', postPostMiddlewares, postsController.createPostController)
-postRouter.get('/:postId/comments', getPostIdAllCommentsMiddlewares, postsController.getAllCommentsByPostIdController)
-postRouter.post('/:postId/comments', postPostIdCommentsMiddlewares, postsController.createCommentByPostIdController)
-postRouter.put('/:id', updatePostMiddlewares, postsController.updatePostController)
-postRouter.delete('/:id', deletePostMiddlewares, postsController.deletePostController)
+// const postsControllers: PostsControllers = container.resolve(PostsControllers)
+
+postRouter.get('/', getAllPostMiddlewares, postsControllers.getAllPostsController.bind(postsControllers))
+postRouter.get('/:id', getPostIdMiddlewares, postsControllers.getPostByIdController.bind(postsControllers))
+postRouter.post('/', postPostMiddlewares, postsControllers.createPostController.bind(postsControllers))
+postRouter.get('/:postId/comments', getPostIdAllCommentsMiddlewares, postsControllers.getAllCommentsByPostIdController.bind(postsControllers))
+postRouter.post('/:postId/comments', postPostIdCommentsMiddlewares, postsControllers.createCommentByPostIdController.bind(postsControllers))
+postRouter.put('/:id', updatePostMiddlewares, postsControllers.updatePostController.bind(postsControllers))
+postRouter.delete('/:id', deletePostMiddlewares, postsControllers.deletePostController.bind(postsControllers))

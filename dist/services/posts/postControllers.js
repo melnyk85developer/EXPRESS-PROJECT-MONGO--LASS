@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,23 +18,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsController = exports.PostsControllers = void 0;
+exports.PostsControllers = void 0;
+require("reflect-metadata");
 const utils_1 = require("../../shared/utils/utils");
-const postQueryRepository_1 = require("./PostRepository/postQueryRepository");
-const postsServices_1 = require("./postsServices");
-const commentsServices_1 = require("../comments/commentsServices");
-const commentsQueryRepository_1 = require("../comments/CommentRepository/commentsQueryRepository");
+;
 const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
 const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
-class PostsControllers {
+const inversify_1 = require("inversify");
+const postQueryRepository_1 = require("./PostRepository/postQueryRepository");
+const commentsServices_1 = require("../comments/commentsServices");
+const commentsQueryRepository_1 = require("../comments/CommentRepository/commentsQueryRepository");
+const postsServices_1 = require("./postsServices");
+let PostsControllers = class PostsControllers {
+    constructor(
+    // @inject(TYPES.PostsQueryRepository)
+    postsQueryRepository, 
+    // @inject(TYPES.CommentsServices)
+    commentsServices, 
+    // @inject(TYPES.CommentsQueryRepository)
+    commentsQueryRepository, 
+    // @inject(TYPES.PostsServices)
+    postsServices) {
+        this.postsQueryRepository = postsQueryRepository;
+        this.commentsServices = commentsServices;
+        this.commentsQueryRepository = commentsQueryRepository;
+        this.postsServices = postsServices;
+    }
     getAllPostsController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield postQueryRepository_1.postsQueryRepository.getAllPostsRepositories(req));
+            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield this.postsQueryRepository.getAllPostsRepositories(req));
         });
     }
     getPostByIdController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundPost = yield postQueryRepository_1.postsQueryRepository.getPostByIdRepositories(req.params.id);
+            const foundPost = yield this.postsQueryRepository.getPostByIdRepositories(req.params.id);
             if (foundPost && foundPost.id) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, foundPost);
             }
@@ -36,9 +62,9 @@ class PostsControllers {
     }
     createPostController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const createPost = yield postsServices_1.postsServices.createPostServices(req.body);
+            const createPost = yield this.postsServices.createPostServices(req.body);
             if (createPost && createPost.acknowledged) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_POST, undefined, yield postQueryRepository_1.postsQueryRepository.getPostByIdRepositories(createPost.insertedId));
+                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_POST, undefined, yield this.postsQueryRepository.getPostByIdRepositories(createPost.insertedId));
             }
             else {
                 return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_BLOG_TO_CREATE_THIS_POST);
@@ -47,9 +73,9 @@ class PostsControllers {
     }
     getAllCommentsByPostIdController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundPost = yield postQueryRepository_1.postsQueryRepository.getPostByIdRepositories(req.params.postId);
+            const foundPost = yield this.postsQueryRepository.getPostByIdRepositories(req.params.postId);
             if (foundPost.id) {
-                const comments = yield commentsQueryRepository_1.commentsQueryRepository.getAllCommentssRepository(req.params.postId, req.query);
+                const comments = yield this.commentsQueryRepository.getAllCommentssRepository(req.params.postId, req.query);
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, comments);
             }
             else {
@@ -59,9 +85,9 @@ class PostsControllers {
     }
     createCommentByPostIdController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const createCommentOnePost = yield commentsServices_1.commentsServices.createCommentOnePostServices(req);
+            const createCommentOnePost = yield this.commentsServices.createCommentOnePostServices(req);
             if (createCommentOnePost && createCommentOnePost.acknowledged) {
-                const foundComment = yield commentsQueryRepository_1.commentsQueryRepository.getCommentByIdRepository(createCommentOnePost.insertedId);
+                const foundComment = yield this.commentsQueryRepository.getCommentByIdRepository(createCommentOnePost.insertedId);
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_COMMENT, undefined, foundComment);
             }
             else {
@@ -71,7 +97,7 @@ class PostsControllers {
     }
     updatePostController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updatePost = yield postsServices_1.postsServices.updatePostServices(req.params.id, req.body);
+            const updatePost = yield this.postsServices.updatePostServices(req.params.id, req.body);
             if (updatePost && updatePost.acknowledged) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_POST);
             }
@@ -82,7 +108,7 @@ class PostsControllers {
     }
     deletePostController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const isDeletedPost = yield postsServices_1.postsServices.deletePostServices(req.params.id);
+            const isDeletedPost = yield this.postsServices.deletePostServices(req.params.id);
             if (isDeletedPost && isDeletedPost.acknowledged) {
                 return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_POST);
             }
@@ -91,6 +117,12 @@ class PostsControllers {
             }
         });
     }
-}
+};
 exports.PostsControllers = PostsControllers;
-exports.postsController = new PostsControllers();
+exports.PostsControllers = PostsControllers = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [postQueryRepository_1.PostsQueryRepository,
+        commentsServices_1.CommentsServices,
+        commentsQueryRepository_1.CommentsQueryRepository,
+        postsServices_1.PostsServices])
+], PostsControllers);

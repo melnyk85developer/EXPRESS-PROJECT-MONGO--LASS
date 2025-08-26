@@ -1,4 +1,13 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,9 +18,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsServices = exports.BlogsServices = void 0;
+exports.BlogsServices = void 0;
+require("reflect-metadata");
 const blogsRepository_1 = require("./BlogsRepository/blogsRepository");
-class BlogsServices {
+const inversify_1 = require("inversify");
+let BlogsServices = class BlogsServices {
+    constructor(
+    // @inject(TYPES.BlogsRepository)
+    blogsRepository) {
+        this.blogsRepository = blogsRepository;
+    }
     createBlogServices(blog) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, description, websiteUrl } = blog;
@@ -25,7 +41,7 @@ class BlogsServices {
                 createdAt: createdAt,
                 isMembership: false
             };
-            return yield blogsRepository_1.blogsRepository.createBlogRepository(createBlog);
+            return yield this.blogsRepository.createBlogRepository(createBlog);
         });
     }
     updateBlogServices(id, body) {
@@ -35,14 +51,17 @@ class BlogsServices {
                 description: body.description,
                 websiteUrl: body.websiteUrl
             };
-            return yield blogsRepository_1.blogsRepository.updateBlogRepository(id, updatedBlog);
+            return yield this.blogsRepository.updateBlogRepository(id, updatedBlog);
         });
     }
     deleteBlogServices(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield blogsRepository_1.blogsRepository.deleteBlogRepository(id);
+            return yield this.blogsRepository.deleteBlogRepository(id);
         });
     }
-}
+};
 exports.BlogsServices = BlogsServices;
-exports.blogsServices = new BlogsServices();
+exports.BlogsServices = BlogsServices = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [blogsRepository_1.BlogsRepository])
+], BlogsServices);

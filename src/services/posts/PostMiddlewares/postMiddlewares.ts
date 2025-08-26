@@ -1,5 +1,9 @@
 import { body } from 'express-validator';
-import { blogsQueryRepository } from '../../blogs/BlogsRepository/blogQueryRepository';
+import { BlogsQueryRepository } from '../../blogs/BlogsRepository/blogQueryRepository';
+// import { container } from '../../../shared/container/iocRoot';
+import { blogsQueryRepository } from '../../../shared/container/compositionRootCustom';
+
+// const blogsQueryRepository: BlogsQueryRepository = container.resolve(BlogsQueryRepository)
 
 export const postMiddlewares = [
     body('blogId')

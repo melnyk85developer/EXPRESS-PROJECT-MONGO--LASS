@@ -1,39 +1,44 @@
+import { authMiddlewares, postsMiddlewares } from "../../../shared/container/compositionRootCustom";
+// import { container } from "../../../shared/container/iocRoot";
 import { inputValidationMiddleware } from "../../../shared/middlewares/input-validation-middleware";
-import { accessTokenMiddleware, oldAuthGuardMiddleware } from "../../auth/AuthMiddlewares/authGuardMiddleware";
+import { AuthMiddlewares } from "../../auth/AuthMiddlewares/authGuardMiddleware";
 import { commentsMiddleware } from "../../comments/CommentMiddlewares/commentsMiddlewares";
-import { postIdMiddleware, postPostIdMiddleware } from "./isThereAPostValidation";
+import { PostsMiddlewares } from "./isThereAPostValidation";
 import { postMiddlewares } from "./postMiddlewares";
+
+// const postsMiddlewares: PostsMiddlewares = container.resolve(PostsMiddlewares)
+// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
 
 export const getAllPostMiddlewares = [
     inputValidationMiddleware,
 ]
 export const getPostIdMiddlewares = [
-    postIdMiddleware, 
+    postsMiddlewares.postIdMiddleware, 
     inputValidationMiddleware,
 ]
 export const postPostMiddlewares = [
-    oldAuthGuardMiddleware,
+    authMiddlewares.oldAuthGuardMiddleware,
     ...postMiddlewares, 
     inputValidationMiddleware, 
 ]
 export const getPostIdAllCommentsMiddlewares = [
-    postPostIdMiddleware,
+    postsMiddlewares.postPostIdMiddleware,
     inputValidationMiddleware,
 ]
 export const postPostIdCommentsMiddlewares = [
-    accessTokenMiddleware,
-    postPostIdMiddleware,
+    authMiddlewares.accessTokenMiddleware,
+    postsMiddlewares.postPostIdMiddleware,
     ...commentsMiddleware,
     inputValidationMiddleware,
 ]
 export const updatePostMiddlewares = [
-    oldAuthGuardMiddleware,
-    postIdMiddleware, 
+    authMiddlewares.oldAuthGuardMiddleware,
+    postsMiddlewares.postIdMiddleware, 
     ...postMiddlewares, 
     inputValidationMiddleware, 
 ]
 export const deletePostMiddlewares = [
-    oldAuthGuardMiddleware,
-    postIdMiddleware, 
+    authMiddlewares.oldAuthGuardMiddleware,
+    postsMiddlewares.postIdMiddleware, 
     inputValidationMiddleware,  
 ]
