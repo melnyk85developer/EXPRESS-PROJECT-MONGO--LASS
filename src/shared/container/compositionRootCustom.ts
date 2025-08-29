@@ -1,5 +1,5 @@
-import { Container } from 'inversify';
 import 'reflect-metadata';
+import { Container } from 'inversify';
 // import { blogsCollection, commentsCollection, devicesCollection, postsCollection, tokensCollection, usersCollection } from '../../db';
 import { UsersRepository } from '../../services/users/UserRpository/usersRepository';
 import { UsersQueryRepository } from '../../services/users/UserRpository/usersQueryRepository';
@@ -36,8 +36,10 @@ import { AuthMiddlewares } from '../../services/auth/AuthMiddlewares/authGuardMi
 import { BlogValidationMiddlewares } from '../../services/blogs/BlogsMiddlewares/isThereABlogValidation';
 import { TYPES } from './types';
 import { app } from '../../app';
+import { MailService } from '../infrastructure/emailAdapter';
 
 export const mongoDBCollection = new MongoDBCollection()
+export const mailService = new MailService()
 
 export const usersRepository = new UsersRepository(mongoDBCollection)
 export const usersQueryRepository = new UsersQueryRepository(mongoDBCollection)
@@ -56,7 +58,7 @@ export const usersServices = new UserService(mongoDBCollection, usersRepository,
 export const superAdminAdapter = new SuperAdminAdapter(usersServices)
 export const tokenService = new TokenService(mongoDBCollection)
 export const securityDeviceServices = new SecurityDeviceServices(userSessionsRepository, tokenService)
-export const authServices = new AuthServices(mongoDBCollection, usersServices, usersRepository, usersQueryRepository, securityDeviceServices, tokenService)
+export const authServices = new AuthServices(mongoDBCollection, usersServices, usersRepository, usersQueryRepository, securityDeviceServices, tokenService, mailService)
 export const postsServices = new PostsServices(blogsQueryRepository, commentsRepository, commentsQueryRepository, postsRepository)
 export const commentsServices = new CommentsServices(commentsRepository)
 export const blogsServices = new BlogsServices(blogsRepository)

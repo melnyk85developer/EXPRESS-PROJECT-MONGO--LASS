@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authMiddlewares = exports.commentsMiddlewares = exports.postsMiddlewares = exports.blogValidationMiddlewares = exports.usersMiddlewares = exports.sessionsMiddlewares = exports.globalRequestLimitMiddleware = exports.commentsControllers = exports.blogsControllers = exports.postsControllers = exports.securityControllers = exports.usersControllers = exports.authControllers = exports.testsController = exports.blogsServices = exports.commentsServices = exports.postsServices = exports.authServices = exports.securityDeviceServices = exports.tokenService = exports.superAdminAdapter = exports.usersServices = exports.blogsRepository = exports.blogsQueryRepository = exports.commentsQueryRepository = exports.commentsRepository = exports.postsQueryRepository = exports.postsRepository = exports.userSessionsQueryRepository = exports.userSessionsRepository = exports.usersQueryRepository = exports.usersRepository = exports.mongoDBCollection = void 0;
+exports.authMiddlewares = exports.commentsMiddlewares = exports.postsMiddlewares = exports.blogValidationMiddlewares = exports.usersMiddlewares = exports.sessionsMiddlewares = exports.globalRequestLimitMiddleware = exports.commentsControllers = exports.blogsControllers = exports.postsControllers = exports.securityControllers = exports.usersControllers = exports.authControllers = exports.testsController = exports.blogsServices = exports.commentsServices = exports.postsServices = exports.authServices = exports.securityDeviceServices = exports.tokenService = exports.superAdminAdapter = exports.usersServices = exports.blogsRepository = exports.blogsQueryRepository = exports.commentsQueryRepository = exports.commentsRepository = exports.postsQueryRepository = exports.postsRepository = exports.userSessionsQueryRepository = exports.userSessionsRepository = exports.usersQueryRepository = exports.usersRepository = exports.mailService = exports.mongoDBCollection = void 0;
 require("reflect-metadata");
 // import { blogsCollection, commentsCollection, devicesCollection, postsCollection, tokensCollection, usersCollection } from '../../db';
 const usersRepository_1 = require("../../services/users/UserRpository/usersRepository");
@@ -36,7 +36,9 @@ const isThereAPostValidation_1 = require("../../services/posts/PostMiddlewares/i
 const isThereACommentValidation_1 = require("../../services/comments/CommentMiddlewares/isThereACommentValidation");
 const authGuardMiddleware_1 = require("../../services/auth/AuthMiddlewares/authGuardMiddleware");
 const isThereABlogValidation_1 = require("../../services/blogs/BlogsMiddlewares/isThereABlogValidation");
+const emailAdapter_1 = require("../infrastructure/emailAdapter");
 exports.mongoDBCollection = new db_1.MongoDBCollection();
+exports.mailService = new emailAdapter_1.MailService();
 exports.usersRepository = new usersRepository_1.UsersRepository(exports.mongoDBCollection);
 exports.usersQueryRepository = new usersQueryRepository_1.UsersQueryRepository(exports.mongoDBCollection);
 exports.userSessionsRepository = new userSessionsRepository_1.UserSessionsRepository(exports.mongoDBCollection);
@@ -51,7 +53,7 @@ exports.usersServices = new usersServices_1.UserService(exports.mongoDBCollectio
 exports.superAdminAdapter = new createSuperAdminAdapter_1.SuperAdminAdapter(exports.usersServices);
 exports.tokenService = new tokenService_1.TokenService(exports.mongoDBCollection);
 exports.securityDeviceServices = new securityDeviceService_1.SecurityDeviceServices(exports.userSessionsRepository, exports.tokenService);
-exports.authServices = new authServices_1.AuthServices(exports.mongoDBCollection, exports.usersServices, exports.usersRepository, exports.usersQueryRepository, exports.securityDeviceServices, exports.tokenService);
+exports.authServices = new authServices_1.AuthServices(exports.mongoDBCollection, exports.usersServices, exports.usersRepository, exports.usersQueryRepository, exports.securityDeviceServices, exports.tokenService, exports.mailService);
 exports.postsServices = new postsServices_1.PostsServices(exports.blogsQueryRepository, exports.commentsRepository, exports.commentsQueryRepository, exports.postsRepository);
 exports.commentsServices = new commentsServices_1.CommentsServices(exports.commentsRepository);
 exports.blogsServices = new blogsServices_1.BlogsServices(exports.blogsRepository);

@@ -15,22 +15,57 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,35 +75,73 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
+    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SecurityDeviceServices = void 0;
 require("reflect-metadata");
 const utils_1 = require("../../shared/utils/utils");
 const uuid = __importStar(require("uuid"));
 const inversify_1 = require("inversify");
-const userSessionsRepository_1 = require("./UserSessionsRpository/userSessionsRepository");
-const tokenService_1 = require("../../shared/infrastructure/tokenService");
-let SecurityDeviceServices = class SecurityDeviceServices {
-    constructor(
-    // @inject(TYPES.UserSessionsRepository)
-    userSessionsRepository, 
-    // @inject(TYPES.TokenService)
-    tokenService) {
-        this.userSessionsRepository = userSessionsRepository;
-        this.tokenService = tokenService;
-    }
-    createSessionServices(userId, ip, userAgent) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const allUserSessions = yield this._getAllSessionByUserIdServices(userId);
-            const existingSession = allUserSessions.find((session) => session.title === userAgent);
-            if (existingSession) {
-                // Обновляем существующую сессию
-                console.log('secutityDeviceServices: - Обновляем существующую сессию', existingSession);
-                return yield this.updateSessionServices(userId, ip, userAgent, existingSession.deviceId);
-            }
-            else {
-                // Создаём новую сессию
-                const deviceId = uuid.v4();
+let SecurityDeviceServices = (() => {
+    let _classDecorators = [(0, inversify_1.injectable)()];
+    let _classDescriptor;
+    let _classExtraInitializers = [];
+    let _classThis;
+    var SecurityDeviceServices = _classThis = class {
+        constructor(
+        // @inject(TYPES.UserSessionsRepository)
+        userSessionsRepository, 
+        // @inject(TYPES.TokenService)
+        tokenService) {
+            this.userSessionsRepository = userSessionsRepository;
+            this.tokenService = tokenService;
+        }
+        createSessionServices(userId, ip, userAgent) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const allUserSessions = yield this._getAllSessionByUserIdServices(userId);
+                const existingSession = allUserSessions.find((session) => session.title === userAgent);
+                if (existingSession) {
+                    // Обновляем существующую сессию
+                    console.log('secutityDeviceServices: - Обновляем существующую сессию', existingSession);
+                    return yield this.updateSessionServices(userId, ip, userAgent, existingSession.deviceId);
+                }
+                else {
+                    // Создаём новую сессию
+                    const deviceId = uuid.v4();
+                    const { accessToken, refreshToken } = yield this.tokenService.generateTokens(userId, deviceId);
+                    if (!accessToken || !refreshToken) {
+                        return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_TOKEN_CREATION_ERROR;
+                    }
+                    const userToken = yield this.tokenService.validateRefreshToken(refreshToken);
+                    const session = {
+                        ip,
+                        title: userAgent,
+                        userId,
+                        deviceId,
+                        lastActiveDate: new Date(userToken.iat).toISOString(),
+                        expirationDate: new Date(userToken.exp).toISOString(),
+                        // expirationDate: add(new Date(), {
+                        //     days: 1 ,
+                        //     hours: 0,
+                        //     minutes: 0
+                        // }),
+                    };
+                    // console.log(session)
+                    const isCreatedSession = yield this.userSessionsRepository.createSessionsRepository(session);
+                    if (isCreatedSession.acknowledged) {
+                        return { accessToken, refreshToken };
+                    }
+                    else {
+                        return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_SESSION_CREATION_ERROR;
+                    }
+                }
+            });
+        }
+        updateSessionServices(userId, ip, userAgent, deviceId) {
+            return __awaiter(this, void 0, void 0, function* () {
                 const { accessToken, refreshToken } = yield this.tokenService.generateTokens(userId, deviceId);
                 if (!accessToken || !refreshToken) {
                     return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_TOKEN_CREATION_ERROR;
@@ -81,86 +154,60 @@ let SecurityDeviceServices = class SecurityDeviceServices {
                     deviceId,
                     lastActiveDate: new Date(userToken.iat).toISOString(),
                     expirationDate: new Date(userToken.exp).toISOString(),
-                    // expirationDate: add(new Date(), {
+                    // expirationDate: add(new Date(), { 
                     //     days: 1 ,
                     //     hours: 0,
                     //     minutes: 0
                     // }),
                 };
-                // console.log(session)
-                const isCreatedSession = yield this.userSessionsRepository.createSessionsRepository(session);
-                if (isCreatedSession.acknowledged) {
+                const isUpdatedSession = yield this.userSessionsRepository.updateSessionsRepository(session);
+                if (isUpdatedSession && isUpdatedSession.acknowledged) {
                     return { accessToken, refreshToken };
                 }
                 else {
-                    return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_SESSION_CREATION_ERROR;
+                    return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_SESSION_UPDATION_ERROR;
                 }
-            }
-        });
-    }
-    updateSessionServices(userId, ip, userAgent, deviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { accessToken, refreshToken } = yield this.tokenService.generateTokens(userId, deviceId);
-            if (!accessToken || !refreshToken) {
-                return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_TOKEN_CREATION_ERROR;
-            }
-            const userToken = yield this.tokenService.validateRefreshToken(refreshToken);
-            const session = {
-                ip,
-                title: userAgent,
-                userId,
-                deviceId,
-                lastActiveDate: new Date(userToken.iat).toISOString(),
-                expirationDate: new Date(userToken.exp).toISOString(),
-                // expirationDate: add(new Date(), { 
-                //     days: 1 ,
-                //     hours: 0,
-                //     minutes: 0
-                // }),
-            };
-            const isUpdatedSession = yield this.userSessionsRepository.updateSessionsRepository(session);
-            if (isUpdatedSession && isUpdatedSession.acknowledged) {
-                return { accessToken, refreshToken };
-            }
-            else {
-                return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_SESSION_UPDATION_ERROR;
-            }
-        });
-    }
-    deleteSessionByDeviceIdServices(userId, deviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userSessionsRepository.deleteSessionsByDeviceIdRepository(userId, deviceId);
-        });
-    }
-    deleteAllSessionsServices(userId, deviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userSessionsRepository.deleteAllSessionsRepository(userId, deviceId);
-        });
-    }
-    _getAllSessionsUsersServices() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userSessionsRepository._getAllSessionyUsersRepository();
-        });
-    }
-    _getAllSessionByUserIdServices(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userSessionsRepository._getAllSessionByUserIdRepository(userId);
-        });
-    }
-    _getSessionByUserIdServices(userId, deviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userSessionsRepository._getSessionByUserIdRepository(userId, deviceId);
-        });
-    }
-    _getSessionByDeviceIdServices(deviceId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userSessionsRepository._getSessionDeviceByIdRepository(deviceId);
-        });
-    }
-};
+            });
+        }
+        deleteSessionByDeviceIdServices(userId, deviceId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.userSessionsRepository.deleteSessionsByDeviceIdRepository(userId, deviceId);
+            });
+        }
+        deleteAllSessionsServices(userId, deviceId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.userSessionsRepository.deleteAllSessionsRepository(userId, deviceId);
+            });
+        }
+        _getAllSessionsUsersServices() {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.userSessionsRepository._getAllSessionyUsersRepository();
+            });
+        }
+        _getAllSessionByUserIdServices(userId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.userSessionsRepository._getAllSessionByUserIdRepository(userId);
+            });
+        }
+        _getSessionByUserIdServices(userId, deviceId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.userSessionsRepository._getSessionByUserIdRepository(userId, deviceId);
+            });
+        }
+        _getSessionByDeviceIdServices(deviceId) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return yield this.userSessionsRepository._getSessionDeviceByIdRepository(deviceId);
+            });
+        }
+    };
+    __setFunctionName(_classThis, "SecurityDeviceServices");
+    (() => {
+        const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+        __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
+        SecurityDeviceServices = _classThis = _classDescriptor.value;
+        if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        __runInitializers(_classThis, _classExtraInitializers);
+    })();
+    return SecurityDeviceServices = _classThis;
+})();
 exports.SecurityDeviceServices = SecurityDeviceServices;
-exports.SecurityDeviceServices = SecurityDeviceServices = __decorate([
-    (0, inversify_1.injectable)(),
-    __metadata("design:paramtypes", [userSessionsRepository_1.UserSessionsRepository,
-        tokenService_1.TokenService])
-], SecurityDeviceServices);

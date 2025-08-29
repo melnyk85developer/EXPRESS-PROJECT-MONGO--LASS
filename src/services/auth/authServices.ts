@@ -6,7 +6,7 @@ import { ObjectId, UpdateResult } from "mongodb";
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
 import { UserType, UserTypeDB } from '../users/Users_DTO/userTypes';
 import { JwtPayload } from 'jsonwebtoken';
-import { emailAdapter } from '../../shared/infrastructure/emailAdapter';
+import { MailService } from '../../shared/infrastructure/emailAdapter';
 import { injectable } from 'inversify';
 import { UserService } from '../users/usersServices';
 import { UsersRepository } from '../users/UserRpository/usersRepository';
@@ -31,6 +31,8 @@ export class AuthServices {
         private readonly securityDeviceServices: SecurityDeviceServices,
         // @inject(TYPES.TokenService)
         private readonly tokenService: TokenService,
+        // @inject(TYPES.TokenService)
+        private readonly mailService: MailService,
     ) { }
     async registrationServices(login: string, password: string, email: string): Promise<UserType | null | any> {
         // console.log('registrationServices - login, password, email', login, password, email)
@@ -76,7 +78,7 @@ export class AuthServices {
                     <a href="${process.env.API_URL}/auth/confirm-email?code=${confirmationCode}">Подтвердить регистрацию</a>
                 </button>
             </div>`
-            const isSend = emailAdapter.sendMail(from, to, subject, text, html)
+            const isSend = this.mailService.sendMail(from, to, subject, text, html)
                 .catch(() => console.log('Ошибка отправки сообщения на E-Mail'))
             if (!isSend) {
                 if (crestedUser.insertedId) {
@@ -197,7 +199,7 @@ export class AuthServices {
         const getUser = await this.usersServices._getUserByEmail(email)
         if (!getUser) return null
         if (getUser.emailConfirmation.isConfirmed) return null
-        const isSend = emailAdapter.sendMail(from, to, subject, text, html)
+        const isSend = this.mailService.sendMail(from, to, subject, text, html)
             .catch(() => console.log('Ошибка отправки сообщения на E-Mail'))
         if (!isSend) return null
         return await this.usersServices.updateResendingUserServices(String(getUser._id), confirmationCode as unknown as any)

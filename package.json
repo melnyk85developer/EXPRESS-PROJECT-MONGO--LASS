@@ -7,6 +7,7 @@
     "watch": "tsc -w",
     "dev": "yarn nodemon --inspect dist/index.js",
     "test": "jest --projects --detectOpenHandles --no-cache --watchAll -i",
+    "test:watch": "NODE_OPTIONS=--no-deprecation jest --watch",
     "jest:coverage": "jest -i --coverage"
   },
   "dependencies": {
