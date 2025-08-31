@@ -4,13 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testsRouter = void 0;
-require("reflect-metadata");
-// import { container } from "../../shared/container/iocRoot";
+const iocRoot_1 = require("../../shared/container/iocRoot");
 const express_1 = __importDefault(require("express"));
-const compositionRootCustom_1 = require("../../shared/container/compositionRootCustom");
-// import { testsController } from "../../shared/container/compositionRootCustom";
+const testsController_1 = require("./testsController");
 exports.testsRouter = express_1.default.Router();
-// const testsController: TestsController = container.resolve(TestsController)
-// const testsController: TestsController = container.get(TestsController)
-// const deleteAllEntity = testsController.deleteAllEntity.bind(testsController);
-exports.testsRouter.delete('/all-data', compositionRootCustom_1.testsController.deleteAllEntity.bind(compositionRootCustom_1.testsController));
+const testsController = iocRoot_1.container.get(testsController_1.TestsController);
+exports.testsRouter.delete('/all-data', testsController.deleteAllEntity.bind(testsController));

@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import request from "supertest";
 import { SETTINGS } from "../../../shared/settings";
 import { app } from '../../../app';
@@ -12,7 +11,6 @@ import { contextTests } from '../../../shared/__tests__/contextTests';
 // import { container } from '../../src/shared/container/iocRoot';
 // import { MongoDBCollection } from '../../src/db';
 
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
 // const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
 
 export const getRequest = () => {

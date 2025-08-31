@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import bcrypt from 'bcrypt';
 import { add } from "date-fns";
 import * as uuid from 'uuid';
@@ -7,39 +6,33 @@ import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
 import { UserType, UserTypeDB } from '../users/Users_DTO/userTypes';
 import { JwtPayload } from 'jsonwebtoken';
 import { MailService } from '../../shared/infrastructure/emailAdapter';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { UserService } from '../users/usersServices';
 import { UsersRepository } from '../users/UserRpository/usersRepository';
 import { UsersQueryRepository } from '../users/UserRpository/usersQueryRepository';
 import { SecurityDeviceServices } from '../usersSessions/securityDeviceService';
 import { TokenService } from '../../shared/infrastructure/tokenService';
-// import { usersCollection } from '../../db';
 import { MongoDBCollection } from '../../db';
 
 @injectable()
 export class AuthServices {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection,
-        // @inject(new LazyServiceIdentifer(() => TYPES.UserService))
-        private readonly usersServices: UserService,
-        // @inject(TYPES.UsersRepository)
-        private readonly usersRepository: UsersRepository,
-        // @inject(TYPES.UsersQueryRepository)
-        private readonly usersQueryRepository: UsersQueryRepository,
-        // @inject(TYPES.SecurityDeviceServices)
-        private readonly securityDeviceServices: SecurityDeviceServices,
-        // @inject(TYPES.TokenService)
-        private readonly tokenService: TokenService,
-        // @inject(TYPES.TokenService)
-        private readonly mailService: MailService,
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection,
+        @inject(UserService) private usersServices: UserService,
+        @inject(UsersRepository) private usersRepository: UsersRepository,
+        @inject(UsersQueryRepository) private usersQueryRepository: UsersQueryRepository,
+        @inject(SecurityDeviceServices) private securityDeviceServices: SecurityDeviceServices,
+        @inject(TokenService) private tokenService: TokenService,
+        @inject(MailService) private mailService: MailService,
     ) { }
     async registrationServices(login: string, password: string, email: string): Promise<UserType | null | any> {
-        // console.log('registrationServices - login, password, email', login, password, email)
-        const isLogin = await this.usersServices._getUserByLoginOrEmail(login)
-        const isEmail = await this.usersServices._getUserByLoginOrEmail(email)
+        // console.log('registrationServices - login, password, email 😡😡', login, password, email)
+        const isLogin = await this.usersServices._getUserByLoginOrEmailService(login)
+        // console.log('registrationServices - isLogin: ', isLogin)
+        const isEmail = await this.usersServices._getUserByLoginOrEmailService(email)
         // console.log('registrationServices - isLogin, isEmail: ', isLogin, isEmail)
         if (!isLogin && !isEmail) {
+            // console.log('😡 !isLogin && !isEmail)')
             const date = new Date()
             // date.setMilliseconds(0)
             const confirmationCode = uuid.v4()
@@ -61,7 +54,7 @@ export class AuthServices {
                 }
             }
             const crestedUser = await this.usersServices.createUserServices(createUser as unknown as UserTypeDB)
-            // console.log('crestedUser: - ', crestedUser)
+            // console.log('crestedUser: - 😡', crestedUser)
             const from = `IT-INCUBATOR <${process.env.SMTP_USER}>`
             const to = email
             const subject = `Активация аккаунта на сайте ${process.env.PROJEKT_NAME}`
@@ -164,7 +157,7 @@ export class AuthServices {
         }
     }
     async confirmEmail(code: any): Promise<boolean> {
-        let user = await this.usersServices._findUserByConfirmationCode(code)
+        let user = await this.usersServices._findUserByConfirmationCodeService(code)
         if (!user) return false
         if (user.emailConfirmation.isConfirmed) return false
         if (user.emailConfirmation.confirmationCode !== code) return false
@@ -196,7 +189,7 @@ export class AuthServices {
                 <a href="${process.env.API_URL}/auth/confirm-email?code=${confirmationCode}">Заблокировать</a>
             </button>
         </div>`
-        const getUser = await this.usersServices._getUserByEmail(email)
+        const getUser = await this.usersServices._getUserByEmailService(email)
         if (!getUser) return null
         if (getUser.emailConfirmation.isConfirmed) return null
         const isSend = this.mailService.sendMail(from, to, subject, text, html)
@@ -222,7 +215,7 @@ export class AuthServices {
         }
     }
     async _isAuthServiceForMiddleware(loginOrEmail: string, password: string): Promise<any> {
-        const user = await this.usersServices._getUserByLoginOrEmail(loginOrEmail);
+        const user = await this.usersServices._getUserByLoginOrEmailService(loginOrEmail);
         if (!user) return null
         // TODO Написать смс: Активируйте аккаунт!
         // if(!user.emailConfirmation.isConfirmed) return null

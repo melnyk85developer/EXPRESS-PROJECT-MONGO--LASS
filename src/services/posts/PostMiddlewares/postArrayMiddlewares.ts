@@ -1,13 +1,12 @@
-import { authMiddlewares, postsMiddlewares } from "../../../shared/container/compositionRootCustom";
-// import { container } from "../../../shared/container/iocRoot";
+import { container } from "../../../shared/container/iocRoot";
 import { inputValidationMiddleware } from "../../../shared/middlewares/input-validation-middleware";
 import { AuthMiddlewares } from "../../auth/AuthMiddlewares/authGuardMiddleware";
 import { commentsMiddleware } from "../../comments/CommentMiddlewares/commentsMiddlewares";
 import { PostsMiddlewares } from "./isThereAPostValidation";
 import { postMiddlewares } from "./postMiddlewares";
 
-// const postsMiddlewares: PostsMiddlewares = container.resolve(PostsMiddlewares)
-// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
+const postsMiddlewares: PostsMiddlewares = container.get(PostsMiddlewares)
+const authMiddlewares: AuthMiddlewares = container.get(AuthMiddlewares)
 
 export const getAllPostMiddlewares = [
     inputValidationMiddleware,

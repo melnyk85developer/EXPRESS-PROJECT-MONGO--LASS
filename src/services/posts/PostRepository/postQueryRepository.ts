@@ -1,18 +1,16 @@
-import "reflect-metadata"
 import { ObjectId, SortDirection } from "mongodb";
 import { URIParamsOnePostIdModel, URIParamsPostIdModel } from "../Post_DTO/URIParamsPostIdModel";
 import { PostType, PostTypeDB, ResponsePostsType } from "../Post_DTO/postType";
 import { RequestWithParams, RequestWithQuery } from "../../../shared/types/typesGeneric";
 import { sanitizedQueryType } from "../../../shared/types/types";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 // import { postsCollection } from "../../../db";
 import { MongoDBCollection } from "../../../db";
 
 @injectable()
 export class PostsQueryRepository {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection,
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
 
     async getAllPostsRepositories(req: RequestWithParams<URIParamsOnePostIdModel> & RequestWithQuery<{ [key: string]: string | undefined }>): Promise<ResponsePostsType | null> {

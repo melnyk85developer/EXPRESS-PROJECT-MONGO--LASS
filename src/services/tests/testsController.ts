@@ -1,70 +1,57 @@
-import "reflect-metadata"
-import express, { RequestHandler } from 'express';
-import { TYPES } from '../../shared/container/types';
+import { RequestHandler } from 'express';
 import { inject, injectable } from 'inversify';
 import { MongoDBCollection } from '../../db';
 import { HTTP_STATUSES } from '../../shared/utils/utils';
 import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
-// import { blogsCollection, commentsCollection, devicesCollection, postsCollection, requestsCollection, tokensCollection, usersCollection } from "../../db";
-import { testsRouter } from "./testsRouts";
 
 @injectable()
 export class TestsController {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
 
-    async clearUsersCollection() {
-        return await this.mongoDB.usersCollection.deleteMany({});
+    private async clearAll() {
+        await Promise.all([
+            this.mongoDB.usersCollection.deleteMany({}),
+            this.mongoDB.blogsCollection.deleteMany({}),
+            this.mongoDB.postsCollection.deleteMany({}),
+            this.mongoDB.commentsCollection.deleteMany({}),
+            this.mongoDB.tokensCollection.deleteMany({}),
+            this.mongoDB.requestsCollection.deleteMany({}),
+            this.mongoDB.devicesCollection.deleteMany({})
+        ])
     }
-    async clearBlogsCollection() {
-        return await this.mongoDB.blogsCollection.deleteMany({});
-    }
-    async clearPostsCollection() {
-        return await this.mongoDB.postsCollection.deleteMany({});
-    }
-    async clearCommentsCollection() {
-        return await this.mongoDB.commentsCollection.deleteMany({});
-    }
-    async clearTokensCollection() {
-        return await this.mongoDB.tokensCollection.deleteMany({});
-    }
-    async clearRequestsCollection() {
-        return await this.mongoDB.requestsCollection.deleteMany({});
-    }
-    async clearDevicesCollection() {
-        return await this.mongoDB.devicesCollection.deleteMany({});
-    }
+
+    // testsController.ts
     deleteAllEntity: RequestHandler = async (req, res) => {
         try {
-            await this.mongoDB.connectDB();
-
-            const deleteUsersResult = await this.clearUsersCollection()
-            const deleteBlogsResult = await this.clearBlogsCollection()
-            const deletePostsResult = await this.clearPostsCollection()
-            const deleteCommentsResult = await this.clearCommentsCollection()
-            const deleteTokenResult = await this.clearTokensCollection()
-            const deleteRequestsResult = await this.clearRequestsCollection()
-            const devicesResult = await this.clearDevicesCollection()
-
-            if (
-                deleteBlogsResult.acknowledged &&
-                deletePostsResult.acknowledged &&
-                deleteUsersResult.acknowledged &&
-                deleteCommentsResult.acknowledged &&
-                deleteTokenResult.acknowledged &&
-                deleteRequestsResult.acknowledged &&
-                devicesResult.acknowledged
-            ) {
-                return res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
+            // <<< важно: поднимем коннект, если тесты запускают роут без index.ts
+            if (!this.mongoDB.connected) {
+                await this.mongoDB.connectDB();
             }
-            return ResErrorsSwitch(res, HTTP_STATUSES.BAD_REQUEST_400, 'Не удалось удалить данные из базы данных.');
+
+            const [u, b, p, c, t, r, d] = await Promise.all([
+                this.mongoDB.usersCollection.deleteMany({}),
+                this.mongoDB.blogsCollection.deleteMany({}),
+                this.mongoDB.postsCollection.deleteMany({}),
+                this.mongoDB.commentsCollection.deleteMany({}),
+                this.mongoDB.tokensCollection.deleteMany({}),
+                this.mongoDB.requestsCollection.deleteMany({}),
+                this.mongoDB.devicesCollection.deleteMany({}),
+            ]);
+
+            if (u.acknowledged && b.acknowledged && p.acknowledged && c.acknowledged &&
+                t.acknowledged && r.acknowledged && d.acknowledged) {
+                return res.sendStatus(204);
+            }
+            return ResErrorsSwitch(res, 400, 'Не удалось удалить данные из базы данных.');
         } catch (error) {
-            return ResErrorsSwitch(res, HTTP_STATUSES.BAD_REQUEST_400, `Произошла ошибка при попытке обнуления базы данных. ${error}`);
+            return ResErrorsSwitch(res, 400, `Ошибка при обнулении базы данных: ${error}`);
         }
     };
+
 }
+
 
 // export const testsController = () => {
 //     const router = express.Router()

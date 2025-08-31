@@ -1,19 +1,16 @@
-import "reflect-metadata"
 import { RequestHandler } from 'express';
 import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
 import { INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
 import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { SecurityDeviceServices } from './securityDeviceService';
 import { UserSessionsQueryRepository } from './UserSessionsRpository/userSessionQueryRepository';
 
 @injectable()
 export class SecurityController {
     constructor(
-        // @inject(TYPES.SecurityDeviceServices)
-        protected securityDeviceServices: SecurityDeviceServices,
-        // @inject(TYPES.UserSessionsQueryRepository)
-        protected userSessionsQueryRepository: UserSessionsQueryRepository
+        @inject(SecurityDeviceServices) protected securityDeviceServices: SecurityDeviceServices,
+        @inject(UserSessionsQueryRepository) protected userSessionsQueryRepository: UserSessionsQueryRepository
     ) { }
     getAllSessionsByUserId: RequestHandler = async (req, res) => {
         // @ts-ignore

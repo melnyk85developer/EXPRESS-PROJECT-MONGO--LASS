@@ -1,16 +1,14 @@
-import "reflect-metadata"
 import { ObjectId, SortDirection } from "mongodb";
 import { CommentType, CommentTypeDB, ResponseCommentsType } from "../Comment_DTO/commentType";
 import { sanitizedQueryType } from "../../../shared/types/types";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 // import { commentsCollection } from "../../../db";
 import { MongoDBCollection } from "../../../db";
 
 @injectable()
 export class CommentsQueryRepository {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
     async getAllCommentssRepository(postId: string, query: any): Promise<ResponseCommentsType | null> {
         // console.log('getAllCommentssRepository: - postId, query', postId, query)

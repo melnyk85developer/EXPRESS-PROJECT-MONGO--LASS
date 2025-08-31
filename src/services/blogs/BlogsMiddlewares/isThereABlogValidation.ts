@@ -1,15 +1,13 @@
-import "reflect-metadata"
 import { Response, Request, NextFunction } from 'express';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { BlogsQueryRepository } from '../BlogsRepository/blogQueryRepository';
 
 @injectable()
 export class BlogValidationMiddlewares {
     constructor(
-        // @inject(TYPES.BlogsQueryRepository)
-        private readonly blogsQueryRepository: BlogsQueryRepository
+        @inject(BlogsQueryRepository) private readonly blogsQueryRepository: BlogsQueryRepository
     ) { }
     blogIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         const foundBlog = await this.blogsQueryRepository.getBlogByIdRepository(req.params.id)

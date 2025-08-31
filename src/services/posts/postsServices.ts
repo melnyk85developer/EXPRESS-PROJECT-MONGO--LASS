@@ -1,10 +1,9 @@
-import "reflect-metadata"
 import { DeleteResult, InsertOneResult, UpdateResult } from "mongodb";
 import { UpdatePostModel } from "./Post_DTO/UpdatePostModel"
 import { CreatePostModel } from "./Post_DTO/CreatePostModel";
 import { PostTypeDB } from "./Post_DTO/postType";
 import { RequestWithParams } from "../../shared/types/typesGeneric";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { BlogsQueryRepository } from "../blogs/BlogsRepository/blogQueryRepository";
 import { CommentsRepository } from "../comments/CommentRepository/commentsRepository";
 import { CommentsQueryRepository } from "../comments/CommentRepository/commentsQueryRepository";
@@ -13,14 +12,10 @@ import { PostsRepository } from "./PostRepository/postsRepository";
 @injectable()
 export class PostsServices {
     constructor(
-        // @inject(TYPES.BlogsQueryRepository)
-        protected blogsQueryRepository: BlogsQueryRepository,
-        // @inject(TYPES.CommentsRepository)
-        protected commentsRepository: CommentsRepository,
-        // @inject(TYPES.CommentsQueryRepository)
-        protected commentsQueryRepository: CommentsQueryRepository,
-        // @inject(TYPES.PostsRepository)
-        protected postsRepository: PostsRepository,
+        @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
+        @inject(CommentsRepository) protected commentsRepository: CommentsRepository,
+        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
+        @inject(PostsRepository) protected postsRepository: PostsRepository,
     ) { }
 
     async createPostServices(post: CreatePostModel): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | null> {

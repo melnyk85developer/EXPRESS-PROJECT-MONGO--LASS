@@ -264,7 +264,7 @@ export type contextTestsType = {
 
 }
 export type contextUserAgent = any[]
-export var contextTests: contextTestsType = {
+export const contextTests: contextTestsType = {
     userAgent: [],
     buff2: null,
     codedAuth: null,

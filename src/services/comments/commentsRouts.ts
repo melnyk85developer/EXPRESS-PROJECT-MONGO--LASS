@@ -1,14 +1,10 @@
-import "reflect-metadata"
 import express, { Response } from 'express';
 import { deleteCommentMiddlewares, getCommentIdMiddlewares, updateCommentMiddlewares } from './CommentMiddlewares/commentArrayMiddlewares';
-// import { container } from "../../shared/container/iocRoot";
+import { container } from "../../shared/container/iocRoot";
 import { CommentsControllers } from "./commentsControllers";
-import { commentsControllers } from "../../shared/container/compositionRootCustom";
-// import { commentsControllers } from "../../shared/container/compositionRootCustom";
 
 export const commentsRouter = express.Router()
-
-// const commentsControllers: CommentsControllers = container.resolve(CommentsControllers)
+const commentsControllers: CommentsControllers = container.get(CommentsControllers)
 
 commentsRouter.get('/:id', getCommentIdMiddlewares, commentsControllers.getCommentByIdController.bind(commentsControllers))
 commentsRouter.put('/:commentId', updateCommentMiddlewares, commentsControllers.updateCommentController.bind(commentsControllers))

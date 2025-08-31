@@ -45,15 +45,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const app_1 = require("./app");
 const dotenv = __importStar(require("dotenv"));
-const compositionRootCustom_1 = require("./shared/container/compositionRootCustom");
+const iocRoot_1 = require("./shared/container/iocRoot");
+const db_1 = require("./db");
 // import { MongoDBCollection } from "./db";
-// import { container } from "./shared/container/iocRoot";
 // import { connectDB } from "./db";
 dotenv.config();
 const port = process.env.PORT || 5001;
-// const mongoDB = container.resolve(MongoDBCollection)
+const mongoDBCollection = iocRoot_1.container.get(db_1.MongoDBCollection);
 const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield compositionRootCustom_1.mongoDBCollection.connectDB();
+    yield mongoDBCollection.connectDB();
     app_1.app.listen(port, () => {
         console.log(`Сервер стартанул, порт ${port}`);
     });

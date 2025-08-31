@@ -1,4 +1,3 @@
-import "reflect-metadata"
 import { Response } from 'express';
 import { URIParamsCommentIdModel, URIParamsUpdateDeleteCommentIdModel } from './Comment_DTO/URIParamsCommentIdModel';
 import { INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
@@ -7,17 +6,15 @@ import { CommentType } from './Comment_DTO/commentType';
 import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
 import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
 import { RequestWithParams, RequestWithParamsAndBody } from '../../shared/types/typesGeneric';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { CommentsServices } from './commentsServices';
 import { CommentsQueryRepository } from './CommentRepository/commentsQueryRepository';
 
 @injectable()
 export class CommentsControllers {
     constructor(
-        // @inject(TYPES.CommentsServices)
-        protected commentsServices: CommentsServices,
-        // @inject(TYPES.CommentsQueryRepository)
-        protected commentsQueryRepository: CommentsQueryRepository,
+        @inject(CommentsServices) protected commentsServices: CommentsServices,
+        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
     ) { }
 
     async getCommentByIdController(req: RequestWithParams<URIParamsCommentIdModel>, res: Response<CommentType>) {

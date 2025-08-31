@@ -1,4 +1,3 @@
-import "reflect-metadata"
 import express, { Response } from 'express';
 import { QueryBlogModel } from './Blogs_DTO/QueryBlogsModel';
 import { UpdateBlogModel } from './Blogs_DTO/UpdateBlogModel';
@@ -12,7 +11,7 @@ import { PostType, ResponsePostsType } from '../posts/Post_DTO/postType';
 import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
 import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
 import { RequestWithParams, RequestWithParamsAndBody, RequestWithQuery } from '../../shared/types/typesGeneric';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { PostsQueryRepository } from '../posts/PostRepository/postQueryRepository';
 import { BlogsQueryRepository } from './BlogsRepository/blogQueryRepository';
 import { PostsServices } from '../posts/postsServices';
@@ -21,14 +20,10 @@ import { BlogsServices } from './blogsServices';
 @injectable()
 export class BlogsControllers {
     constructor(
-        // @inject(TYPES.PostsQueryRepository)
-        protected postsQueryRepository: PostsQueryRepository,
-        // @inject(TYPES.BlogsQueryRepository)
-        protected blogsQueryRepository: BlogsQueryRepository,
-        // @inject(TYPES.PostsServices)
-        protected postsServices: PostsServices,
-        // @inject(TYPES.BlogsServices)
-        protected blogsServices: BlogsServices,
+        @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
+        @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
+        @inject(PostsServices) protected postsServices: PostsServices,
+        @inject(BlogsServices) protected blogsServices: BlogsServices,
     ) { }
 
     async getBlogsController(req: RequestWithQuery<QueryBlogModel> & RequestWithQuery<{ [key: string]: string | undefined }>, res: Response<ResponseBlogType | null>) {

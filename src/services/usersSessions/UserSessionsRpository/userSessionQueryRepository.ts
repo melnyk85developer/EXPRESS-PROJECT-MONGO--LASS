@@ -1,5 +1,4 @@
-import "reflect-metadata"
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { SessionType, SessionTypeDB } from "../Sessions_DTO/sessionsType";
 // import { devicesCollection } from "../../../db";
 import { MongoDBCollection } from "../../../db";
@@ -7,8 +6,7 @@ import { MongoDBCollection } from "../../../db";
 @injectable()
 export class UserSessionsQueryRepository {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
 
     async getAllSessionByUserIdRepository(userId: string): Promise<any> {

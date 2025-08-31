@@ -1,11 +1,10 @@
-import 'reflect-metadata';
 import { Response, Request, NextFunction } from 'express'
 import { UserType, UserTypeDB } from '../../users/Users_DTO/userTypes';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { SETTINGS } from '../../../shared/settings';
 import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
 import { JwtPayload } from 'jsonwebtoken';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { AuthServices } from '../authServices';
 import { TokenService } from '../../../shared/infrastructure/tokenService';
 import { SecurityDeviceServices } from '../../usersSessions/securityDeviceService';
@@ -14,14 +13,10 @@ import { UsersQueryRepository } from '../../users/UserRpository/usersQueryReposi
 @injectable()
 export class AuthMiddlewares {
     constructor(
-        // @inject(TYPES.AuthServices)
-        private authServices: AuthServices,
-        // @inject(TYPES.TokenService)
-        private tokenService: TokenService,
-        // @inject(TYPES.SecurityDeviceServices)
-        private securityDeviceServices: SecurityDeviceServices,
-        // @inject(TYPES.UsersQueryRepository)
-        private usersQueryRepository: UsersQueryRepository
+        @inject(AuthServices) private authServices: AuthServices,
+        @inject(TokenService) private tokenService: TokenService,
+        @inject(SecurityDeviceServices) private securityDeviceServices: SecurityDeviceServices,
+        @inject(UsersQueryRepository) private usersQueryRepository: UsersQueryRepository
     ) { }
     oldAuthGuardMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         const fromUTF8ToBase64 = (code: string) => {

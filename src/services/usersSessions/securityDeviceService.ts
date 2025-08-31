@@ -1,19 +1,16 @@
-import "reflect-metadata"
 import { UpdateResult } from "mongodb";
 import { INTERNAL_STATUS_CODE } from "../../shared/utils/utils";
 import { JwtPayload } from "jsonwebtoken";
-import * as uuid from 'uuid';
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { UserSessionsRepository } from "./UserSessionsRpository/userSessionsRepository";
 import { TokenService } from "../../shared/infrastructure/tokenService";
+import * as uuid from 'uuid';
 
 @injectable()
 export class SecurityDeviceServices {
     constructor(
-        // @inject(TYPES.UserSessionsRepository)
-        protected userSessionsRepository: UserSessionsRepository,
-        // @inject(TYPES.TokenService)
-        protected tokenService: TokenService
+        @inject(UserSessionsRepository) protected userSessionsRepository: UserSessionsRepository,
+        @inject(TokenService) protected tokenService: TokenService
     ) { }
     async createSessionServices(userId: string, ip: string, userAgent: string): Promise<{ accessToken: string, refreshToken: string } | any> {
         const allUserSessions = await this._getAllSessionByUserIdServices(userId);

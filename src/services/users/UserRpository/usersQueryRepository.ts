@@ -1,18 +1,16 @@
-import 'reflect-metadata';
 import { ObjectId, SortDirection } from "mongodb";;
 import { URIParamsUserIdModel } from "../Users_DTO/URIParamsUserIdModel";
 import { ResponseUserType, UserType, UserTypeDB } from "../Users_DTO/userTypes";
 import { RequestWithParams, RequestWithQuery } from "../../../shared/types/typesGeneric";
 import { sanitizedQueryType } from "../../../shared/types/types";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 // import { usersCollection } from '../../../db';
 import { MongoDBCollection } from "../../../db";
 
 @injectable()
 export class UsersQueryRepository {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private readonly mongoDB: MongoDBCollection
     ) { }
 
     async getAllUsersRepository(req: RequestWithParams<URIParamsUserIdModel> & RequestWithQuery<{ [key: string]: string | undefined }>): Promise<ResponseUserType | null> {

@@ -1,17 +1,10 @@
-import "reflect-metadata"
 import express from 'express';;
-import { TYPES } from '../../shared/container/types';
 import { confirmationEmailMiddlewares, loginMiddlewares, logoutMiddlewares, meMiddlewares, refreshTokenMiddlewares, registrationConfirmMiddlewares, registrationEmailResendingMiddlewares, registrationMiddlewares } from './AuthMiddlewares/authArrayMiddlewares';
-// import { container } from "../../shared/container/iocRoot";
 import { AuthControllers } from "./authControllers";
-import { authControllers } from "../../shared/container/compositionRootCustom";
-// import { authControllers } from "../../shared/container/compositionRootCustom";
+import { container } from "../../shared/container/iocRoot";
 
 export const authRouter = express.Router()
-// const authControllers: AuthControllers = container.get(AuthControllers)
-// const authControllers = container.resolve(AuthControllers)
-
-// console.log(authControllers)
+const authControllers: AuthControllers = container.get(AuthControllers)
 
 authRouter.post(`/registration`, registrationMiddlewares, authControllers.registrationController.bind(authControllers))
 authRouter.post(`/login`, loginMiddlewares, authControllers.loginControllers.bind(authControllers))

@@ -1,11 +1,15 @@
-import 'reflect-metadata';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';;
 import { INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
-import { mongoDBCollection, tokenService } from '../../../shared/container/compositionRootCustom';
 import { contextTests } from '../../../shared/__tests__/contextTests';
 import { getRequest } from '../../../shared/__tests__/managersTests/authTestManager';
 import { SETTINGS } from '../../../shared/settings';
+import { container } from '../../../shared/container/iocRoot';
+import { MongoDBCollection } from '../../../db';
+import { TokenService } from '../../../shared/infrastructure/tokenService';
+
+const mongoDBCollection: MongoDBCollection = container.get(MongoDBCollection)
+const tokenService: TokenService = container.get(TokenService)
 
 export const authUnitTest = () => {
     // beforeAll(() => {

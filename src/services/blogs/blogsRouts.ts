@@ -1,13 +1,10 @@
-import "reflect-metadata"
-// import { container } from "../../shared/container/iocRoot";
+import { container } from "../../shared/container/iocRoot";
 import express, { Response } from 'express';
 import { deleteBlogMiddlewares, getBlogIdAllPostsMiddlewares, getBlogIdMiddlewares, getBlogsMiddlewares, postBlogIdOnePostMiddlewares, postBlogMiddlewares, updateBlogMiddlewares } from './BlogsMiddlewares/blogArrayMiddlewares';
 import { BlogsControllers } from "./blogsController";
-import { blogsControllers } from "../../shared/container/compositionRootCustom";
 
 export const blogsRouter = express.Router()
-
-// const blogsControllers: BlogsControllers = container.resolve(BlogsControllers)
+const blogsControllers: BlogsControllers = container.get(BlogsControllers)
 
 blogsRouter.get('/', getBlogsMiddlewares, blogsControllers.getBlogsController.bind(blogsControllers))
 blogsRouter.get('/:blogId/posts', getBlogIdAllPostsMiddlewares, blogsControllers.getBlogIdAllPostsController.bind(blogsControllers))

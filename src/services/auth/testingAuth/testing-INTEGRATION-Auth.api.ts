@@ -1,28 +1,17 @@
-import 'reflect-metadata';
-// import { container } from "../../src/shared/container/iocRoot";
-import { AuthServices } from "../authServices";
-import { TokenService } from "../../../shared/infrastructure/tokenService";
-// import { MongoDBCollection } from '../../src/db';
-// import { authServices, tokenService } from "../../src/shared/container/compositionRootCustom";
 import request from "supertest";
-
 import { SETTINGS } from "../../../shared/settings";
 import { app } from '../../../app';
 import { INTERNAL_STATUS_CODE } from "../../../shared/utils/utils";
-import { authServices, mailService, tokenService } from "../../../shared/container/compositionRootCustom";
 import { contextTests } from '../../../shared/__tests__/contextTests';
+import { AuthServices } from '../authServices';
+import { MailService } from '../../../shared/infrastructure/emailAdapter';
+import { container } from '../../../shared/container/iocRoot';
+import { TokenService } from '../../../shared/infrastructure/tokenService';
+import { getRequest } from "../../../shared/__tests__/managersTests/authTestManager";
 
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
-// const authServices: AuthServices = container.resolve(AuthServices)
-// const tokenService: TokenService = container.resolve(TokenService)
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
-
-// const authServices: AuthServices = container.get(AuthServices)
-// const tokenService: TokenService = container.get(TokenService)
-
-export const getRequest = () => {
-    return request(app);
-}
+const tokenService: TokenService = container.get(TokenService)
+const authServices: AuthServices = container.get(AuthServices)
+const mailService: MailService = container.get(MailService)
 
 export const authIntegrationTest = () => {
     describe('AUTH-INTEGRATION', () => {

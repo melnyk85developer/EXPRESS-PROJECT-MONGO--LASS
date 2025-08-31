@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import request from "supertest";
 import { app } from '../../../app';
 import { HTTP_STATUSES, HttpStatusType } from '../../utils/utils';

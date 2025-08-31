@@ -1,19 +1,17 @@
-import "reflect-metadata"
 import { Response, Request, NextFunction } from 'express';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
 import { UserTypeDB } from '../Users_DTO/userTypes';
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { UserService } from '../usersServices';
 
 @injectable()
 export class UsersMiddlewares {
     constructor(
-        // @inject(TYPES.UserService)
-        private usersServices: UserService,
+        @inject(UserService) private usersServices: UserService,
     ) { }
     userIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-        const found: UserTypeDB = await this.usersServices._getUserByIdRepo(req.params.id);
+        const found: UserTypeDB = await this.usersServices._getUserByIdService(req.params.id);
         if (!found) {
             return ResErrorsSwitch(
                 res,

@@ -1,20 +1,14 @@
-import 'reflect-metadata';
-import { authServices, mailService } from '../../../shared/container/compositionRootCustom';
 import { HTTP_STATUSES } from '../../../shared/utils/utils';
 import { authTestManager } from '../../../shared/__tests__/managersTests/authTestManager';
 import { contextTests } from '../../../shared/__tests__/contextTests';
-// import { container } from "../../src/shared/container/iocRoot";
-// import { MongoDBCollection } from '../../src/db';
+import { AuthServices } from '../authServices';
+import { container } from '../../../shared/container/iocRoot';
+import { MailService } from '../../../shared/infrastructure/emailAdapter';
+import { delay } from '../../usersSessions/testingUserSessions/testing-E2E-UserSessions.api';
 
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
-// const authServices: AuthServices = container.resolve(AuthServices)
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
+const authServices: AuthServices = container.get(AuthServices)
+const mailService: MailService = container.get(MailService)
 
-// const authServices: AuthServices = container.get(AuthServices)
-
-export const delay = (milliseconds: number) => new Promise((resolve) => {
-    return setTimeout(() => resolve(true), milliseconds);
-});
 export const authE2eTest = () => {
     describe('E2E-AUTH', () => {
         it('Должен возвращать 204 при успешной регистрации!', async () => {
@@ -63,7 +57,7 @@ export const authE2eTest = () => {
                 HTTP_STATUSES.OK_200
             )
         })
-        it('Должен возвращать 200, выдавать новую пару access и refresh tokens при посещении refresh-token, а так же заносить старый refreshToken в черный список!', async () => {
+        it('Должен возвращать 200, выдавать новую пару access и refresh tokens при посещении refresh-token, старый refreshToken в черный список!', async () => {
             const { response, refresh } = await authTestManager.refreshToken(
                 contextTests.accessTokenUser1Device1,
                 contextTests.refreshTokenUser1Device1,

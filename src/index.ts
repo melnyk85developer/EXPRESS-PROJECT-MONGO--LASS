@@ -1,17 +1,16 @@
 import "reflect-metadata";
 import { app } from './app';
 import * as dotenv from 'dotenv';
-import { mongoDBCollection } from "./shared/container/compositionRootCustom";
+import { container } from "./shared/container/iocRoot";
+import { MongoDBCollection } from "./db";
 // import { MongoDBCollection } from "./db";
-// import { container } from "./shared/container/iocRoot";
 // import { connectDB } from "./db";
-
 
 dotenv.config();
 
 const port = process.env.PORT || 5001
 
-// const mongoDB = container.resolve(MongoDBCollection)
+const mongoDBCollection = container.get(MongoDBCollection)
 
 const startApp = async () => {
     await mongoDBCollection.connectDB()

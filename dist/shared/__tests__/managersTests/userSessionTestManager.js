@@ -13,16 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersSessionTestManager = exports.getRequest = void 0;
-require("reflect-metadata");
 const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../../../app");
 const settings_1 = require("../../settings");
 const utils_1 = require("../../utils/utils");
-const compositionRootCustom_1 = require("../../container/compositionRootCustom");
-// import { container } from "../../../src/shared/container/iocRoot";
+const iocRoot_1 = require("../../container/iocRoot");
+const tokenService_1 = require("../../infrastructure/tokenService");
+const securityDeviceService_1 = require("../../../services/usersSessions/securityDeviceService");
 // import { securityDeviceServices, tokenService } from "../../../src/shared/container/compositionRootCustom";
-// const tokenService: TokenService = container.resolve(TokenService)
-// const securityDeviceServices: SecurityDeviceServices = container.resolve(SecurityDeviceServices)
+const tokenService = iocRoot_1.container.get(tokenService_1.TokenService);
+const securityDeviceServices = iocRoot_1.container.get(securityDeviceService_1.SecurityDeviceServices);
 const getRequest = () => {
     return (0, supertest_1.default)(app_1.app);
 };
@@ -40,7 +40,7 @@ exports.usersSessionTestManager = {
                 .expect(expectedStatusCode);
             // console.log('usersTestManager - res', response.body)
             let arrSessions = response.body;
-            const userToken = yield compositionRootCustom_1.tokenService.validateRefreshToken(refreshToken);
+            const userToken = yield tokenService.validateRefreshToken(refreshToken);
             expect(Array.isArray(arrSessions)).toBe(true);
             expect(arrSessions).toEqual(expect.arrayContaining([
                 expect.objectContaining({
@@ -112,9 +112,9 @@ exports.usersSessionTestManager = {
     },
     createArrayUsersSessions() {
         return __awaiter(this, arguments, void 0, function* (count = 10, codedAuth = undefined, authToken2 = null) {
-            const userToken = yield compositionRootCustom_1.tokenService.validateRefreshToken(authToken2);
+            const userToken = yield tokenService.validateRefreshToken(authToken2);
             for (let i = 0; i < count; i++) {
-                yield compositionRootCustom_1.securityDeviceServices.createSessionServices(userToken.userId.toString(), `::ffff:127.0.0.${i}`, `user-agent/INTEGRATION-TEST/0.${i}}`);
+                yield securityDeviceServices.createSessionServices(userToken.userId.toString(), `::ffff:127.0.0.${i}`, `user-agent/INTEGRATION-TEST/0.${i}}`);
             }
         });
     },

@@ -1,18 +1,15 @@
-import "reflect-metadata"
 import { ObjectId, SortDirection } from "mongodb";
 import { QueryBlogModel } from "../Blogs_DTO/QueryBlogsModel";
 import { BlogsType, BlogsTypeDB, ResponseBlogType } from "../Blogs_DTO/blogTypes";
 import { RequestWithQuery } from "../../../shared/types/typesGeneric";
 import { sanitizedQueryType } from "../../../shared/types/types";
-import { injectable } from "inversify";
-// import { blogsCollection } from "../../../db";
+import { inject, injectable } from "inversify";
 import { MongoDBCollection } from "../../../db";
 
 @injectable()
 export class BlogsQueryRepository {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
     async getAllBlogsRepository(req: RequestWithQuery<QueryBlogModel> & RequestWithQuery<{ [key: string]: string | undefined }>): Promise<ResponseBlogType | any> {
         const sanitizedQuery: sanitizedQueryType = await this._helper(req.query)

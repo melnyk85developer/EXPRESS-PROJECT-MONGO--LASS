@@ -22,6 +22,9 @@ export class MailService {
     async sendMail(from: string, to: string, subject: string, text: string, html: any) {
         return await this.transporter.sendMail({ from, to, subject, text, html });
     }
+    closeTransporter() {
+        this.transporter.close();
+    }
 }
 
 // export const emailAdapter = {

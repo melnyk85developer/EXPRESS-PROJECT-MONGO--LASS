@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 // import { container } from '../../src/shared/container/iocRoot';
 // import { MongoDBCollection } from '../../src/db'
 import { SETTINGS } from '../../../shared/settings';

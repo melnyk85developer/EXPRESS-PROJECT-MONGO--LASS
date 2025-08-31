@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersSessionsInegrationTest = exports.getRequest = void 0;
-require("reflect-metadata");
 const supertest_1 = __importDefault(require("supertest"));
 const settings_1 = require("../../../shared/settings");
 const app_1 = require("../../../app");
@@ -24,7 +23,6 @@ const userSessionTestManager_1 = require("../../../shared/__tests__/managersTest
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
 // import { container } from '../../src/shared/container/iocRoot';
 // import { MongoDBCollection } from '../../src/db';
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
 // const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
 const getRequest = () => {
     return (0, supertest_1.default)(app_1.app);

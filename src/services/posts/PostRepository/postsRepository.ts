@@ -1,16 +1,14 @@
-import "reflect-metadata"
 import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";;
 import { UpdatePostModel } from "../Post_DTO/UpdatePostModel";
 import { CreatePostModel } from "../Post_DTO/CreatePostModel";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 // import { postsCollection } from "../../../db";
 import { MongoDBCollection } from "../../../db";
 
 @injectable()
 export class PostsRepository {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
 
     async createPostRepository(post: CreatePostModel): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | null> {

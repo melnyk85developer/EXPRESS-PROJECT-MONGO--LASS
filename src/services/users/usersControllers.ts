@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import express, { Response } from 'express';
 import { INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
 import { URIParamsUserIdModel } from './Users_DTO/URIParamsUserIdModel';
@@ -11,21 +10,14 @@ import { RequestWithParams, RequestWithParamsAndBody, RequestWithQuery } from '.
 import { UsersQueryRepository } from './UserRpository/usersQueryRepository';
 import { UserService } from './usersServices';
 import { SuperAdminAdapter } from '../../shared/infrastructure/createSuperAdminAdapter';
-import { TYPES } from '../../shared/container/types'
 import { inject, injectable } from 'inversify';
 
 @injectable()
 export class UsersControllers {
     constructor(
-        // @ts-ignore
-        @inject(UsersQueryRepository)
-        protected usersQueryRepository: UsersQueryRepository,
-        // @ts-ignore
-        @inject(UserService)
-        protected usersServices: UserService,
-        // @ts-ignore
-        @inject(SuperAdminAdapter) 
-        protected superAdminAdapter: SuperAdminAdapter
+        @inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository,
+        @inject(UserService) protected usersServices: UserService,
+        @inject(SuperAdminAdapter) protected superAdminAdapter: SuperAdminAdapter
     ) { }
     async createUser(req: RequestWithParams<CreateUserModel>, res: Response<UserType>) {
         const { login, email, password } = req.body

@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsE2eTest = void 0;
-require("reflect-metadata");
 const settings_1 = require("../../../shared/settings");
 const utils_1 = require("../../../shared/utils/utils");
 const postsTestManager_1 = require("../../../shared/__tests__/managersTests/postsTestManager");
@@ -20,7 +19,6 @@ const blogsTestManager_1 = require("../../../shared/__tests__/managersTests/blog
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
 // import { container } from '../../src/shared/container/iocRoot';
 // import { MongoDBCollection } from '../../src/db';
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
 // const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
 const postsE2eTest = () => {
     describe('E2E-POSTS', () => {

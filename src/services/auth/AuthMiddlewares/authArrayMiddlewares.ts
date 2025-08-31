@@ -1,29 +1,27 @@
-// import { authMiddlewares } from "../../../shared/container/compositionRootCustom";
-// import { container } from "../../../shared/container/iocRoot";
-import { authMiddlewares } from "../../../shared/container/compositionRootCustom";
+import { container } from "../../../shared/container/iocRoot";
 import { inputValidationMiddleware } from "../../../shared/input-validation-middleware";
 import { userMiddlewares } from "../../users/UserMiddlewares/userMiddlewares";
 import { AuthMiddlewares } from "./authGuardMiddleware";
 import { inputMiddlewares } from "./imputAuthMiddlewares";
 import { confirmEmailMiddlewares, registrationConfirmationMiddlewares } from "./postMiddlewares";
 
-// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
+const authMiddlewares: AuthMiddlewares = container.get(AuthMiddlewares)
 
 export const registrationMiddlewares = [
-    ...userMiddlewares, // Распаковываем массив, если это ValidationChain[]
-    inputValidationMiddleware, // Одиночный middleware
+    ...userMiddlewares,
+    inputValidationMiddleware,
 ]
 export const loginMiddlewares = [
-    ...inputMiddlewares, // Распаковываем массив
-    authMiddlewares.authLoginMiddleware, // Одиночный middleware
+    ...inputMiddlewares,
+    authMiddlewares.authLoginMiddleware,
     inputValidationMiddleware,
 ]
 export const logoutMiddlewares = [
-    authMiddlewares.refreshTokenMiddleware, // Одиночный middleware
+    authMiddlewares.refreshTokenMiddleware,
     inputValidationMiddleware,
 ]
 export const refreshTokenMiddlewares = [
-    authMiddlewares.refreshTokenMiddleware, // Одиночный middleware
+    authMiddlewares.refreshTokenMiddleware,
     inputValidationMiddleware,
 ]
 export const confirmationEmailMiddlewares = [

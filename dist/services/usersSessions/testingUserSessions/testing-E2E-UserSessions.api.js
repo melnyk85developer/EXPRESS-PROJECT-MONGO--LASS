@@ -15,9 +15,13 @@ const utils_1 = require("../../../shared/utils/utils");
 const testing_INTEGRATION_UsersSessions_api_1 = require("./testing-INTEGRATION-UsersSessions.api");
 const usersTestManager_1 = require("../../../shared/__tests__/managersTests/usersTestManager");
 const authTestManager_1 = require("../../../shared/__tests__/managersTests/authTestManager");
-const compositionRootCustom_1 = require("../../../shared/container/compositionRootCustom");
 const userSessionTestManager_1 = require("../../../shared/__tests__/managersTests/userSessionTestManager");
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
+const iocRoot_1 = require("../../../shared/container/iocRoot");
+const tokenService_1 = require("../../../shared/infrastructure/tokenService");
+const securityDeviceService_1 = require("../securityDeviceService");
+const tokenService = iocRoot_1.container.get(tokenService_1.TokenService);
+const securityDeviceServices = iocRoot_1.container.get(securityDeviceService_1.SecurityDeviceServices);
 const delay = (milliseconds) => new Promise((resolve) => {
     return setTimeout(() => resolve(true), milliseconds);
 });
@@ -52,29 +56,29 @@ const usersSessionsE2eTest = () => {
                 if (i === 0) {
                     contextTests_1.contextTests.accessTokenUser1Device1 = accessToken,
                         contextTests_1.contextTests.refreshTokenUser1Device1 = refreshToken;
-                    const userToken = yield compositionRootCustom_1.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device1);
-                    const foundDevice = yield compositionRootCustom_1.securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+                    const userToken = yield tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device1);
+                    const foundDevice = yield securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
                     contextTests_1.contextTests.session1User1 = foundDevice;
                 }
                 else if (i === 1) {
                     contextTests_1.contextTests.accessTokenUser1Device2 = accessToken,
                         contextTests_1.contextTests.refreshTokenUser1Device2 = refreshToken;
-                    const userToken = yield compositionRootCustom_1.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device2);
-                    const foundDevice = yield compositionRootCustom_1.securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+                    const userToken = yield tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device2);
+                    const foundDevice = yield securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
                     contextTests_1.contextTests.session2User1 = foundDevice;
                 }
                 else if (i === 2) {
                     contextTests_1.contextTests.accessTokenUser1Device3 = accessToken,
                         contextTests_1.contextTests.refreshTokenUser1Device3 = refreshToken;
-                    const userToken = yield compositionRootCustom_1.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device3);
-                    const foundDevice = yield compositionRootCustom_1.securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+                    const userToken = yield tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device3);
+                    const foundDevice = yield securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
                     contextTests_1.contextTests.session3User1 = foundDevice;
                 }
                 else if (i === 3) {
                     contextTests_1.contextTests.accessTokenUser1Device4 = accessToken,
                         contextTests_1.contextTests.refreshTokenUser1Device4 = refreshToken;
-                    const userToken = yield compositionRootCustom_1.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device4);
-                    const foundDevice = yield compositionRootCustom_1.securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+                    const userToken = yield tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device4);
+                    const foundDevice = yield securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
                     contextTests_1.contextTests.session4User1 = foundDevice;
                 }
             }

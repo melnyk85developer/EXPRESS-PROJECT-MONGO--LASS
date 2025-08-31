@@ -1,17 +1,18 @@
-import "reflect-metadata"
 import request from "supertest";
 import { JwtPayload } from "jsonwebtoken";
 import { app } from "../../../app";
 import { SETTINGS } from "../../settings";
 import { HTTP_STATUSES, HttpStatusType } from "../../utils/utils";
 import { SessionType } from "../../../services/usersSessions/Sessions_DTO/sessionsType";
-import { securityDeviceServices, tokenService } from "../../container/compositionRootCustom";
+// import { securityDeviceServices, tokenService } from "../../container/compositionRootCustom";
 import { CreateUserModel } from "../../../services/users/Users_DTO/CreateUserModel";
-// import { container } from "../../../src/shared/container/iocRoot";
+import { container } from "../../container/iocRoot";
+import { TokenService } from "../../infrastructure/tokenService";
+import { SecurityDeviceServices } from "../../../services/usersSessions/securityDeviceService";
 // import { securityDeviceServices, tokenService } from "../../../src/shared/container/compositionRootCustom";
 
-// const tokenService: TokenService = container.resolve(TokenService)
-// const securityDeviceServices: SecurityDeviceServices = container.resolve(SecurityDeviceServices)
+const tokenService: TokenService = container.get(TokenService)
+const securityDeviceServices: SecurityDeviceServices = container.get(SecurityDeviceServices)
 
 export const getRequest = () => {
     return request(app)

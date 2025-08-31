@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogsE2eTest = void 0;
-require("reflect-metadata");
 // import { container } from '../../src/shared/container/iocRoot';
 const utils_1 = require("../../../shared/utils/utils");
 const settings_1 = require("../../../shared/settings");

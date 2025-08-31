@@ -1,11 +1,10 @@
-import "reflect-metadata"
 import { Request, Response, NextFunction } from 'express';
 import moment from 'moment';
 import { JwtPayload } from 'jsonwebtoken';
 import { SETTINGS } from '../settings';
 import { ResErrorsSwitch } from '../utils/ErResSwitch';
 import { INTERNAL_STATUS_CODE } from '../utils/utils';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { TokenService } from '../infrastructure/tokenService';
 // import { requestsCollection } from "../../db";
 import { MongoDBCollection } from '../../db';
@@ -13,10 +12,8 @@ import { MongoDBCollection } from '../../db';
 @injectable()
 export class GlobalRequestLimitMiddleware {
     constructor(
-        // @inject(TYPES.TokenService)
-        private tokenService: TokenService,
-        // @inject(TYPES.MongoDBCollection) 
-        private mongoDB: MongoDBCollection
+        @inject(TokenService) private tokenService: TokenService,
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
     globalRequestLimitMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         if (process.env.NODE_ENV === 'test') {

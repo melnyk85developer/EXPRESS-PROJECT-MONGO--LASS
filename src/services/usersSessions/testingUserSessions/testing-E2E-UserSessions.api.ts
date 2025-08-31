@@ -6,9 +6,14 @@ import { HTTP_STATUSES } from "../../../shared/utils/utils";
 import { getRequest } from "./testing-INTEGRATION-UsersSessions.api";
 import { usersTestManager } from "../../../shared/__tests__/managersTests/usersTestManager";
 import { authTestManager } from "../../../shared/__tests__/managersTests/authTestManager";
-import { securityDeviceServices, tokenService } from "../../../shared/container/compositionRootCustom";
 import { usersSessionTestManager } from "../../../shared/__tests__/managersTests/userSessionTestManager";
 import { contextTests } from "../../../shared/__tests__/contextTests";
+import { container } from "../../../shared/container/iocRoot";
+import { TokenService } from "../../../shared/infrastructure/tokenService";
+import { SecurityDeviceServices } from "../securityDeviceService";
+
+const tokenService: TokenService = container.get(TokenService)
+const securityDeviceServices: SecurityDeviceServices = container.get(SecurityDeviceServices)
 
 export const delay = (milliseconds: number) => new Promise((resolve) => {
     return setTimeout(() => resolve(true), milliseconds);

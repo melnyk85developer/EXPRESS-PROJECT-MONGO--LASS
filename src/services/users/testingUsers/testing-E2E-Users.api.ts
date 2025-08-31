@@ -1,21 +1,16 @@
-import 'reflect-metadata';
 import { JwtPayload } from "jsonwebtoken";
 import { SETTINGS } from '../../../shared/settings';
 import { HTTP_STATUSES } from '../../../shared/utils/utils';
 import { CreateUserModel } from '../Users_DTO/CreateUserModel';
-import { tokenService } from '../../../shared/container/compositionRootCustom';
 import { authTestManager, getRequest } from '../../../shared/__tests__/managersTests/authTestManager';
 import { usersTestManager } from '../../../shared/__tests__/managersTests/usersTestManager';
 import { contextTests } from '../../../shared/__tests__/contextTests';
 // import { container } from "../../src/shared/container/iocRoot";
 // import { MongoDBCollection } from '../../src/db';
-// import { tokenService, securityDeviceServices } from "../../src/shared/container/compositionRootCustom";
 
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
-// const tokenService: TokenService = container.resolve(TokenService)
 // const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
-
 // const tokenService: TokenService = container.get(TokenService)
+
 export const usersE2eTest = () => {
     describe('E2E-USERS', () => {
         beforeAll(async () => {

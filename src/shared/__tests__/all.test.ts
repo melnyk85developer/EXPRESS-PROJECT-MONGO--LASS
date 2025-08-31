@@ -3,7 +3,6 @@ import { AuthServices } from "../../../src/services/auth/authServices";
 import { MailService } from "../../../src/shared/infrastructure/emailAdapter";
 import { SecurityDeviceServices } from "../../../src/services/usersSessions/securityDeviceService";
 import { TokenService } from "../../../src/shared/infrastructure/tokenService";
-import { getRequest } from "./managersTests/authTestManager";
 import { SETTINGS } from "../../../src/shared/settings";
 import { authE2eTest } from "../../../src/services/auth/testingAuth/testing-E2E-Auth.api";
 import { authUnitTest } from "../../../src/services/auth/testingAuth/testing-Unit-Auth.api";
@@ -14,24 +13,36 @@ import { postsE2eTest } from "../../../src/services/posts/testingPosts/testing-E
 import { usersE2eTest } from "../../../src/services/users/testingUsers/testing-E2E-Users.api";
 import { usersSessionsE2eTest } from "../../../src/services/usersSessions/testingUserSessions/testing-E2E-UserSessions.api";
 import { usersSessionsInegrationTest } from "../../../src/services/usersSessions/testingUserSessions/testing-INTEGRATION-UsersSessions.api";
-import { authServices, mailService, mongoDBCollection, securityDeviceServices, tokenService } from "../container/compositionRootCustom";
+// import { 
+//     authServices, 
+//     mailService, 
+//     mongoDBCollection, 
+//     securityDeviceServices, 
+//     tokenService 
+// } from "../container/compositionRootCustom";
 import * as uuid from 'uuid';
+import { container } from "../container/iocRoot";
+import { MongoDBCollection } from "../../db";
+import { request } from "http";
+import { app } from "../../app";
+import { getRequest } from "./managersTests/authTestManager";
+// import { app } from "../../app";
 
 const initilizationContext = () => {
+    contextTests.buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')
+    contextTests.codedAuth = contextTests.buff2.toString('base64')
+
     contextTests.invalidToken = '245678901245678901123456';
     contextTests.expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJoYXNoIjoicGFzc3dvcmQiLCJ1c2VySWQiOiI2NzJhMzdmMDkzZDUzMjFmNGZjNjE5M2UiLCJpYXQiOjE3MzA4MjAwODUsImV4cCI6MTczMDgyMDk4NX0.lpZlmruicYbzJ_y3k8rkyAYWnFlpwEhjG2e1K6jFGSk';
     contextTests.payload = '245678901245678901123456';
     contextTests.invalidId = '66b9413d36f75d0b44ad1c5a'
     contextTests.randomId = uuid.v4()
 
-    contextTests.buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')
-    contextTests.codedAuth = contextTests.buff2.toString('base64')
-
-    contextTests.authServices = mongoDBCollection;
-    contextTests.authServices = authServices;
-    contextTests.mailService = mailService;
-    contextTests.usersSessionService = securityDeviceServices;
-    contextTests.tokenService = tokenService;
+    // contextTests.authServices = mongoDBCollection;
+    // contextTests.authServices = authServices;
+    // contextTests.mailService = mailService;
+    // contextTests.usersSessionService = securityDeviceServices;
+    // contextTests.tokenService = tokenService;
 
     contextTests.total_number_of_active_sessions_in_tests = 0;
 
@@ -114,8 +125,13 @@ const initilizationContext = () => {
     contextTests.correctBlogDescription4 = 'Description AleksandraBlog'
     contextTests.correctWebsiteUrl4 = 'https://example.com'
 }
+export const delay = (milliseconds: number) => new Promise((resolve) => {
+    return setTimeout(() => resolve(true), milliseconds);
+});
+// export const getRequest = () => {
+//     return request(app);
+// }
 describe('ALL TESTS IT-INCUBATOR PROJEKT', () => {
-    const cookieParser = require('cookie-parser');
     initilizationContext()
 
     beforeAll(async () => {
@@ -142,8 +158,11 @@ describe('ALL TESTS IT-INCUBATOR PROJEKT', () => {
     describe('USERS-BLOCK-TESTS', () => {
         usersE2eTest()
     })
-    afterAll(done => {
-        done()
-    })
+    afterAll(async () => {
+        const mongoDB = container.get(MongoDBCollection);
+        await mongoDB.close();
+        const mailService = container.get(MailService);
+        mailService.closeTransporter();
+    });
 })
 

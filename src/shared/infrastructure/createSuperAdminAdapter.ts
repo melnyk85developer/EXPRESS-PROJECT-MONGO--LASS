@@ -1,20 +1,18 @@
-import "reflect-metadata"
 import * as uuid from 'uuid';
 import { add } from "date-fns";
 import { UserType } from '../../services/users/Users_DTO/userTypes';;
 import { INTERNAL_STATUS_CODE } from '../utils/utils';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { UserService } from '../../services/users/usersServices';
 
 @injectable()
 export class SuperAdminAdapter {
     constructor(
-        // @inject(TYPES.UserService)
-        protected usersServices: UserService
+        @inject(UserService) protected usersServices: UserService
     ) { }
     async createUser(login: string, email: string, password: string): Promise<UserType | null | any>{
-        const isLogin = await this.usersServices._getUserByLoginOrEmail(login)
-        const isEmail = await this.usersServices._getUserByLoginOrEmail(email)
+        const isLogin = await this.usersServices._getUserByLoginOrEmailService(login)
+        const isEmail = await this.usersServices._getUserByLoginOrEmailService(email)
       
         if(!isLogin && !isEmail){
             const date = new Date()

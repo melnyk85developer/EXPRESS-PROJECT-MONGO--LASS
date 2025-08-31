@@ -1,18 +1,15 @@
-import "reflect-metadata"
 import { Response, Request, NextFunction } from 'express';
 import { INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { PostsQueryRepository } from '../../posts/PostRepository/postQueryRepository';
 import { CommentsRepository } from '../CommentRepository/commentsRepository';
 
 @injectable()
 export class СommentsMiddlewares {
     constructor(
-        // @inject(TYPES.PostsQueryRepository)
-        private postsQueryRepository: PostsQueryRepository,
-        // @inject(TYPES.CommentsRepository)
-        private commentsRepository: CommentsRepository
+        @inject(PostsQueryRepository) private postsQueryRepository: PostsQueryRepository,
+        @inject(CommentsRepository) private commentsRepository: CommentsRepository
     ) { }
     commentIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         if (!req.params.id) {

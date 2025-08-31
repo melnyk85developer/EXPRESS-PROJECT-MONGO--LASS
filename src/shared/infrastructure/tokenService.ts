@@ -1,16 +1,12 @@
-import "reflect-metadata";
-import { TYPES } from "../container/types";
 import { inject, injectable } from 'inversify';
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { INTERNAL_STATUS_CODE } from '../utils/utils';
-// import { tokensCollection } from "../../db";
 import { MongoDBCollection } from "../../db";
 
 @injectable()
 export class TokenService {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
 
     async generateTokens(payload: any, deviceId: string): Promise<{ accessToken: string; refreshToken: string }> {

@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersE2eTest = void 0;
-require("reflect-metadata");
 const settings_1 = require("../../../shared/settings");
 const utils_1 = require("../../../shared/utils/utils");
 const authTestManager_1 = require("../../../shared/__tests__/managersTests/authTestManager");
@@ -18,9 +17,6 @@ const usersTestManager_1 = require("../../../shared/__tests__/managersTests/user
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
 // import { container } from "../../src/shared/container/iocRoot";
 // import { MongoDBCollection } from '../../src/db';
-// import { tokenService, securityDeviceServices } from "../../src/shared/container/compositionRootCustom";
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
-// const tokenService: TokenService = container.resolve(TokenService)
 // const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
 // const tokenService: TokenService = container.get(TokenService)
 const usersE2eTest = () => {

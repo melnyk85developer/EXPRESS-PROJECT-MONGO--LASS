@@ -1,44 +1,44 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteBlogMiddlewares = exports.updateBlogMiddlewares = exports.postBlogIdOnePostMiddlewares = exports.postBlogMiddlewares = exports.getBlogIdMiddlewares = exports.getBlogIdAllPostsMiddlewares = exports.getBlogsMiddlewares = void 0;
-// ;import { authMiddlewares, blogValidationMiddlewares } from "../../../shared/container/compositionRootCustom";
-// import { container } from "../../../shared/container/iocRoot";
-const compositionRootCustom_1 = require("../../../shared/container/compositionRootCustom");
+const iocRoot_1 = require("../../../shared/container/iocRoot");
 const input_validation_middleware_1 = require("../../../shared/middlewares/input-validation-middleware");
+const authGuardMiddleware_1 = require("../../auth/AuthMiddlewares/authGuardMiddleware");
 const postMiddlewares_1 = require("../../posts/PostMiddlewares/postMiddlewares");
 const blogMiddlewares_1 = require("./blogMiddlewares");
-// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
-// const blogValidationMiddlewares: BlogValidationMiddlewares = container.resolve(BlogValidationMiddlewares)
+const isThereABlogValidation_1 = require("./isThereABlogValidation");
+const authMiddlewares = iocRoot_1.container.get(authGuardMiddleware_1.AuthMiddlewares);
+const blogValidationMiddlewares = iocRoot_1.container.get(isThereABlogValidation_1.BlogValidationMiddlewares);
 exports.getBlogsMiddlewares = [
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.getBlogIdAllPostsMiddlewares = [
-    compositionRootCustom_1.blogValidationMiddlewares.isBlogIdMiddleware,
+    blogValidationMiddlewares.isBlogIdMiddleware,
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.getBlogIdMiddlewares = [
-    compositionRootCustom_1.blogValidationMiddlewares.blogIdMiddleware,
+    blogValidationMiddlewares.blogIdMiddleware,
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.postBlogMiddlewares = [
-    compositionRootCustom_1.authMiddlewares.oldAuthGuardMiddleware,
+    authMiddlewares.oldAuthGuardMiddleware,
     ...blogMiddlewares_1.blogMiddlewares,
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.postBlogIdOnePostMiddlewares = [
-    compositionRootCustom_1.authMiddlewares.oldAuthGuardMiddleware,
-    compositionRootCustom_1.blogValidationMiddlewares.isBlogIdMiddleware,
+    authMiddlewares.oldAuthGuardMiddleware,
+    blogValidationMiddlewares.isBlogIdMiddleware,
     ...postMiddlewares_1.postOneBlogMiddlewares,
     input_validation_middleware_1.inputValidationMiddleware,
 ];
 exports.updateBlogMiddlewares = [
-    compositionRootCustom_1.authMiddlewares.oldAuthGuardMiddleware,
-    compositionRootCustom_1.blogValidationMiddlewares.blogIdMiddleware,
+    authMiddlewares.oldAuthGuardMiddleware,
+    blogValidationMiddlewares.blogIdMiddleware,
     ...blogMiddlewares_1.blogMiddlewares,
     input_validation_middleware_1.inputValidationMiddleware
 ];
 exports.deleteBlogMiddlewares = [
-    compositionRootCustom_1.authMiddlewares.oldAuthGuardMiddleware,
-    compositionRootCustom_1.blogValidationMiddlewares.blogIdMiddleware,
+    authMiddlewares.oldAuthGuardMiddleware,
+    blogValidationMiddlewares.blogIdMiddleware,
     input_validation_middleware_1.inputValidationMiddleware,
 ];

@@ -1,4 +1,3 @@
-import "reflect-metadata"
 import { Response } from 'express';
 import { URIParamsOnePostIdModel, URIParamsPostIdModel } from './Post_DTO/URIParamsPostIdModel';
 import { INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
@@ -11,7 +10,7 @@ import { URIParamsOnePostIdAllCommentsModel } from '../comments/Comment_DTO/URIP
 import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
 import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
 import { RequestWithParams, RequestWithParamsAndBody, RequestWithQuery } from '../../shared/types/typesGeneric';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { PostsQueryRepository } from './PostRepository/postQueryRepository';
 import { CommentsServices } from '../comments/commentsServices';
 import { CommentsQueryRepository } from '../comments/CommentRepository/commentsQueryRepository';
@@ -20,14 +19,10 @@ import { PostsServices } from './postsServices';
 @injectable()
 export class PostsControllers {
     constructor(
-        // @inject(TYPES.PostsQueryRepository)
-        protected postsQueryRepository: PostsQueryRepository,
-        // @inject(TYPES.CommentsServices)
-        protected commentsServices: CommentsServices,
-        // @inject(TYPES.CommentsQueryRepository)
-        protected commentsQueryRepository: CommentsQueryRepository,
-        // @inject(TYPES.PostsServices)
-        protected postsServices: PostsServices,
+        @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
+        @inject(CommentsServices) protected commentsServices: CommentsServices,
+        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
+        @inject(PostsServices) protected postsServices: PostsServices,
     ) { }
     async getAllPostsController(req: RequestWithParams<URIParamsOnePostIdModel> & RequestWithQuery<{ [key: string]: string | undefined }>, res: Response<ResponsePostsType | null>) {
         return SuccessfulResponse(

@@ -1,16 +1,14 @@
-import "reflect-metadata"
 import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { add } from "date-fns";
 import { SessionType } from "../Sessions_DTO/sessionsType";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 // import { devicesCollection } from "../../../db";
 import { MongoDBCollection } from "../../../db";
 
 @injectable()
 export class UserSessionsRepository {
     constructor(
-        // @inject(TYPES.MongoDBCollection)
-        private mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
 
     async createSessionsRepository(session: SessionType): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | any> {

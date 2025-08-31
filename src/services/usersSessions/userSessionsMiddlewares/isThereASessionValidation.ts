@@ -1,20 +1,17 @@
-import "reflect-metadata"
 import { Response, Request, NextFunction } from 'express';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
 import { SessionType } from '../Sessions_DTO/sessionsType';
 import { JwtPayload } from 'jsonwebtoken';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { UserSessionsRepository } from '../UserSessionsRpository/userSessionsRepository';
 import { TokenService } from '../../../shared/infrastructure/tokenService';
 
 @injectable()
 export class SessionsMiddlewares {
     constructor(
-        // @inject(TYPES.UserSessionsRepository)
-        private userSessionsRepository: UserSessionsRepository,
-        // @inject(TYPES.TokenService)
-        private tokenService: TokenService,
+        @inject(UserSessionsRepository) private userSessionsRepository: UserSessionsRepository,
+        @inject(TokenService) private tokenService: TokenService,
     ) { }
 
     deviceIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {

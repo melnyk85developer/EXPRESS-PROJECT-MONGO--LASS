@@ -1,15 +1,13 @@
-import "reflect-metadata"
 import { Response, Request, NextFunction } from 'express';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';;
 import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { PostsQueryRepository } from '../PostRepository/postQueryRepository';
 
 @injectable()
 export class PostsMiddlewares {
     constructor(
-        // @inject(TYPES.PostsQueryRepository)
-        private postsQueryRepository: PostsQueryRepository,
+        @inject(PostsQueryRepository) private postsQueryRepository: PostsQueryRepository,
     ) { }
     postIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         const foundPost = await this.postsQueryRepository.getPostByIdRepositories(req.params.id)

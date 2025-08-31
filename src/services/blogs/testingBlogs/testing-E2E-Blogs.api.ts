@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 // import { container } from '../../src/shared/container/iocRoot';
 import { HTTP_STATUSES } from "../../../shared/utils/utils";
 import { SETTINGS } from '../../../shared/settings';

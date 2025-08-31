@@ -1,12 +1,11 @@
-import { authMiddlewares, usersMiddlewares } from "../../../shared/container/compositionRootCustom";
-// import { container } from "../../../shared/container/iocRoot";
+import { container } from "../../../shared/container/iocRoot";
 import { inputValidationMiddleware } from "../../../shared/middlewares/input-validation-middleware";
 import { AuthMiddlewares } from "../../auth/AuthMiddlewares/authGuardMiddleware";
 import { UsersMiddlewares } from "./isThereAUserValidation";
 import { userMiddlewares } from "./userMiddlewares";
 
-// const usersMiddlewares: UsersMiddlewares = container.resolve(UsersMiddlewares)
-// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
+const usersMiddlewares: UsersMiddlewares = container.get(UsersMiddlewares)
+const authMiddlewares: AuthMiddlewares = container.get(AuthMiddlewares)
 
 export const getAllUsersMiddlewares = [
     inputValidationMiddleware,

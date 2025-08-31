@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commetsTestManager = exports.getRequest = void 0;
-require("reflect-metadata");
 const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../../../app");
 const utils_1 = require("../../utils/utils");

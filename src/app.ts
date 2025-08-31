@@ -1,5 +1,3 @@
-import "reflect-metadata";
-// import { container } from "./shared/container/iocRoot";
 import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import { SETTINGS } from './shared/settings';
@@ -11,13 +9,14 @@ import { commentsRouter } from './services/comments/commentsRouts';
 import { securityRouter } from './services/usersSessions/securityRouts';
 import { testsRouter } from './services/tests/testsRouts';
 import { GlobalRequestLimitMiddleware } from "./shared/middlewares/globalRequestLimitMiddleware";
-import { globalRequestLimitMiddleware, testsController } from "./shared/container/compositionRootCustom";
-// import { testsController } from "./services/tests/testsController";
+import { container } from "./shared/container/iocRoot";
+import { TestsController } from "./services/tests/testsController";
 
 export const app = express()
 export const jsonBodyMiddleware = express.json()
 
-// const globalRequestLimitMiddleware = container.resolve(GlobalRequestLimitMiddleware)
+const globalRequestLimitMiddleware = container.get(GlobalRequestLimitMiddleware)
+const testsController = container.get(TestsController)
 
 app.set('trust proxy', true)
 app.use(jsonBodyMiddleware)

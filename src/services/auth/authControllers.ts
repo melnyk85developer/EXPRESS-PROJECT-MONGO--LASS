@@ -1,6 +1,4 @@
-import "reflect-metadata";
 import express, { Response } from 'express';
-import { TYPES } from '../../shared/container/types';
 import { inject, injectable } from 'inversify';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
 import { CreateUserModel } from '../users/Users_DTO/CreateUserModel';
@@ -15,17 +13,15 @@ import * as uuid from 'uuid';
 @injectable()
 export class AuthControllers {
     constructor(
-        // @inject(AuthServices)
-        public readonly  authServices: AuthServices,
-        // @inject(TYPES.UsersQueryRepository)
-        public readonly  usersQueryRepository: UsersQueryRepository,
+        @inject(AuthServices) private authServices: AuthServices,
+        @inject(UsersQueryRepository) private  usersQueryRepository: UsersQueryRepository,
     ) { }
     async registrationController(req: RequestWithParams<CreateUserModel>, res: Response<{ acknowledged: boolean, insertedId: string } | number>) {
-        // console.log('AuthControllers - data 😡',
-        //     req.body.login,
-        //     req.body.password,
-        //     req.body.email
-        // )
+        console.log('AuthControllers - data 😡',
+            req.body.login,
+            req.body.password,
+            req.body.email
+        )
         const result = await this.authServices.registrationServices(
             req.body.login,
             req.body.password,

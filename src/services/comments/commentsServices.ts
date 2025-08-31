@@ -1,17 +1,15 @@
-import "reflect-metadata"
 import { InsertOneResult, UpdateResult } from "mongodb";
 import { CreateCommentModel } from "./Comment_DTO/CreateCommentModel";
 import { UpdateCommentModel } from "./Comment_DTO/UpdateCommentModel";
 import { INTERNAL_STATUS_CODE } from "../../shared/utils/utils";
 import { RequestWithParams } from "../../shared/types/typesGeneric";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { CommentsRepository } from "./CommentRepository/commentsRepository";
 
 @injectable()
 export class CommentsServices {
     constructor(
-        // @inject(TYPES.CommentsRepository)
-        protected commentsRepository: CommentsRepository
+        @inject(CommentsRepository) protected commentsRepository: CommentsRepository
     ) { }
     async createCommentOnePostServices(req: RequestWithParams<CreateCommentModel>): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | null> {
         const { content } = req.body;

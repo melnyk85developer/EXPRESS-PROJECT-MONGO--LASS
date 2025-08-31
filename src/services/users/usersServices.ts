@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import * as bcrypt from 'bcryptjs'
 import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from "mongodb";
 import { UpdateUserModel } from "./Users_DTO/UpdateUserModel";
@@ -12,11 +11,7 @@ import { MongoDBCollection } from "../../db";
 @injectable()
 export class UserService {
     constructor(
-        // @ts-ignore
-        @inject(MongoDBCollection) private mongoDB: MongoDBCollection,
-        // @ts-ignore
         @inject(UsersRepository) protected usersRepository: UsersRepository,
-        // @ts-ignore
         @inject(UsersQueryRepository) protected usersQueryRepository: UsersQueryRepository,
     ) { }
 
@@ -53,48 +48,25 @@ export class UserService {
     async deleteUserServices(id: string): Promise<DeleteResult | null> {
         return await this.usersRepository.deleteUserRepository(id)
     }
-    async _getUserByIdRepo(id: string): Promise<UserTypeDB | any> {
+
+
+    async _getUserByIdService(id: string): Promise<UserTypeDB | any> {
         // console.log('_getUserByIdRepo: - ', id)
         try {
-            return await this.mongoDB.usersCollection.findOne({ _id: new ObjectId(id) })
+            return await this.usersRepository._getUserByIdRepository(id)
         } catch (error) {
             // console.error(error)
             return error
         }
     }
-    async _getUserByLoginOrEmail(loginOrEmail: string): Promise<UserTypeDB | any> {
-        try {
-            const getUser = await this.mongoDB.usersCollection.findOne({
-                $or: [
-                    { 'accountData.userName': loginOrEmail },
-                    { 'accountData.email': loginOrEmail },
-                ]
-            })
-            if (getUser) { return getUser }
-        } catch (error) {
-            // console.error(error);
-            return error;
-        }
+    async _getUserByLoginOrEmailService(loginOrEmail: string): Promise<UserTypeDB | any> {
+        // console.log('UserService - loginOrEmail 😡😡', loginOrEmail)
+        return await this.usersRepository._getUserByLoginOrEmailRepository(loginOrEmail)
     }
-    async _getUserByEmail(email: string): Promise<UserTypeDB | any> {
-        try {
-            const getUser = await this.mongoDB.usersCollection.findOne({ 'accountData.email': email })
-            if (getUser) { return getUser }
-        } catch (error) {
-            // console.error(error);
-            return error;
-        }
+    async _getUserByEmailService(email: string): Promise<UserTypeDB | any> {
+        return this.usersRepository._getUserByEmailRepository
     }
-    async _findUserByConfirmationCode(code: string): Promise<UserTypeDB | any> {
-        try {
-            const getUser = await this.mongoDB.usersCollection.findOne({ 'emailConfirmation.confirmationCode': code })
-            // console.log('_findUserByConfirmationCode - ', getUser)
-            if (getUser) {
-                return getUser
-            }
-        } catch (error) {
-            // console.error(error);
-            return error;
-        }
+    async _findUserByConfirmationCodeService(code: string): Promise<UserTypeDB | any> {
+        return this.usersRepository._findUserByConfirmationCodeRepository(code)
     }
 }

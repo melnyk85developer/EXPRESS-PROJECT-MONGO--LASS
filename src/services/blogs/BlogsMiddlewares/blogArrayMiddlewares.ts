@@ -1,14 +1,12 @@
-// ;import { authMiddlewares, blogValidationMiddlewares } from "../../../shared/container/compositionRootCustom";
-// import { container } from "../../../shared/container/iocRoot";
-import { authMiddlewares, blogValidationMiddlewares } from "../../../shared/container/compositionRootCustom";
+import { container } from "../../../shared/container/iocRoot";
 import { inputValidationMiddleware } from "../../../shared/middlewares/input-validation-middleware";
 import { AuthMiddlewares } from "../../auth/AuthMiddlewares/authGuardMiddleware";
 import { postOneBlogMiddlewares } from "../../posts/PostMiddlewares/postMiddlewares";
 import { blogMiddlewares } from "./blogMiddlewares";
 import { BlogValidationMiddlewares } from "./isThereABlogValidation";
 
-// const authMiddlewares: AuthMiddlewares = container.resolve(AuthMiddlewares)
-// const blogValidationMiddlewares: BlogValidationMiddlewares = container.resolve(BlogValidationMiddlewares)
+const authMiddlewares: AuthMiddlewares = container.get(AuthMiddlewares)
+const blogValidationMiddlewares: BlogValidationMiddlewares = container.get(BlogValidationMiddlewares)
 
 export const getBlogsMiddlewares = [
     inputValidationMiddleware,
