@@ -23,11 +23,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentsControllers = void 0;
 const utils_1 = require("../../shared/utils/utils");
-const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
-const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
+// import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
+const ErRes_1 = require("../../shared/utils/ErRes");
 const inversify_1 = require("inversify");
 const commentsServices_1 = require("./commentsServices");
 const commentsQueryRepository_1 = require("./CommentRepository/commentsQueryRepository");
+const SuccessResponse_1 = require("../../shared/utils/SuccessResponse");
 let CommentsControllers = class CommentsControllers {
     constructor(commentsServices, commentsQueryRepository) {
         this.commentsServices = commentsServices;
@@ -37,10 +38,10 @@ let CommentsControllers = class CommentsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const foundComment = yield this.commentsQueryRepository.getCommentByIdRepository(req.params.id);
             if (foundComment && foundComment.id) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, foundComment);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS, foundComment, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.NOT_FOUND);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.NOT_FOUND, undefined, undefined, req, res);
             }
         });
     }
@@ -48,10 +49,10 @@ let CommentsControllers = class CommentsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const updateComment = yield this.commentsServices.updateCommentServices(req.params.commentId, req.user.id, req.body);
             if (updateComment.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_COMMENT);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_COMMENT, undefined, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, updateComment);
+                return new ErRes_1.ErRes(updateComment, undefined, undefined, req, res);
             }
         });
     }
@@ -59,10 +60,10 @@ let CommentsControllers = class CommentsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const commsnt = yield this.commentsServices.deleteCommentServices(req.params.commentId, req.user.id);
             if (commsnt && commsnt.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_COMMENT);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_COMMENT, undefined, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, commsnt);
+                return new ErRes_1.ErRes(commsnt, undefined, undefined, req, res);
             }
         });
     }

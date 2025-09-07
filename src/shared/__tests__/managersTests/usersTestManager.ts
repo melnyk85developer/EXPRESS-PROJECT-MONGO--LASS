@@ -17,17 +17,18 @@ export const usersTestManager = {
             // .set('User-Agent', 'TestDevice/1.0')
             .expect(expectedStatusCode)
         // console.log('usersTestManager - res', response.body)
-        return {response: response, getAllUsers: response.body}
+        return { response: response, getAllUsers: response.body }
     },
     async getUserById(
         id: string | JwtPayload | null,
-        expectedStatusCode: HttpStatusType = HTTP_STATUSES.CREATED_201) {
+        expectedStatusCode: HttpStatusType = HTTP_STATUSES.OK_200) {
+        // console.log('usersTestManager - id', id)
         const response = await getRequest()
             .get(`${SETTINGS.RouterPath.users}/${id}`)
             // .set('User-Agent', 'TestDevice/1.0')
             .expect(expectedStatusCode)
-        // console.log('usersTestManager - res', id)
-        return {response: response, getUsersById: response.body}
+        // console.log('usersTestManager - response.body', response.body)
+        return { response: response, getUsersById: response.body }
     },
     async createUser(
         data: CreateUserModel,
@@ -35,7 +36,7 @@ export const usersTestManager = {
         codedAuth: string | undefined = undefined,
         expectedStatusCode: HttpStatusType = HTTP_STATUSES.CREATED_201) {
         // console.log('usersTestManager - data', data)
-        
+
         const response = await getRequest()
             .post(`${SETTINGS.RouterPath.users}`)
             // .set('User-Agent', 'TestDevice/1.0')
@@ -46,30 +47,30 @@ export const usersTestManager = {
         // console.log('usersTestManager - data', response.body)
 
         let createdEntity
-            // .set('Authorization', `Basic ${codedAuth}`)
-            // .set('Authorization', `Bearer ${accessToken}`)
-        if(expectedStatusCode === HTTP_STATUSES.UNAUTHORIZED_401){expect(expectedStatusCode)}
+        // .set('Authorization', `Basic ${codedAuth}`)
+        // .set('Authorization', `Bearer ${accessToken}`)
+        if (expectedStatusCode === HTTP_STATUSES.UNAUTHORIZED_401) { expect(expectedStatusCode) }
 
-        if(expectedStatusCode === HTTP_STATUSES.CREATED_201){
+        if (expectedStatusCode === HTTP_STATUSES.CREATED_201) {
             createdEntity = response.body;
             expect(createdEntity)
-            .toEqual(
-                {
-                    id: expect.any(String),
-                    login: data.login,
-                    email: data.email,
-                    createdAt: expect.any(String),
-                }
-            )
+                .toEqual(
+                    {
+                        id: expect.any(String),
+                        login: data.login,
+                        email: data.email,
+                        createdAt: expect.any(String),
+                    }
+                )
         }
-        return {response: response.body, createdEntity: createdEntity}
+        return { response: response.body, createdEntity: createdEntity }
     },
     async updateUser(
         id: string,
         data: CreateUserModel,
 
         codedAuth: string | undefined = undefined,
-        expectedStatusCode: HttpStatusType = HTTP_STATUSES.NO_CONTENT_204){
+        expectedStatusCode: HttpStatusType = HTTP_STATUSES.NO_CONTENT_204) {
         // console.log('usersTestManager - updateUser data, codedAuth', data, codedAuth)
         const response = await getRequest()
             .put(`${SETTINGS.RouterPath.users}/${id}`)
@@ -83,12 +84,12 @@ export const usersTestManager = {
         // .set('Authorization', `Bearer ${accessToken}`)
         // console.log('usersTestManager - ', accessToken)
 
-        if(expectedStatusCode === HTTP_STATUSES.UNAUTHORIZED_401){expect(expectedStatusCode)}
+        if (expectedStatusCode === HTTP_STATUSES.UNAUTHORIZED_401) { expect(expectedStatusCode) }
 
-        if(expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204){
+        if (expectedStatusCode === HTTP_STATUSES.NO_CONTENT_204) {
             updateUser = response.body;
         }
-        return {response: response, updateUser: updateUser}
+        return { response: response, updateUser: updateUser }
     },
     async deleteUser(
         userId: string,
@@ -102,21 +103,21 @@ export const usersTestManager = {
             .set('Authorization', `Basic ${codedAuth}`)
             .expect(expectedStatusCode)
         // console.log('usersTestManager - res', response.body)
-        return {response: response, deleteUser: response.body}
+        return { response: response, deleteUser: response.body }
     },
     async createArrayUsers(
         count: number = 10,
-        accessToken: string | undefined = undefined){
+        accessToken: string | undefined = undefined) {
         const users: Array<CreateUserModel> = []
-    
-        for(let i = 0; i < count; i++){
-            const {createdEntity} = await usersTestManager.createUser({
+
+        for (let i = 0; i < count; i++) {
+            const { createdEntity } = await usersTestManager.createUser({
                 login: `MyLogin${i}`,
                 password: `password${i}`,
                 email: `webmars${i}@mars.com`
             }, accessToken, HTTP_STATUSES.CREATED_201)
             users.push(createdEntity)
-            
+
         }
         // console.log('for: ', users)
         return users

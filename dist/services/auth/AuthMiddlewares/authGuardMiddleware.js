@@ -24,7 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthMiddlewares = void 0;
 const utils_1 = require("../../../shared/utils/utils");
 const settings_1 = require("../../../shared/settings");
-const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../../shared/utils/ErRes");
 const inversify_1 = require("inversify");
 const authServices_1 = require("../authServices");
 const tokenService_1 = require("../../../shared/infrastructure/tokenService");
@@ -45,7 +45,7 @@ let AuthMiddlewares = class AuthMiddlewares {
             const codedAuth = fromUTF8ToBase64(settings_1.SETTINGS.ADMIN);
             const auth = req.headers['authorization'];
             if (!auth || auth.slice(0, 6) !== 'Basic ' || auth.slice(6) !== codedAuth) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.HTTP_STATUSES.UNAUTHORIZED_401);
+                return new ErRes_1.ErRes(utils_1.HTTP_STATUSES.UNAUTHORIZED_401, undefined, undefined, req, res);
             }
             else {
                 return next();
@@ -60,7 +60,7 @@ let AuthMiddlewares = class AuthMiddlewares {
                 return;
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_PASSWORD_OR_EMAIL_MISSPELLED);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_PASSWORD_OR_EMAIL_MISSPELLED, undefined, undefined, req, res);
             }
         });
         this.refreshTokenMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
@@ -68,16 +68,16 @@ let AuthMiddlewares = class AuthMiddlewares {
             const refreshToken = req.cookies[cookieName];
             const userToken = yield this.tokenService.validateRefreshToken(refreshToken);
             if (userToken === utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_NO_REFRESH_TOKEN) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_NO_REFRESH_TOKEN);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_NO_REFRESH_TOKEN, undefined, undefined, req, res);
             }
             if (userToken === utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT, undefined, undefined, req, res);
             }
             if (userToken === utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_REFRESH_TOKEN_FORMAT) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_REFRESH_TOKEN_FORMAT);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_REFRESH_TOKEN_FORMAT, undefined, undefined, req, res);
             }
             if (userToken === utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN, undefined, undefined, req, res);
             }
             if (userToken) {
                 const findToken = yield this.tokenService.getRefreshTokenByTokenInBlackList(refreshToken);
@@ -85,7 +85,7 @@ let AuthMiddlewares = class AuthMiddlewares {
                 // console.log('findToken: - getRefreshTokenByTokenInBlackList', findToken)
                 if (findToken || !foundDevice) {
                     // console.log('refreshTokenMiddleware: - BlackList', true)
-                    return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_BLACK_LIST);
+                    return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_BLACK_LIST, undefined, undefined, req, res);
                 }
                 else {
                     // const user = await usersServices._getUserByIdRepo(String((userToken as JwtPayload).userId));
@@ -93,7 +93,7 @@ let AuthMiddlewares = class AuthMiddlewares {
                     const user = yield this.usersQueryRepository.getUserByIdRepository(String(userToken.userId));
                     // console.log('refreshTokenMiddleware: user - ', user)
                     if (!user) {
-                        return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.NOT_FOUND);
+                        return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.NOT_FOUND, undefined, undefined, req, res);
                     }
                     req.user = user;
                     next();
@@ -101,14 +101,14 @@ let AuthMiddlewares = class AuthMiddlewares {
                 }
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN, undefined, undefined, req, res);
             }
         });
         this.accessTokenMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const authHeader = req.headers['authorization'];
             // console.log('accessTokenMiddleware: - authHeader', authHeader)
             if (typeof authHeader !== 'string' || !authHeader) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED, undefined, undefined, req, res);
             }
             if (!authHeader || !authHeader.startsWith('Bearer ')) {
                 return utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT;
@@ -120,19 +120,19 @@ let AuthMiddlewares = class AuthMiddlewares {
             const userToken = yield this.tokenService.validateAccessToken(token);
             // console.log('accessTokenMiddlewareService userTokenId: - ', userToken)
             if (userToken === utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_ACCESS_TOKEN_LENGHT) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_ACCESS_TOKEN_LENGHT);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_ACCESS_TOKEN_LENGHT, undefined, undefined, req, res);
             }
             if (userToken === utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT, undefined, undefined, req, res);
             }
             if (userToken === utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_ACCESS_TOKEN) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_ACCESS_TOKEN);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_ACCESS_TOKEN, undefined, undefined, req, res);
             }
-            // const user = await usersServices._getUserByIdRepo((token as JwtPayload).userId);
+            // console.log('AuthMiddlewares user: - userToken.userId', (userToken as unknown as JwtPayload).userId)
             const user = yield this.usersQueryRepository.getUserByIdRepository(userToken.userId);
-            // console.log('user: - ', user.id)
+            // console.log('AuthMiddlewares user: - ', user)
             if (!user) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.NOT_FOUND);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.NOT_FOUND, undefined, undefined, req, res);
             }
             req.user = user;
             // (req as Request & { userId: string }).userId = user._id;
@@ -143,14 +143,14 @@ let AuthMiddlewares = class AuthMiddlewares {
             const cookieName = 'refreshToken';
             const refreshToken = req.cookies[cookieName];
             if (!req.cookies[cookieName]) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT, undefined, undefined, req, res);
             }
             // console.log('sessionTokenMiddleware refreshToken: - ', refreshToken)
             const userToken = yield this.tokenService.validateRefreshToken(refreshToken);
             // console.log('sessionTokenMiddleware: userToken - ', userToken)
             if (userToken.deviceId === utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN) {
                 // console.log('sessionTokenMiddleware refreshToken: ', refreshToken)
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN, undefined, undefined, req, res);
             }
             req.deviceId = userToken.deviceId;
             return next();

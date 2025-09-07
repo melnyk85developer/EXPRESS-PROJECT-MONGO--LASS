@@ -23,7 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersMiddlewares = void 0;
 const utils_1 = require("../../../shared/utils/utils");
-const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../../shared/utils/ErRes");
 const inversify_1 = require("inversify");
 const usersServices_1 = require("../usersServices");
 let UsersMiddlewares = class UsersMiddlewares {
@@ -32,7 +32,7 @@ let UsersMiddlewares = class UsersMiddlewares {
         this.userIdMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const found = yield this.usersServices._getUserByIdService(req.params.id);
             if (!found) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.USER_NOT_FOUND);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.USER_NOT_FOUND, undefined, undefined, req, res);
             }
             next();
             return;

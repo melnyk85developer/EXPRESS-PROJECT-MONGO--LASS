@@ -10,35 +10,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsE2eTest = void 0;
-const settings_1 = require("../../../shared/settings");
 const utils_1 = require("../../../shared/utils/utils");
 const postsTestManager_1 = require("../../../shared/__tests__/managersTests/postsTestManager");
-const usersTestManager_1 = require("../../../shared/__tests__/managersTests/usersTestManager");
-const authTestManager_1 = require("../../../shared/__tests__/managersTests/authTestManager");
 const blogsTestManager_1 = require("../../../shared/__tests__/managersTests/blogsTestManager");
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
-// import { container } from '../../src/shared/container/iocRoot';
-// import { MongoDBCollection } from '../../src/db';
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
+const testFunctionsUser_1 = require("../../users/testingUsers/testFunctionsUser");
+const testFunctionsAuth_1 = require("../../auth/testingAuth/testFunctionsAuth");
 const postsE2eTest = () => {
     describe('E2E-POSTS', () => {
         beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, postsTestManager_1.getRequest)().delete(`${settings_1.SETTINGS.RouterPath.__test__}/all-data`);
+            const isUser = yield (0, testFunctionsUser_1.isCreatedUser1)(contextTests_1.contextTests.correctUserName1, contextTests_1.contextTests.correctUserEmail1, contextTests_1.contextTests.correctUserPassword1, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+            const isLogin = yield (0, testFunctionsAuth_1.isLoginUser1)(contextTests_1.contextTests.accessTokenUser1Device1, contextTests_1.contextTests.refreshTokenUser1Device1, contextTests_1.contextTests.correctUserEmail1, contextTests_1.contextTests.correctUserPassword1, contextTests_1.contextTests.userAgent[0], utils_1.HTTP_STATUSES.OK_200);
         }));
         it('Должен вернуть 200, массив постов - should return 200 and post array', () => __awaiter(void 0, void 0, void 0, function* () {
-            const userData = {
-                login: contextTests_1.contextTests.correctUserName1,
-                password: contextTests_1.contextTests.correctUserPassword1,
-                email: contextTests_1.contextTests.correctUserEmail1
-            };
-            const { createdEntity } = yield usersTestManager_1.usersTestManager.createUser(userData, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.CREATED_201);
-            contextTests_1.contextTests.createdUser1 = createdEntity;
-            const authData = {
-                loginOrEmail: contextTests_1.contextTests.correctUserName1,
-                password: contextTests_1.contextTests.correctUserPassword1
-            };
-            const { accessToken } = yield authTestManager_1.authTestManager.login(authData, contextTests_1.contextTests.userAgent[3], utils_1.HTTP_STATUSES.OK_200);
-            contextTests_1.contextTests.accessTokenUser1Device1 = accessToken;
             const { getAllPosts } = yield postsTestManager_1.postsTestManager.getAllPosts(utils_1.HTTP_STATUSES.OK_200);
             expect(getAllPosts).toEqual(expect.objectContaining({
                 pagesCount: 0,
@@ -187,9 +171,6 @@ const postsE2eTest = () => {
                 items: []
             }));
         }));
-        afterAll(done => {
-            done();
-        });
     });
 };
 exports.postsE2eTest = postsE2eTest;

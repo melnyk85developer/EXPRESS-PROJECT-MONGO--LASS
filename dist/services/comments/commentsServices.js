@@ -31,7 +31,8 @@ let CommentsServices = class CommentsServices {
     }
     createCommentOnePostServices(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { content } = req.body;
+            const { content, postId } = req.body;
+            // console.log('CommentsServices: content, postId', content, postId)
             const date = new Date();
             // date.setMilliseconds(0);
             const createdAt = date.toISOString();

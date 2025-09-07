@@ -27,7 +27,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GlobalRequestLimitMiddleware = void 0;
 const moment_1 = __importDefault(require("moment"));
 const settings_1 = require("../settings");
-const ErResSwitch_1 = require("../utils/ErResSwitch");
+const ErRes_1 = require("../utils/ErRes");
 const utils_1 = require("../utils/utils");
 const inversify_1 = require("inversify");
 const tokenService_1 = require("../infrastructure/tokenService");
@@ -67,14 +67,14 @@ let GlobalRequestLimitMiddleware = class GlobalRequestLimitMiddleware {
                     if (count >= Number(settings_1.SETTINGS.MAX_REQUESTS)) {
                         console.log(`IP: ${request.IP}, URL: ${request.URL}, запросов: ${count}`);
                         console.log(`Превышен лимит скорости в globalRequestLimitMiddleware для IP: ${request.IP}, URL: ${request.URL}`);
-                        return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_TOO_MANY_REQUESTS);
+                        return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_TOO_MANY_REQUESTS, undefined, undefined, req, res);
                     }
                     const result = yield this.mongoDB.requestsCollection.insertOne(request);
                     // console.log('Сохранено в базу данных:', result);
                 }
                 catch (error) {
                     console.error('Ошибка в globalRequestLimitMiddleware:', error);
-                    return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST, 'Что-то пошло не так при сохранении сессии в базу данных!');
+                    return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST, undefined, 'Что-то пошло не так при сохранении сессии в базу данных!', req, res);
                 }
                 return next();
             }

@@ -24,7 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TestsController = void 0;
 const inversify_1 = require("inversify");
 const db_1 = require("../../db");
-const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../shared/utils/ErRes");
 let TestsController = class TestsController {
     constructor(mongoDB) {
         this.mongoDB = mongoDB;
@@ -48,10 +48,10 @@ let TestsController = class TestsController {
                     t.acknowledged && r.acknowledged && d.acknowledged) {
                     return res.sendStatus(204);
                 }
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, 400, 'Не удалось удалить данные из базы данных.');
+                throw new ErRes_1.ErRes(400, undefined, 'Не удалось удалить данные из базы данных.', req, res);
             }
             catch (error) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, 400, `Ошибка при обнулении базы данных: ${error}`);
+                throw new ErRes_1.ErRes(400, undefined, `Ошибка при обнулении базы данных: ${error}`, req, res);
             }
         });
     }

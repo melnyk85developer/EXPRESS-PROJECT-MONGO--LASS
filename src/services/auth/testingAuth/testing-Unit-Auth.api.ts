@@ -4,12 +4,6 @@ import { INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { contextTests } from '../../../shared/__tests__/contextTests';
 import { getRequest } from '../../../shared/__tests__/managersTests/authTestManager';
 import { SETTINGS } from '../../../shared/settings';
-import { container } from '../../../shared/container/iocRoot';
-import { MongoDBCollection } from '../../../db';
-import { TokenService } from '../../../shared/infrastructure/tokenService';
-
-const mongoDBCollection: MongoDBCollection = container.get(MongoDBCollection)
-const tokenService: TokenService = container.get(TokenService)
 
 export const authUnitTest = () => {
     // beforeAll(() => {
@@ -22,9 +16,8 @@ export const authUnitTest = () => {
     // });
     describe('UNIT-AUTH', () => {
         beforeAll(async () => {
-            await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`);
             // contextTests.tokensCollection = mongoDBCollection.tokensCollection;
-            mongoDBCollection.tokensCollection = {
+            contextTests.mongoDBCollection.tokensCollection = {
                 insertOne: jest.fn(),
                 deleteOne: jest.fn(),
                 findOne: jest.fn(),
@@ -32,7 +25,7 @@ export const authUnitTest = () => {
         });
         describe('generateTokens', () => {
             it('Должен выдать ошибку, если полезная нагрузка равна null или не определена', async () => {
-                await expect(tokenService.generateTokens(null, '-100')).rejects.toThrow('Payload cannot be null or undefined');
+                await expect(contextTests.tokenService.generateTokens(null, '-100')).rejects.toThrow('Payload cannot be null or undefined');
             });
 
             it('Должны возвращать маркеры доступа и обновления', async () => {
@@ -40,7 +33,7 @@ export const authUnitTest = () => {
                 const signMock = jest.spyOn(jwt, 'sign')
                     .mockImplementationOnce(() => 'mockAccessToken')
                     .mockImplementationOnce(() => 'mockRefreshToken');
-                const result = await tokenService.generateTokens('123', '321');
+                const result = await contextTests.tokenService.generateTokens('123', '321');
                 expect(result.accessToken).toBe('mockAccessToken');
                 expect(result.refreshToken).toBe('mockRefreshToken');
                 expect(signMock).toHaveBeenCalledTimes(2);
@@ -52,7 +45,7 @@ export const authUnitTest = () => {
                 const mockToken = 'invalidToken';
                 // Мокируем jwt.verify с возвращаемым значением null
                 jwt.verify = jest.fn().mockReturnValueOnce(INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT);
-                const result = await tokenService.validateAccessToken(mockToken);
+                const result = await contextTests.tokenService.validateAccessToken(mockToken);
                 expect(result).toBe(INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT);
             });
 
@@ -61,13 +54,13 @@ export const authUnitTest = () => {
                 const mockUserData: JwtPayload = { userId: '67dad3dc965cc9ac98d98e1c' }; // Типизируем возвращаемое значение
                 // Мокируем jwt.verify с возвращаемым значением mockUserData
                 jwt.verify = jest.fn().mockReturnValueOnce(mockUserData);
-                const result = await tokenService.validateAccessToken(mockToken);
+                const result = await contextTests.tokenService.validateAccessToken(mockToken);
                 expect(result).toEqual(mockUserData);
             });
 
             it('Должен возвращать статус-код, если формат токена недействителен', async () => {
                 const mockToken = 'invalidFormatToken';
-                const result = await tokenService.validateAccessToken(mockToken);
+                const result = await contextTests.tokenService.validateAccessToken(mockToken);
                 expect(result).toBe(INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT);
             });
 
@@ -76,7 +69,7 @@ export const authUnitTest = () => {
         describe('validateRefreshToken', () => {
             it('Должен возвращать statusCode, если формат токена недействителен', async () => {
                 const mockToken = 'invalidFormatToken';
-                const result = await tokenService.validateRefreshToken(mockToken);
+                const result = await contextTests.tokenService.validateRefreshToken(mockToken);
                 expect(result).toBe(INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_REFRESH_TOKEN_FORMAT);
             });
 
@@ -84,7 +77,7 @@ export const authUnitTest = () => {
                 const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RhZDQ0MGIxMWFlMWRkYWM1YjNkNDkiLCJkZXZpY2VJZCI6IjI0ODE5NzFiLTFhMGItNDg5YS1hNzUwLTEzZTdkNzE4NDBjMSIsImlhdCI6MTc0MjM5NDQzMywiZXhwIjoxNzQ0OTg2NDMzfQ.IXmPr9i21eDiUzL8X-1MPoRnpnxsOVglFc01tRPXY7Q';
                 const mockUserData: JwtPayload = { userId: '67dad3dc965cc9ac98d98e1c' }; // Типизируем возвращаемое значение
                 jwt.verify = jest.fn().mockReturnValueOnce(mockUserData);
-                const result = await tokenService.validateRefreshToken(mockToken);
+                const result = await contextTests.tokenService.validateRefreshToken(mockToken);
                 expect(result).toEqual(mockUserData);
             });
         });
@@ -94,10 +87,10 @@ export const authUnitTest = () => {
                 const mockUserId = '123';
                 const mockRefreshToken = 'mockRefreshToken';
                 // Мокируем MongoDB метод insertOne, используя типизацию
-                (mongoDBCollection.tokensCollection.insertOne as jest.Mock).mockResolvedValueOnce({ insertedId: new ObjectId() });
-                const result = await tokenService.saveRefreshTokenBlackList(mockUserId, mockRefreshToken);
+                (contextTests.mongoDBCollection.tokensCollection.insertOne as jest.Mock).mockResolvedValueOnce({ insertedId: new ObjectId() });
+                const result = await contextTests.tokenService.saveRefreshTokenBlackList(mockUserId, mockRefreshToken);
                 expect(result).toEqual({ insertedId: expect.any(ObjectId) });
-                expect(mongoDBCollection.tokensCollection.insertOne).toHaveBeenCalledWith({ userId: mockUserId, refreshToken: mockRefreshToken });
+                expect(contextTests.mongoDBCollection.tokensCollection.insertOne).toHaveBeenCalledWith({ userId: mockUserId, refreshToken: mockRefreshToken });
             });
 
             it('Должен возвращать объект ошибки, если произошла ошибка', async () => {
@@ -106,9 +99,9 @@ export const authUnitTest = () => {
 
                 // Мокируем MongoDB метод insertOne, используя типизацию
                 const mockError = INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_WHEN_ADDING_A_TOKEN_TO_THE_BLACKLIST;
-                (mongoDBCollection.tokensCollection.insertOne as jest.Mock).mockRejectedValueOnce(mockError);
+                (contextTests.mongoDBCollection.tokensCollection.insertOne as jest.Mock).mockRejectedValueOnce(mockError);
 
-                const result = await tokenService.saveRefreshTokenBlackList(mockUserId, mockRefreshToken);
+                const result = await contextTests.tokenService.saveRefreshTokenBlackList(mockUserId, mockRefreshToken);
 
                 // Проверяем, что результат равен объекту ошибки
                 expect(result).toBe(mockError);
@@ -120,10 +113,10 @@ export const authUnitTest = () => {
             it('Должен удалить токен из базы данных', async () => {
                 const mockRefreshToken = 'mockRefreshToken';
                 // Мокируем MongoDB метод deleteOne, используя типизацию
-                (mongoDBCollection.tokensCollection.deleteOne as jest.Mock).mockResolvedValueOnce({ deletedCount: 1 });
-                const result = await tokenService.deleteRefreshTokenByTokenInBlackList(mockRefreshToken);
+                (contextTests.mongoDBCollection.tokensCollection.deleteOne as jest.Mock).mockResolvedValueOnce({ deletedCount: 1 });
+                const result = await contextTests.tokenService.deleteRefreshTokenByTokenInBlackList(mockRefreshToken);
                 expect(result).toEqual({ deletedCount: 1 });
-                expect(mongoDBCollection.tokensCollection.deleteOne).toHaveBeenCalledWith({ refreshToken: mockRefreshToken });
+                expect(contextTests.mongoDBCollection.tokensCollection.deleteOne).toHaveBeenCalledWith({ refreshToken: mockRefreshToken });
             });
         });
 
@@ -132,21 +125,18 @@ export const authUnitTest = () => {
                 const mockRefreshToken = 'mockRefreshToken';
                 const mockTokenData = { userId: '123', refreshToken: mockRefreshToken };
                 // Мокируем MongoDB метод findOne, используя типизацию
-                (mongoDBCollection.tokensCollection.findOne as jest.Mock).mockResolvedValueOnce(mockTokenData);
-                const result = await tokenService.getRefreshTokenByTokenInBlackList(mockRefreshToken);
+                (contextTests.mongoDBCollection.tokensCollection.findOne as jest.Mock).mockResolvedValueOnce(mockTokenData);
+                const result = await contextTests.tokenService.getRefreshTokenByTokenInBlackList(mockRefreshToken);
                 expect(result).toEqual(mockTokenData);
             });
 
             it('Должен возвращать null, если токен не найден', async () => {
                 const mockRefreshToken = 'mockRefreshToken';
                 // Мокируем MongoDB метод findOne, используя типизацию
-                (mongoDBCollection.tokensCollection.findOne as jest.Mock).mockResolvedValueOnce(null);
-                const result = await tokenService.getRefreshTokenByTokenInBlackList(mockRefreshToken);
+                (contextTests.mongoDBCollection.tokensCollection.findOne as jest.Mock).mockResolvedValueOnce(null);
+                const result = await contextTests.tokenService.getRefreshTokenByTokenInBlackList(mockRefreshToken);
                 expect(result).toBeNull();
             });
         });
-    });
-    afterAll(done => {
-        done();
     });
 }

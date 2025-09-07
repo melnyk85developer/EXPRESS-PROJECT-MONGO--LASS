@@ -1,69 +1,56 @@
-import request from "supertest";
-import { SETTINGS } from "../../../shared/settings";
-import { app } from '../../../app';
-import { UserType } from "../../users/Users_DTO/userTypes";
-import { CreateUserModel } from "../../users/Users_DTO/CreateUserModel";
 import { HTTP_STATUSES } from "../../../shared/utils/utils";
-import { usersTestManager } from '../../../shared/__tests__/managersTests/usersTestManager';
-import { authTestManager } from '../../../shared/__tests__/managersTests/authTestManager';
 import { usersSessionTestManager } from '../../../shared/__tests__/managersTests/userSessionTestManager';
 import { contextTests } from '../../../shared/__tests__/contextTests';
-// import { container } from '../../src/shared/container/iocRoot';
-// import { MongoDBCollection } from '../../src/db';
+import { isCreatedUser3 } from "../../users/testingUsers/testFunctionsUser";
+import { isLoginUser3 } from "../../auth/testingAuth/testFunctionsAuth";
+import { JwtPayload } from "jsonwebtoken";
 
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
-
-export const getRequest = () => {
-    return request(app);
-}
 export const usersSessionsInegrationTest = () => {
     describe('SESSIONS-INTEGRATION-TEST', () => {
         beforeAll(async () => {
-            // await mongoDB.connectDB();
-            await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`)
-            const data: CreateUserModel = {
-                login: contextTests.correctUserName1,
-                password: contextTests.correctUserPassword1,
-                email: contextTests.correctUserEmail1
-            }
-            const { response } = await usersTestManager.createUser(
-                data,
-                contextTests.codedAuth,
-                HTTP_STATUSES.CREATED_201
+            const isUser3 = await isCreatedUser3(
+                contextTests.correctUserName3,
+                contextTests.correctUserEmail3,
+                contextTests.correctUserPassword3,
+                HTTP_STATUSES.NO_CONTENT_204
             )
-            contextTests.createdUser1 = response
-            const { accessToken, refreshToken } = await authTestManager.login(
-                {
-                    loginOrEmail: contextTests.correctUserName1,
-                    password: contextTests.correctUserPassword1
-                },
-                contextTests.userAgent[6],
+            console.log('TEST: - isUser1 blogsE2eTest', isUser3)
+            const isLogin = await isLoginUser3(
+                contextTests.accessTokenUser3Device1,
+                contextTests.refreshTokenUser3Device1,
+                contextTests.correctUserEmail3,
+                contextTests.correctUserPassword3,
+                contextTests.userAgent[0],
                 HTTP_STATUSES.OK_200
             )
-            contextTests.accessTokenUser1Device1 = accessToken,
-            contextTests.refreshTokenUser1Device1 = refreshToken
         })
         it('Должен успешно создать сессию!', async () => {
             const count = 5;
-            await usersSessionTestManager.createArrayUsersSessions(
-                count,
-                contextTests.codedAuth,
-                contextTests.refreshTokenUser1Device1
-            );
+            console.log('usersSessionTestManager: - ', contextTests.refreshTokenUser3Device1)
+            
+            const userToken = await contextTests.tokenService.validateRefreshToken(contextTests.refreshTokenUser3Device1);
+            for (let i = 0; i < count; i++) {
+                await contextTests.usersSessionService.createSessionServices(
+                    (userToken as JwtPayload & { userId: string }).userId.toString(),
+                    `::ffff:127.0.0.${i}`,
+                    `${contextTests.userAgent[i]}`
+                )
+                contextTests.total_number_of_active_sessions_in_tests ++
+            }
             const { arrSessions } = await usersSessionTestManager.getAllUserSessionByUserId(
-                contextTests.refreshTokenUser1Device1,
+                contextTests.refreshTokenUser3Device1,
                 HTTP_STATUSES.OK_200
             )
-            expect(arrSessions.length).toBe(count + 1)
+            expect(arrSessions.length).toBe(count)
             await usersSessionTestManager.deleteUserSessions(
-                contextTests.refreshTokenUser1Device1,
+                contextTests.refreshTokenUser3Device1,
                 HTTP_STATUSES.NO_CONTENT_204
             )
             const { response } = await usersSessionTestManager.getAllUserSessionByUserId(
-                contextTests.refreshTokenUser1Device1,
+                contextTests.refreshTokenUser3Device1,
                 HTTP_STATUSES.OK_200
             )
             expect(response.length).toBe(1)
         })
-    });
+    })
 }

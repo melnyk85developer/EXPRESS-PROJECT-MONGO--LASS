@@ -71,15 +71,17 @@ const usersQueryRepository_1 = require("../users/UserRpository/usersQueryReposit
 const securityDeviceService_1 = require("../usersSessions/securityDeviceService");
 const tokenService_1 = require("../../shared/infrastructure/tokenService");
 const db_1 = require("../../db");
+const confirmationRepository_1 = require("../confirmation/confirmationRepository/confirmationRepository");
 let AuthServices = class AuthServices {
-    constructor(mongoDB, usersServices, usersRepository, usersQueryRepository, securityDeviceServices, tokenService, mailService) {
+    constructor(mongoDB, usersServices, tokenService, mailService, usersRepository, usersQueryRepository, securityDeviceServices, myConfirmationRepository) {
         this.mongoDB = mongoDB;
         this.usersServices = usersServices;
+        this.tokenService = tokenService;
+        this.mailService = mailService;
         this.usersRepository = usersRepository;
         this.usersQueryRepository = usersQueryRepository;
         this.securityDeviceServices = securityDeviceServices;
-        this.tokenService = tokenService;
-        this.mailService = mailService;
+        this.myConfirmationRepository = myConfirmationRepository;
     }
     registrationServices(login, password, email) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -100,18 +102,20 @@ let AuthServices = class AuthServices {
                         email,
                         password: password,
                         createdAt: createdAt
-                    },
-                    emailConfirmation: {
-                        confirmationCode: confirmationCode,
-                        expirationDate: (0, date_fns_1.add)(new Date(), {
-                            hours: 1,
-                            minutes: 3
-                        }),
-                        isConfirmed: false
                     }
                 };
                 const crestedUser = yield this.usersServices.createUserServices(createUser);
                 // console.log('crestedUser: - 😡', crestedUser)
+                yield this.myConfirmationRepository.createConfirmationRepository({
+                    confirmationCode: confirmationCode,
+                    expirationDate: (0, date_fns_1.add)(new Date(), {
+                        // hours: 1,
+                        minutes: 3
+                    }),
+                    isBlocked: true,
+                    field: 'registration',
+                    userId: crestedUser.insertedId,
+                });
                 const from = `IT-INCUBATOR <${process.env.SMTP_USER}>`;
                 const to = email;
                 const subject = `Активация аккаунта на сайте ${process.env.PROJEKT_NAME}`;
@@ -297,16 +301,18 @@ exports.AuthServices = AuthServices = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(db_1.MongoDBCollection)),
     __param(1, (0, inversify_1.inject)(usersServices_1.UserService)),
-    __param(2, (0, inversify_1.inject)(usersRepository_1.UsersRepository)),
-    __param(3, (0, inversify_1.inject)(usersQueryRepository_1.UsersQueryRepository)),
-    __param(4, (0, inversify_1.inject)(securityDeviceService_1.SecurityDeviceServices)),
-    __param(5, (0, inversify_1.inject)(tokenService_1.TokenService)),
-    __param(6, (0, inversify_1.inject)(emailAdapter_1.MailService)),
+    __param(2, (0, inversify_1.inject)(tokenService_1.TokenService)),
+    __param(3, (0, inversify_1.inject)(emailAdapter_1.MailService)),
+    __param(4, (0, inversify_1.inject)(usersRepository_1.UsersRepository)),
+    __param(5, (0, inversify_1.inject)(usersQueryRepository_1.UsersQueryRepository)),
+    __param(6, (0, inversify_1.inject)(securityDeviceService_1.SecurityDeviceServices)),
+    __param(7, (0, inversify_1.inject)(confirmationRepository_1.ConfirmationRepository)),
     __metadata("design:paramtypes", [db_1.MongoDBCollection,
         usersServices_1.UserService,
+        tokenService_1.TokenService,
+        emailAdapter_1.MailService,
         usersRepository_1.UsersRepository,
         usersQueryRepository_1.UsersQueryRepository,
         securityDeviceService_1.SecurityDeviceServices,
-        tokenService_1.TokenService,
-        emailAdapter_1.MailService])
+        confirmationRepository_1.ConfirmationRepository])
 ], AuthServices);

@@ -10,37 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentsE2eTest = void 0;
-// import { container } from '../../src/shared/container/iocRoot';
-// import { MongoDBCollection } from '../../src/db'
-const settings_1 = require("../../../shared/settings");
 const utils_1 = require("../../../shared/utils/utils");
-const authTestManager_1 = require("../../../shared/__tests__/managersTests/authTestManager");
-const usersTestManager_1 = require("../../../shared/__tests__/managersTests/usersTestManager");
 const blogsTestManager_1 = require("../../../shared/__tests__/managersTests/blogsTestManager");
 const postsTestManager_1 = require("../../../shared/__tests__/managersTests/postsTestManager");
 const commentsTestManager_1 = require("../../../shared/__tests__/managersTests/commentsTestManager");
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
+const testFunctionsUser_1 = require("../../users/testingUsers/testFunctionsUser");
+const testFunctionsAuth_1 = require("../../auth/testingAuth/testFunctionsAuth");
 const commentsE2eTest = () => {
     describe('E2E-COMMENTS', () => {
         beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, authTestManager_1.getRequest)().delete(`${settings_1.SETTINGS.RouterPath.__test__}/all-data`);
-        }));
-        it('Должен вернуть 200, массив комментариев - should return 200 and comments array', () => __awaiter(void 0, void 0, void 0, function* () {
-            const userData = {
-                login: contextTests_1.contextTests.correctUserName1,
-                password: contextTests_1.contextTests.correctUserPassword1,
-                email: contextTests_1.contextTests.correctUserEmail1
-            };
-            const { createdEntity } = yield usersTestManager_1.usersTestManager.createUser(userData, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.CREATED_201);
-            contextTests_1.contextTests.createdUser1 = createdEntity;
-            const authData = {
-                loginOrEmail: contextTests_1.contextTests.correctUserName1,
-                password: contextTests_1.contextTests.correctUserPassword1
-            };
-            const { accessToken } = yield authTestManager_1.authTestManager.login(authData, contextTests_1.contextTests.userAgent[2], utils_1.HTTP_STATUSES.OK_200);
-            contextTests_1.contextTests.accessTokenUser1Device1 = accessToken;
+            const isUser = yield (0, testFunctionsUser_1.isCreatedUser1)(contextTests_1.contextTests.correctUserName1, contextTests_1.contextTests.correctUserEmail1, contextTests_1.contextTests.correctUserPassword1, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+            const isLogin = yield (0, testFunctionsAuth_1.isLoginUser1)(contextTests_1.contextTests.accessTokenUser1Device1, contextTests_1.contextTests.refreshTokenUser1Device1, contextTests_1.contextTests.correctUserEmail1, contextTests_1.contextTests.correctUserPassword1, contextTests_1.contextTests.userAgent[0], utils_1.HTTP_STATUSES.OK_200);
             const blogData = {
                 name: contextTests_1.contextTests.correctBlogNsme1,
                 description: contextTests_1.contextTests.correctBlogDescription1,
@@ -56,6 +37,8 @@ const commentsE2eTest = () => {
             };
             const { response } = yield postsTestManager_1.postsTestManager.createPosts(data, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.CREATED_201);
             contextTests_1.contextTests.createdBlog1Post1 = response.body;
+        }));
+        it('Должен вернуть 200, массив комментариев - should return 200 and comments array', () => __awaiter(void 0, void 0, void 0, function* () {
             const { getAllComments } = yield commentsTestManager_1.commetsTestManager.getAllComments(contextTests_1.contextTests.createdBlog1Post1.id, utils_1.HTTP_STATUSES.OK_200);
             expect(getAllComments).toEqual(expect.objectContaining({
                 pagesCount: 0,
@@ -85,11 +68,10 @@ const commentsE2eTest = () => {
             }));
         }));
         it(`Не следует создавать комментарий с невалидными исходными данными - You should not create a post with incorrect initial data`, () => __awaiter(void 0, void 0, void 0, function* () {
-            const data = {
+            yield commentsTestManager_1.commetsTestManager.createComment(contextTests_1.contextTests.createdBlog1Post1.id, {
                 content: '',
                 postId: ''
-            };
-            yield commentsTestManager_1.commetsTestManager.createComment(contextTests_1.contextTests.createdBlog1Post1.id, data, contextTests_1.contextTests.accessTokenUser1Device1, utils_1.HTTP_STATUSES.BAD_REQUEST_400);
+            }, contextTests_1.contextTests.accessTokenUser1Device1, utils_1.HTTP_STATUSES.BAD_REQUEST_400);
             const { getAllComments } = yield commentsTestManager_1.commetsTestManager.getAllComments(contextTests_1.contextTests.createdBlog1Post1.id, utils_1.HTTP_STATUSES.OK_200);
             expect(getAllComments).toEqual(expect.objectContaining({
                 pagesCount: 0,
@@ -172,9 +154,6 @@ const commentsE2eTest = () => {
                 items: []
             }));
         }));
-        afterAll(done => {
-            done();
-        });
     });
 };
 exports.commentsE2eTest = commentsE2eTest;

@@ -1,3 +1,10 @@
+import { MongoDBCollection } from "../../db";
+import { AuthServices } from "../../services/auth/authServices";
+import { UserService } from "../../services/users/usersServices";
+import { SecurityDeviceServices } from "../../services/usersSessions/securityDeviceService";
+import { MailService } from "../infrastructure/emailAdapter";
+import { TokenService } from "../infrastructure/tokenService";
+
 export type contextTestsType = {
     userAgent: contextUserAgent;
     buff2: any
@@ -9,7 +16,8 @@ export type contextTestsType = {
     randomId: string
     invalidId: string
 
-    mongoDBCollection: any
+    app: any
+    mongoDBCollection: MongoDBCollection
     usersCollection: any
     blogsCollection: any
     postsCollection: any
@@ -18,10 +26,13 @@ export type contextTestsType = {
     requestsCollection: any
     devicesCollection: any
 
-    authServices: any
-    mailService: any
-    usersSessionService: any
-    tokenService: any
+    authServices: AuthServices
+    userService: UserService
+    mailService: MailService
+    usersSessionService: SecurityDeviceServices
+    tokenService: TokenService
+
+    confirmationRepository: any
 
     correctBlogNsme1: string
     correctBlogDescription1: string
@@ -89,16 +100,16 @@ export type contextTestsType = {
     createdMessage3: any
 
     session2User1: any | null;
-    accessTokenUser1Device2: string | null;
-    refreshTokenUser1Device2: string | null;
+    accessTokenUser1Device2: string;
+    refreshTokenUser1Device2: string;
 
     session3User1: any | null;
     accessTokenUser1Device3: string | null;
     refreshTokenUser1Device3: string | null;
 
     session4User1: any | null;
-    accessTokenUser1Device4: string | null;
-    refreshTokenUser1Device4: string | null;
+    accessTokenUser1Device4: string;
+    refreshTokenUser1Device4: string;
 
     correctUserName1: string;
     correctUserSurName1: string;
@@ -108,17 +119,17 @@ export type contextTestsType = {
     createdPost1User2: any
 
     createdUser2: any;
-    accessTokenUser2Device1: string | null;
-    refreshTokenUser2Device1: string | null;
-    session1User2: any | null;
+    accessTokenUser2Device1: string;
+    refreshTokenUser2Device1: string;
+    session1User2: any;
     correctUserName2: string;
     correctUserSurName2: string;
     correctUserEmail2: string;
     correctUserPassword2: string;
 
-    correctBlogNsme2: string | null
-    correctBlogDescription2: string | null
-    correctWebsiteUrl2: string | null,
+    correctBlogNsme2: string
+    correctBlogDescription2: string
+    correctWebsiteUrl2: string,
 
     createdBlog2: any,
     createdBlog2Post1: any,
@@ -159,18 +170,18 @@ export type contextTestsType = {
     createdBlog2Post4Comment4: any,
 
     createdUser3: any,
-    accessTokenUser3Device1: string | null;
-    refreshTokenUser3Device1: string | null;
-    session1User3: any | null;
+    accessTokenUser3Device1: string;
+    refreshTokenUser3Device1: string;
+    session1User3: any;
 
     correctUserName3: string;
     correctUserSurName3: string;
     correctUserEmail3: string;
     correctUserPassword3: string;
 
-    correctBlogNsme3: string | null
-    correctBlogDescription3: string | null
-    correctWebsiteUrl3: string | null,
+    correctBlogNsme3: string
+    correctBlogDescription3: string
+    correctWebsiteUrl3: string,
 
     createdBlog3: any,
     createdBlog3Post1: any,
@@ -211,18 +222,18 @@ export type contextTestsType = {
     createdBlog3Post4Comment4: any,
 
     createdUser4: any,
-    accessTokenUser4Device1: string | null;
-    refreshTokenUser4Device1: string | null;
-    session1User4: any | null;
+    accessTokenUser4Device1: string;
+    refreshTokenUser4Device1: string;
+    session1User4: any;
 
     correctUserName4: string;
     correctUserSurName4: string;
     correctUserEmail4: string;
     correctUserPassword4: string;
 
-    correctBlogNsme4: string | null
-    correctBlogDescription4: string | null
-    correctWebsiteUrl4: string | null,
+    correctBlogNsme4: string
+    correctBlogDescription4: string
+    correctWebsiteUrl4: string,
 
     createdBlog4: any,
     createdBlog4Post1: any,
@@ -275,7 +286,8 @@ export const contextTests: contextTestsType = {
     randomId: '',
     invalidId: '',
 
-    mongoDBCollection: null,
+    app: null,
+    mongoDBCollection: null as unknown as MongoDBCollection,
     usersCollection: null,
     blogsCollection: null,
     postsCollection: null,
@@ -284,10 +296,13 @@ export const contextTests: contextTestsType = {
     requestsCollection: null,
     devicesCollection: null,
 
-    authServices: null,
-    mailService: null,
-    usersSessionService: null,
-    tokenService: null,
+    authServices: null as unknown as AuthServices,
+    userService: null as unknown as UserService,
+    mailService: null as unknown as MailService,
+    usersSessionService: null as unknown as SecurityDeviceServices,
+    tokenService: null as unknown as TokenService,
+
+    confirmationRepository: null,
 
     correctBlogNsme1: '',
     correctBlogDescription1: '',
@@ -370,9 +385,9 @@ export const contextTests: contextTestsType = {
     createdPost1User1: '',
     createdPost1User2: '',
 
-    correctBlogNsme2: null,
-    correctBlogDescription2: null,
-    correctWebsiteUrl2: null,
+    correctBlogNsme2: '',
+    correctBlogDescription2: '',
+    correctWebsiteUrl2: '',
 
     createdBlog2: null,
     createdBlog2Post1: null,
@@ -421,9 +436,9 @@ export const contextTests: contextTestsType = {
     correctUserEmail2: '',
     correctUserPassword2: '',
 
-    correctBlogNsme3: null,
-    correctBlogDescription3: null,
-    correctWebsiteUrl3: null,
+    correctBlogNsme3: '',
+    correctBlogDescription3: '',
+    correctWebsiteUrl3: '',
 
     createdBlog3: null,
     createdBlog3Post1: null,
@@ -472,9 +487,9 @@ export const contextTests: contextTestsType = {
     correctUserEmail3: '',
     correctUserPassword3: '',
 
-    correctBlogNsme4: null,
-    correctBlogDescription4: null,
-    correctWebsiteUrl4: null,
+    correctBlogNsme4: '',
+    correctBlogDescription4: '',
+    correctWebsiteUrl4: '',
 
     createdBlog4: null,
     createdBlog4Post1: null,

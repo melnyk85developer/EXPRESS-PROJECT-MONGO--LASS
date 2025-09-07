@@ -24,12 +24,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersControllers = void 0;
 const utils_1 = require("../../shared/utils/utils");
 ;
-const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
-const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
+const ErRes_1 = require("../../shared/utils/ErRes");
 const usersQueryRepository_1 = require("./UserRpository/usersQueryRepository");
 const usersServices_1 = require("./usersServices");
 const createSuperAdminAdapter_1 = require("../../shared/infrastructure/createSuperAdminAdapter");
 const inversify_1 = require("inversify");
+const SuccessResponse_1 = require("../../shared/utils/SuccessResponse");
 let UsersControllers = class UsersControllers {
     constructor(usersQueryRepository, usersServices, superAdminAdapter) {
         this.usersQueryRepository = usersQueryRepository;
@@ -43,23 +43,22 @@ let UsersControllers = class UsersControllers {
             if (superAdmin.accountData.email) {
                 const createUser = yield this.usersServices.createUserServices(superAdmin);
                 if (createUser.acknowledged) {
-                    return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_USER, undefined, yield this.usersQueryRepository.getUserByIdRepository(createUser.insertedId));
+                    return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_USER, yield this.usersQueryRepository.getUserByIdRepository(createUser.insertedId), undefined, req, res);
                 }
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, superAdmin);
+                return new ErRes_1.ErRes(superAdmin, undefined, undefined, req, res);
             }
-            return null;
         });
     }
     updateUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const updateUser = yield this.usersServices.updateUserServices(req.params.id, req.body);
             if (updateUser && updateUser.acknowledged) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_USER);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_USER, undefined, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_UPDATED_USER);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_UPDATED_USER, undefined, undefined, req, res);
             }
         });
     }
@@ -67,26 +66,26 @@ let UsersControllers = class UsersControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const found = yield this.usersQueryRepository.getUserByIdRepository(req.params.id);
             if (found) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, found);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS, found, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, 0, 'Не известная ошибка при получении пользователя!');
+                return new ErRes_1.ErRes(400, undefined, 'Не известная ошибка при получении пользователя!', req, res);
             }
         });
     }
     getAllUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield this.usersQueryRepository.getAllUsersRepository(req));
+            return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS, yield this.usersQueryRepository.getAllUsersRepository(req), undefined, req, res);
         });
     }
     deleteUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const isDeletedUser = yield this.usersServices.deleteUserServices(req.params.id);
             if (isDeletedUser && isDeletedUser.acknowledged) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_USER);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_USER, undefined, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_DELETED_USER);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_DELETED_USER, undefined, undefined, req, res);
             }
         });
     }

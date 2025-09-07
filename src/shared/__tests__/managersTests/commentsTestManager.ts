@@ -128,5 +128,3 @@ export const commetsTestManager = {
         return { response: response, deletedComment: deletedComment }
     }
 }
-// cookies: string[] = [],  // Куки передаются сюда вместо авторизации
-// .set('Cookie', cookies)  // Устанавливаем куки для запроса

@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
 import { INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
-import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
+import { ErRes } from '../../../shared/utils/ErRes';
 import { inject, injectable } from 'inversify';
 import { PostsQueryRepository } from '../../posts/PostRepository/postQueryRepository';
 import { CommentsRepository } from '../CommentRepository/commentsRepository';
@@ -13,16 +13,22 @@ export class СommentsMiddlewares {
     ) { }
     commentIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         if (!req.params.id) {
-            return ResErrorsSwitch(
-                res,
-                INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT
+            return new ErRes(
+                INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT,
+                undefined,
+                undefined,
+                req,
+                res
             )
         }
         const foundComment = await this.commentsRepository._getCommentRepository(req.params.id)
         if (!foundComment) {
-            return ResErrorsSwitch(
-                res, 
-                INTERNAL_STATUS_CODE.COMMENT_NOT_FOUND
+            return new ErRes(
+                INTERNAL_STATUS_CODE.COMMENT_NOT_FOUND,
+                undefined,
+                undefined,
+                req,
+                res
             )
         }
         next()
@@ -30,23 +36,32 @@ export class СommentsMiddlewares {
     }
     commentCommentIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         if (!req.params.commentId) {
-            return ResErrorsSwitch(
-                res, 
-                INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT
+            return new ErRes(
+                INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT,
+                undefined,
+                undefined,
+                req,
+                res
             )
         }
         const foundComment = await this.commentsRepository._getCommentRepository(req.params.commentId)
         if (!foundComment) {
-            return ResErrorsSwitch(
-                res, 
-                INTERNAL_STATUS_CODE.COMMENT_NOT_FOUND
+            return new ErRes(
+                INTERNAL_STATUS_CODE.COMMENT_NOT_FOUND,
+                undefined,
+                undefined,
+                req,
+                res
             )
         }
         const foundPost = await this.postsQueryRepository.getPostByIdRepositories(foundComment.postId)
         if (!foundPost) {
-            return ResErrorsSwitch(
-                res, 
-                INTERNAL_STATUS_CODE.POST_NOT_FOUND_ID
+            return new ErRes(
+                INTERNAL_STATUS_CODE.POST_NOT_FOUND_ID,
+                undefined,
+                undefined,
+                req,
+                res
             )
         }
         next()

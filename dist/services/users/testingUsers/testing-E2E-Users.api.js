@@ -10,21 +10,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersE2eTest = void 0;
-const settings_1 = require("../../../shared/settings");
 const utils_1 = require("../../../shared/utils/utils");
 const authTestManager_1 = require("../../../shared/__tests__/managersTests/authTestManager");
 const usersTestManager_1 = require("../../../shared/__tests__/managersTests/usersTestManager");
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
-// import { container } from "../../src/shared/container/iocRoot";
-// import { MongoDBCollection } from '../../src/db';
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
-// const tokenService: TokenService = container.get(TokenService)
 const usersE2eTest = () => {
     describe('E2E-USERS', () => {
         beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, authTestManager_1.getRequest)().delete(`${settings_1.SETTINGS.RouterPath.__test__}/all-data`);
+            if (contextTests_1.contextTests.createdUser1) {
+                const { response } = yield usersTestManager_1.usersTestManager.deleteUser(contextTests_1.contextTests.createdUser1.id, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+                if (response.status === utils_1.HTTP_STATUSES.NO_CONTENT_204) {
+                    contextTests_1.contextTests.createdUser1 = null;
+                }
+            }
+            if (contextTests_1.contextTests.createdUser2) {
+                const { accessToken } = yield authTestManager_1.authTestManager.login({
+                    loginOrEmail: contextTests_1.contextTests.correctUserName2,
+                    password: contextTests_1.contextTests.correctUserPassword2
+                }, contextTests_1.contextTests.userAgent[0], utils_1.HTTP_STATUSES.OK_200);
+                const { userInfo } = yield authTestManager_1.authTestManager.getUserInfo(accessToken, utils_1.HTTP_STATUSES.OK_200);
+                const { getUsersById } = yield usersTestManager_1.usersTestManager.getUserById(userInfo.userId, utils_1.HTTP_STATUSES.OK_200);
+                const { response } = yield usersTestManager_1.usersTestManager.deleteUser(getUsersById.id, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+                if (response.status === utils_1.HTTP_STATUSES.NO_CONTENT_204) {
+                    contextTests_1.contextTests.createdUser2 = null;
+                }
+            }
+            if (contextTests_1.contextTests.createdUser3) {
+                const { response } = yield usersTestManager_1.usersTestManager.deleteUser(contextTests_1.contextTests.createdUser3.id, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+                if (response.status === utils_1.HTTP_STATUSES.NO_CONTENT_204) {
+                    contextTests_1.contextTests.createdUser3 = null;
+                }
+            }
         }));
-        it('Должен возвращать 200, а массив постов - should return 200 and user array', () => __awaiter(void 0, void 0, void 0, function* () {
+        it('Должен возвращать 200, а массив users - should return 200 and user array', () => __awaiter(void 0, void 0, void 0, function* () {
             const { getAllUsers } = yield usersTestManager_1.usersTestManager.getAllUsers(contextTests_1.contextTests.userParams, utils_1.HTTP_STATUSES.OK_200);
             expect(getAllUsers).toEqual(expect.objectContaining({
                 pagesCount: 0,
@@ -62,8 +80,8 @@ const usersE2eTest = () => {
             const { createdEntity } = yield usersTestManager_1.usersTestManager.createUser(data, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.CREATED_201);
             contextTests_1.contextTests.createdUser1 = createdEntity;
             const authData = {
-                loginOrEmail: data.email,
-                password: data.password
+                loginOrEmail: contextTests_1.contextTests.correctUserEmail1,
+                password: contextTests_1.contextTests.correctUserPassword1
             };
             const { accessToken, refreshToken } = yield authTestManager_1.authTestManager.login(authData, contextTests_1.contextTests.userAgent[4], utils_1.HTTP_STATUSES.OK_200);
             contextTests_1.contextTests.accessTokenUser1Device1 = accessToken;
@@ -148,9 +166,6 @@ const usersE2eTest = () => {
                 items: []
             }));
         }));
-        afterAll(done => {
-            done();
-        });
     });
 };
 exports.usersE2eTest = usersE2eTest;

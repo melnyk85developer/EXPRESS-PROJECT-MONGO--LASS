@@ -77,6 +77,7 @@ let MongoDBCollection = class MongoDBCollection {
             this.tokensCollection = this.DB.collection("tokens");
             this.requestsCollection = this.DB.collection("requests");
             this.devicesCollection = this.DB.collection("devices");
+            this.confirmationCollection = this.DB.collection("confirmation");
             this.isConnected = true; // <<< отмечаем соединение
             console.log("✅ Успешное подключение к MongoDB 👍");
         });

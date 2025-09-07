@@ -4,7 +4,6 @@ import { PostType, PostTypeDB, ResponsePostsType } from "../Post_DTO/postType";
 import { RequestWithParams, RequestWithQuery } from "../../../shared/types/typesGeneric";
 import { sanitizedQueryType } from "../../../shared/types/types";
 import { inject, injectable } from "inversify";
-// import { postsCollection } from "../../../db";
 import { MongoDBCollection } from "../../../db";
 
 @injectable()
@@ -37,10 +36,10 @@ export class PostsQueryRepository {
         }
     }
     async getPostByIdRepositories(id: string): Promise<PostType | number | any> {
-        // console.log('getPostByIdRepositories - ', id)
+        // console.log('getPostByIdRepositories - req id', id)
         try {
             const getPost = await this.mongoDB.postsCollection.findOne({ _id: new ObjectId(id) })
-            // console.log('getPostByIdRepositories - res ', getPost)
+            // console.log('getPostByIdRepositories - res getPost ', getPost)
             if (getPost) { return await this._postsMapForRender(getPost) }
         } catch (error) {
             return error

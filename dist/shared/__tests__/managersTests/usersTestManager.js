@@ -33,12 +33,13 @@ exports.usersTestManager = {
         });
     },
     getUserById(id_1) {
-        return __awaiter(this, arguments, void 0, function* (id, expectedStatusCode = utils_1.HTTP_STATUSES.CREATED_201) {
+        return __awaiter(this, arguments, void 0, function* (id, expectedStatusCode = utils_1.HTTP_STATUSES.OK_200) {
+            // console.log('usersTestManager - id', id)
             const response = yield (0, exports.getRequest)()
                 .get(`${settings_1.SETTINGS.RouterPath.users}/${id}`)
                 // .set('User-Agent', 'TestDevice/1.0')
                 .expect(expectedStatusCode);
-            // console.log('usersTestManager - res', id)
+            // console.log('usersTestManager - response.body', response.body)
             return { response: response, getUsersById: response.body };
         });
     },

@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { inject, injectable } from 'inversify';
 import { MongoDBCollection } from '../../db';
 import { HTTP_STATUSES } from '../../shared/utils/utils';
-import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
+import { ErRes } from '../../shared/utils/ErRes';
 
 @injectable()
 export class TestsController {
@@ -44,9 +44,21 @@ export class TestsController {
                 t.acknowledged && r.acknowledged && d.acknowledged) {
                 return res.sendStatus(204);
             }
-            return ResErrorsSwitch(res, 400, 'Не удалось удалить данные из базы данных.');
+            throw new ErRes(
+                400,
+                undefined,
+                'Не удалось удалить данные из базы данных.',
+                req,
+                res
+            );
         } catch (error) {
-            return ResErrorsSwitch(res, 400, `Ошибка при обнулении базы данных: ${error}`);
+            throw new ErRes(
+                400,
+                undefined,
+                `Ошибка при обнулении базы данных: ${error}`,
+                req,
+                res
+            );
         }
     };
 

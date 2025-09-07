@@ -8,7 +8,7 @@ import { UserTypeDB } from "../Users_DTO/userTypes";
 @injectable()
 export class UsersRepository {
     constructor(
-        @inject(MongoDBCollection) public readonly mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
 
     async createUserRepository(user: CreateUserModel): Promise<InsertOneResult<{ acknowledged: boolean, insertedId: number }> | null> {
@@ -53,6 +53,16 @@ export class UsersRepository {
             return null
         }
     }
+    async updatePasswordRepository(password: string, userId: number): Promise<ObjectId | null> {
+        const updatePassword = await this.mongoDB.usersCollection.updateOne(
+            { password },
+            {
+                where: { userId },
+                returning: true
+            }
+        );
+        return updatePassword.upsertedId
+    }
     async deleteUserRepository(id: string): Promise<DeleteResult | null> {
         try {
             return await this.mongoDB.usersCollection.deleteOne({ _id: new ObjectId(id) })
@@ -96,10 +106,15 @@ export class UsersRepository {
     }
     async _getUserByEmailRepository(email: string): Promise<UserTypeDB | any> {
         try {
-            const getUser = await this.mongoDB.usersCollection.findOne({ 'accountData.email': email })
-            if (getUser) { return getUser }
+            const isUser = await this.mongoDB.usersCollection.findOne({ 'accountData.email': email })
+            if (isUser) {
+                // console.log('UsersRepository _getUserByEmailRepository: - isUser', isUser)
+                return isUser
+            } else {
+                return null
+            }
         } catch (error) {
-            // console.error(error);
+            console.error(error);
             return error;
         }
     }

@@ -2,10 +2,21 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserTypeDB = void 0;
 class UserTypeDB {
-    constructor(_id, accountData, emailConfirmation) {
+    constructor(_id, accountData
+    // public confirmations: {
+    //     confirmationCode: string,
+    //     expirationDate: string,
+    //     isConfirmed: boolean,
+    //     field: string
+    // },
+    // public emailConfirmation: {
+    //     confirmationCode: string,
+    //     expirationDate: string,
+    //     isConfirmed: boolean,
+    // }
+    ) {
         this._id = _id;
         this.accountData = accountData;
-        this.emailConfirmation = emailConfirmation;
     }
 }
 exports.UserTypeDB = UserTypeDB;

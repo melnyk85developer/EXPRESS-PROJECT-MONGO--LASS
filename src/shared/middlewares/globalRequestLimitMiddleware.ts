@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import moment from 'moment';
 import { JwtPayload } from 'jsonwebtoken';
 import { SETTINGS } from '../settings';
-import { ResErrorsSwitch } from '../utils/ErResSwitch';
+import { ErRes } from '../utils/ErRes';
 import { INTERNAL_STATUS_CODE } from '../utils/utils';
 import { inject, injectable } from 'inversify';
 import { TokenService } from '../infrastructure/tokenService';
@@ -48,13 +48,25 @@ export class GlobalRequestLimitMiddleware {
                     console.log(`IP: ${request.IP}, URL: ${request.URL}, запросов: ${count}`);
                     console.log(`Превышен лимит скорости в globalRequestLimitMiddleware для IP: ${request.IP}, URL: ${request.URL}`)
 
-                    return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BAD_REQUEST_TOO_MANY_REQUESTS)
+                    return new ErRes(
+                        INTERNAL_STATUS_CODE.BAD_REQUEST_TOO_MANY_REQUESTS,
+                        undefined,
+                        undefined,
+                        req,
+                        res
+                    )
                 }
                 const result = await this.mongoDB.requestsCollection.insertOne(request)
                 // console.log('Сохранено в базу данных:', result);
             } catch (error) {
                 console.error('Ошибка в globalRequestLimitMiddleware:', error);
-                return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BAD_REQUEST, 'Что-то пошло не так при сохранении сессии в базу данных!')
+                return new ErRes(
+                    INTERNAL_STATUS_CODE.BAD_REQUEST,
+                    undefined,
+                    'Что-то пошло не так при сохранении сессии в базу данных!',
+                    req,
+                    res
+                )
             }
             return next();
         }

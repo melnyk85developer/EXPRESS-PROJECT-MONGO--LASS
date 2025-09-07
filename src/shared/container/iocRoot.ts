@@ -33,11 +33,13 @@ import { СommentsMiddlewares } from '../../services/comments/CommentMiddlewares
 import { AuthMiddlewares } from '../../services/auth/AuthMiddlewares/authGuardMiddleware';
 import { TestsController } from '../../services/tests/testsController';
 import { MailService } from '../infrastructure/emailAdapter';
+import { ConfirmationRepository } from '../../services/confirmation/confirmationRepository/confirmationRepository';
 
 export const container = new Container();
 // DB
 container.bind(MongoDBCollection).to(MongoDBCollection).inSingletonScope();
 container.bind(MailService).to(MailService).inSingletonScope();
+container.bind(ConfirmationRepository).to(ConfirmationRepository).inSingletonScope();
 // MIDDLEWARE
 container.bind(GlobalRequestLimitMiddleware).to(GlobalRequestLimitMiddleware)
 // auth

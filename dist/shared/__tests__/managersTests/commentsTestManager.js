@@ -121,5 +121,3 @@ exports.commetsTestManager = {
         });
     }
 };
-// cookies: string[] = [],  // Куки передаются сюда вместо авторизации
-// .set('Cookie', cookies)  // Устанавливаем куки для запроса

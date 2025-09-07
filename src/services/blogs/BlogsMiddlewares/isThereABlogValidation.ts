@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
-import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
+import { ErRes } from '../../../shared/utils/ErRes';
 import { inject, injectable } from 'inversify';
 import { BlogsQueryRepository } from '../BlogsRepository/blogQueryRepository';
 
@@ -12,7 +12,13 @@ export class BlogValidationMiddlewares {
     blogIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         const foundBlog = await this.blogsQueryRepository.getBlogByIdRepository(req.params.id)
         if (!foundBlog) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BLOG_NOT_FOUND_ID)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.BLOG_NOT_FOUND_ID,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
         next();
         return
@@ -20,7 +26,13 @@ export class BlogValidationMiddlewares {
     isBlogIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         const foundBlog = await this.blogsQueryRepository.getBlogByIdRepository(req.params.blogId)
         if (!foundBlog) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.BLOG_NOT_FOUND_BLOG_ID)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.BLOG_NOT_FOUND_BLOG_ID,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
         next();
         return

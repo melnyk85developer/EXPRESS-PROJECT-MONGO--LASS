@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
-import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
+import { ErRes } from '../../../shared/utils/ErRes';
 import { UserTypeDB } from '../Users_DTO/userTypes';
 import { injectable, inject } from 'inversify';
 import { UserService } from '../usersServices';
@@ -13,9 +13,12 @@ export class UsersMiddlewares {
     userIdMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         const found: UserTypeDB = await this.usersServices._getUserByIdService(req.params.id);
         if (!found) {
-            return ResErrorsSwitch(
-                res,
-                INTERNAL_STATUS_CODE.USER_NOT_FOUND
+            return new ErRes(
+                INTERNAL_STATUS_CODE.USER_NOT_FOUND,
+                undefined,
+                undefined,
+                req,
+                res
             )
         }
         next();

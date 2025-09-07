@@ -4,21 +4,12 @@ import { app } from "../../../app";
 import { SETTINGS } from "../../settings";
 import { HTTP_STATUSES, HttpStatusType } from "../../utils/utils";
 import { SessionType } from "../../../services/usersSessions/Sessions_DTO/sessionsType";
-// import { securityDeviceServices, tokenService } from "../../container/compositionRootCustom";
 import { CreateUserModel } from "../../../services/users/Users_DTO/CreateUserModel";
-import { container } from "../../container/iocRoot";
-import { TokenService } from "../../infrastructure/tokenService";
-import { SecurityDeviceServices } from "../../../services/usersSessions/securityDeviceService";
-// import { securityDeviceServices, tokenService } from "../../../src/shared/container/compositionRootCustom";
-
-const tokenService: TokenService = container.get(TokenService)
-const securityDeviceServices: SecurityDeviceServices = container.get(SecurityDeviceServices)
+import { contextTests } from "../contextTests";
 
 export const getRequest = () => {
     return request(app)
 }
-const buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')
-const codedAuth = buff2.toString('base64')
 
 export const usersSessionTestManager = {
     async getAllUserSessionByUserId(
@@ -32,7 +23,7 @@ export const usersSessionTestManager = {
             .expect(expectedStatusCode)
         // console.log('usersTestManager - res', response.body)
         let arrSessions: SessionType[] = response.body
-        const userToken = await tokenService.validateRefreshToken(refreshToken);
+
         expect(Array.isArray(arrSessions)).toBe(true);
         expect(arrSessions).toEqual(
             expect.arrayContaining([
@@ -111,21 +102,6 @@ export const usersSessionTestManager = {
         // console.log('usersTestManager - res', response.body)
         return {response: response, deleteUser: response.body}
     },
-    async createArrayUsersSessions(
-        count: number = 10,
-        codedAuth: string | undefined = undefined,
-        authToken2: string | null = null){
-
-        const userToken = await tokenService.validateRefreshToken(authToken2);
-        for(let i = 0; i < count; i++){
-            await securityDeviceServices.createSessionServices(
-                (userToken as JwtPayload & { userId: string }).userId.toString(),
-                `::ffff:127.0.0.${i}`,
-                `user-agent/INTEGRATION-TEST/0.${i}}`
-            )
-        }
-    },
-
     async getAllUsersSessions(
         accessToken: string,
         refreshToken: string,

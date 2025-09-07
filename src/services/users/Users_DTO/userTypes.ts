@@ -9,12 +9,19 @@ export class UserTypeDB {
             email: string
             password: string
             createdAt: string
-        },
-        public emailConfirmation: {
-            confirmationCode: string,
-            expirationDate: string,
-            isConfirmed: boolean
         }
+        // public confirmations: {
+        //     confirmationCode: string,
+        //     expirationDate: string,
+        //     isConfirmed: boolean,
+        //     field: string
+        // },
+        // public emailConfirmation: {
+        //     confirmationCode: string,
+        //     expirationDate: string,
+        //     isConfirmed: boolean,
+
+        // }
     ) { }
 
 }

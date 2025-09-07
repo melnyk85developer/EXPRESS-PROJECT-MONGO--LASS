@@ -23,7 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SessionsMiddlewares = void 0;
 const utils_1 = require("../../../shared/utils/utils");
-const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../../shared/utils/ErRes");
 const inversify_1 = require("inversify");
 const userSessionsRepository_1 = require("../UserSessionsRpository/userSessionsRepository");
 const tokenService_1 = require("../../../shared/infrastructure/tokenService");
@@ -40,19 +40,19 @@ let SessionsMiddlewares = class SessionsMiddlewares {
             const foundDevice = yield this.userSessionsRepository._getSessionDeviceByIdRepository(String(req.params.deviceId));
             // console.log('deviceIdMiddleware: - foundDevice', foundDevice)
             if (!foundDevice) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND, undefined, undefined, req, res);
             }
             if (String(userToken.userId) !== String(foundDevice.userId)) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.FORBIDDEN_DELETED_YOU_ARE_NOT_THE_OWNER_OF_THE_SESSION);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.FORBIDDEN_DELETED_YOU_ARE_NOT_THE_OWNER_OF_THE_SESSION, undefined, undefined, req, res);
             }
             const foundSession = yield this.userSessionsRepository._getSessionByUserIdRepository(String(req.user.id), String(req.params.deviceId));
             if (foundSession) {
                 if (!foundSession) {
-                    return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND);
+                    return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND, undefined, undefined, req, res);
                 }
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.SESSION_ID_NOT_FOUND, undefined, undefined, req, res);
             }
             return next();
         });

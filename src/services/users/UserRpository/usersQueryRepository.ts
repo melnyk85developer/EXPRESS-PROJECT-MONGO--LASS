@@ -4,13 +4,12 @@ import { ResponseUserType, UserType, UserTypeDB } from "../Users_DTO/userTypes";
 import { RequestWithParams, RequestWithQuery } from "../../../shared/types/typesGeneric";
 import { sanitizedQueryType } from "../../../shared/types/types";
 import { inject, injectable } from "inversify";
-// import { usersCollection } from '../../../db';
 import { MongoDBCollection } from "../../../db";
 
 @injectable()
 export class UsersQueryRepository {
     constructor(
-        @inject(MongoDBCollection) private readonly mongoDB: MongoDBCollection
+        @inject(MongoDBCollection) private mongoDB: MongoDBCollection
     ) { }
 
     async getAllUsersRepository(req: RequestWithParams<URIParamsUserIdModel> & RequestWithQuery<{ [key: string]: string | undefined }>): Promise<ResponseUserType | null> {
@@ -63,9 +62,13 @@ export class UsersQueryRepository {
         }
     }
     async getUserByIdRepository(id: string): Promise<UserType | any> {
+        // console.log('getUserByIdRepository: - id', id);
         try {
             const getUser = await this.mongoDB.usersCollection.findOne({ _id: new ObjectId(id) })
-            if (getUser) { return this._userMapForRender(getUser) }
+            // console.log('getUserByIdRepository: - getUser', getUser);
+            if (getUser) {
+                return this._userMapForRender(getUser)
+            }
         } catch (error) {
             // console.error(error)
             return error

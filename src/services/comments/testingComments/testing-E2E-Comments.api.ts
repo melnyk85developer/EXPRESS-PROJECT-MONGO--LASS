@@ -1,5 +1,3 @@
-// import { container } from '../../src/shared/container/iocRoot';
-// import { MongoDBCollection } from '../../src/db'
 import { SETTINGS } from '../../../shared/settings';
 import { HTTP_STATUSES } from '../../../shared/utils/utils';
 import { UpdateCommentModel } from '../Comment_DTO/UpdateCommentModel';
@@ -12,37 +10,26 @@ import { blogsTestManager } from '../../../shared/__tests__/managersTests/blogsT
 import { postsTestManager } from '../../../shared/__tests__/managersTests/postsTestManager';
 import { commetsTestManager } from '../../../shared/__tests__/managersTests/commentsTestManager';
 import { contextTests } from '../../../shared/__tests__/contextTests';
-
-// const mongoDB: MongoDBCollection = container.resolve(MongoDBCollection)
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
+import { isCreatedUser1 } from '../../users/testingUsers/testFunctionsUser';
+import { isLoginUser1 } from '../../auth/testingAuth/testFunctionsAuth';
 
 export const commentsE2eTest = () => {
     describe('E2E-COMMENTS', () => {
         beforeAll(async () => {
-            await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`);
-        })
-        it('Должен вернуть 200, массив комментариев - should return 200 and comments array', async () => {
-            const userData: any = {
-                login: contextTests.correctUserName1,
-                password: contextTests.correctUserPassword1,
-                email: contextTests.correctUserEmail1
-            }
-            const { createdEntity } = await usersTestManager.createUser(
-                userData,
-                contextTests.codedAuth,
-                HTTP_STATUSES.CREATED_201
+            const isUser = await isCreatedUser1(
+                contextTests.correctUserName1,
+                contextTests.correctUserEmail1,
+                contextTests.correctUserPassword1,
+                HTTP_STATUSES.NO_CONTENT_204
             )
-            contextTests.createdUser1 = createdEntity;
-            const authData = {
-                loginOrEmail: contextTests.correctUserName1,
-                password: contextTests.correctUserPassword1
-            }
-            const { accessToken } = await authTestManager.login(
-                authData,
-                contextTests.userAgent[2],
+            const isLogin = await isLoginUser1(
+                contextTests.accessTokenUser1Device1,
+                contextTests.refreshTokenUser1Device1,
+                contextTests.correctUserEmail1,
+                contextTests.correctUserPassword1,
+                contextTests.userAgent[0],
                 HTTP_STATUSES.OK_200
             )
-            contextTests.accessTokenUser1Device1 = accessToken
             const blogData = {
                 name: contextTests.correctBlogNsme1,
                 description: contextTests.correctBlogDescription1,
@@ -67,7 +54,8 @@ export const commentsE2eTest = () => {
                 HTTP_STATUSES.CREATED_201
             );
             contextTests.createdBlog1Post1 = response.body;
-
+        })
+        it('Должен вернуть 200, массив комментариев - should return 200 and comments array', async () => {
             const { getAllComments } = await commetsTestManager.getAllComments(
                 contextTests.createdBlog1Post1.id,
                 HTTP_STATUSES.OK_200
@@ -113,13 +101,12 @@ export const commentsE2eTest = () => {
                 }))
         })
         it(`Не следует создавать комментарий с невалидными исходными данными - You should not create a post with incorrect initial data`, async () => {
-            const data: CreateCommentModel = {
-                content: '',
-                postId: ''
-            }
             await commetsTestManager.createComment(
                 contextTests.createdBlog1Post1.id,
-                data,
+                {
+                    content: '',
+                    postId: ''
+                },
                 contextTests.accessTokenUser1Device1,
                 HTTP_STATUSES.BAD_REQUEST_400
             )
@@ -134,7 +121,8 @@ export const commentsE2eTest = () => {
                     pageSize: 10,
                     totalCount: 0,
                     items: []
-                }))
+                })
+            )
         })
         it(`Необходимо создать комментарий с правильными исходными данными - it is necessary to create a comment with the correct initial data`, async () => {
             const data: CreateCommentModel = {
@@ -202,8 +190,8 @@ export const commentsE2eTest = () => {
                 HTTP_STATUSES.OK_200
             );
             expect(getCommentById).toEqual(
-                expect.objectContaining(contextTests.createdBlog1Post1Comment1))
-
+                expect.objectContaining(contextTests.createdBlog1Post1Comment1)
+            )
         })
         it(`Не следует обновлять несуществующий комментарий - You should not update a comment that does not exist`, async () => {
             const data: UpdateCommentModel = {
@@ -211,9 +199,9 @@ export const commentsE2eTest = () => {
                 postId: contextTests.createdBlog1Post1.id
             }
             await commetsTestManager.updateComment(
-                contextTests.invalidId, 
-                data, 
-                contextTests.accessTokenUser1Device1, 
+                contextTests.invalidId,
+                data,
+                contextTests.accessTokenUser1Device1,
                 HTTP_STATUSES.NOT_FOUND_404
             );
         })
@@ -223,13 +211,13 @@ export const commentsE2eTest = () => {
                 postId: contextTests.createdBlog1Post1.id
             }
             await commetsTestManager.updateComment(
-                contextTests.createdBlog1Post1Comment1.id, 
-                updatedComment, 
-                contextTests.accessTokenUser1Device1, 
+                contextTests.createdBlog1Post1Comment1.id,
+                updatedComment,
+                contextTests.accessTokenUser1Device1,
                 HTTP_STATUSES.NO_CONTENT_204
             );
             const { getCommentById } = await commetsTestManager.getCommentById(
-                contextTests.createdBlog1Post1Comment1.id, 
+                contextTests.createdBlog1Post1Comment1.id,
                 HTTP_STATUSES.OK_200
             )
             expect(getCommentById).toEqual(
@@ -239,7 +227,7 @@ export const commentsE2eTest = () => {
                 })
             )
             const { response } = await commetsTestManager.getCommentById(
-                contextTests.createdBlog1Post1Comment2.id, 
+                contextTests.createdBlog1Post1Comment2.id,
                 HTTP_STATUSES.OK_200
             )
             expect(response.body).toEqual(
@@ -248,25 +236,25 @@ export const commentsE2eTest = () => {
         })
         it(`Следует удалить оба комментария - should delete both comments`, async () => {
             await commetsTestManager.deleteComment(
-                contextTests.createdBlog1Post1Comment1.id, 
-                contextTests.accessTokenUser1Device1, 
+                contextTests.createdBlog1Post1Comment1.id,
+                contextTests.accessTokenUser1Device1,
                 HTTP_STATUSES.NO_CONTENT_204
             )
             await commetsTestManager.getCommentById(
-                contextTests.createdBlog1Post1Comment1.id, 
+                contextTests.createdBlog1Post1Comment1.id,
                 HTTP_STATUSES.NOT_FOUND_404
             )
             await commetsTestManager.deleteComment(
-                contextTests.createdBlog1Post1Comment2.id, 
-                contextTests.accessTokenUser1Device1, 
+                contextTests.createdBlog1Post1Comment2.id,
+                contextTests.accessTokenUser1Device1,
                 HTTP_STATUSES.NO_CONTENT_204
             )
             await commetsTestManager.getCommentById(
-                contextTests.createdBlog1Post1Comment2.id, 
+                contextTests.createdBlog1Post1Comment2.id,
                 HTTP_STATUSES.NOT_FOUND_404
             )
             const { getAllComments } = await commetsTestManager.getAllComments(
-                contextTests.createdBlog1Post1.id, 
+                contextTests.createdBlog1Post1.id,
                 HTTP_STATUSES.OK_200
             )
             expect(getAllComments).toEqual(
@@ -276,11 +264,9 @@ export const commentsE2eTest = () => {
                     pageSize: 10,
                     totalCount: 0,
                     items: []
-                }))
+                })
+            )
         })
-        afterAll(done => {
-            done();
-        });
-    });
+    })
 }
 

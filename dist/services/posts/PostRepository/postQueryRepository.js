@@ -24,7 +24,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsQueryRepository = void 0;
 const mongodb_1 = require("mongodb");
 const inversify_1 = require("inversify");
-// import { postsCollection } from "../../../db";
 const db_1 = require("../../../db");
 let PostsQueryRepository = class PostsQueryRepository {
     constructor(mongoDB) {
@@ -61,10 +60,10 @@ let PostsQueryRepository = class PostsQueryRepository {
     }
     getPostByIdRepositories(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            // console.log('getPostByIdRepositories - ', id)
+            // console.log('getPostByIdRepositories - req id', id)
             try {
                 const getPost = yield this.mongoDB.postsCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
-                // console.log('getPostByIdRepositories - res ', getPost)
+                // console.log('getPostByIdRepositories - res getPost ', getPost)
                 if (getPost) {
                     return yield this._postsMapForRender(getPost);
                 }

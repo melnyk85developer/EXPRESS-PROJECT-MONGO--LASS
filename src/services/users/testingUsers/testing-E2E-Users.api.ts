@@ -5,20 +5,61 @@ import { CreateUserModel } from '../Users_DTO/CreateUserModel';
 import { authTestManager, getRequest } from '../../../shared/__tests__/managersTests/authTestManager';
 import { usersTestManager } from '../../../shared/__tests__/managersTests/usersTestManager';
 import { contextTests } from '../../../shared/__tests__/contextTests';
-// import { container } from "../../src/shared/container/iocRoot";
-// import { MongoDBCollection } from '../../src/db';
-
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
-// const tokenService: TokenService = container.get(TokenService)
+import { isCreatedUser1 } from "./testFunctionsUser";
 
 export const usersE2eTest = () => {
     describe('E2E-USERS', () => {
         beforeAll(async () => {
-            await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`)
+            if (contextTests.createdUser1) {
+                const { response } = await usersTestManager.deleteUser(
+                    contextTests.createdUser1.id,
+                    contextTests.codedAuth,
+                    HTTP_STATUSES.NO_CONTENT_204
+                )
+                if (response.status === HTTP_STATUSES.NO_CONTENT_204) {
+                    contextTests.createdUser1 = null
+                }
+            }
+            if (contextTests.createdUser2) {
+                const { accessToken } = await authTestManager.login(
+                    {
+                        loginOrEmail: contextTests.correctUserName2,
+                        password: contextTests.correctUserPassword2
+                    },
+                    contextTests.userAgent[0],
+                    HTTP_STATUSES.OK_200
+                )
+                const { userInfo } = await authTestManager.getUserInfo(
+                    accessToken,
+                    HTTP_STATUSES.OK_200
+                )
+                const { getUsersById } = await usersTestManager.getUserById(
+                    userInfo.userId,
+                    HTTP_STATUSES.OK_200
+                )
+                const { response } = await usersTestManager.deleteUser(
+                    getUsersById.id,
+                    contextTests.codedAuth,
+                    HTTP_STATUSES.NO_CONTENT_204
+                )
+                if (response.status === HTTP_STATUSES.NO_CONTENT_204) {
+                    contextTests.createdUser2 = null
+                }
+            }
+            if (contextTests.createdUser3) {
+                const { response } = await usersTestManager.deleteUser(
+                    contextTests.createdUser3.id,
+                    contextTests.codedAuth,
+                    HTTP_STATUSES.NO_CONTENT_204
+                )
+                if (response.status === HTTP_STATUSES.NO_CONTENT_204) {
+                    contextTests.createdUser3 = null
+                }
+            }
         })
-        it('Должен возвращать 200, а массив постов - should return 200 and user array', async () => {
+        it('Должен возвращать 200, а массив users - should return 200 and user array', async () => {
             const { getAllUsers } = await usersTestManager.getAllUsers(
-                contextTests.userParams, 
+                contextTests.userParams,
                 HTTP_STATUSES.OK_200
             )
             expect(getAllUsers).toEqual(
@@ -72,9 +113,10 @@ export const usersE2eTest = () => {
                 HTTP_STATUSES.CREATED_201
             )
             contextTests.createdUser1 = createdEntity
+
             const authData = {
-                loginOrEmail: data.email,
-                password: data.password
+                loginOrEmail: contextTests.correctUserEmail1,
+                password: contextTests.correctUserPassword1
             }
             const { accessToken, refreshToken } = await authTestManager.login(
                 authData,
@@ -198,7 +240,7 @@ export const usersE2eTest = () => {
                 .toEqual(expect.objectContaining(
                     contextTests.createdUser2
                 )
-            )
+                )
         })
         it(`Должен удалить оба пользователя - should delete both user`, async () => {
             await usersTestManager.deleteUser(
@@ -232,9 +274,6 @@ export const usersE2eTest = () => {
                     items: []
                 })
             )
-        })
-        afterAll(done => {
-            done()
         })
     })
 }

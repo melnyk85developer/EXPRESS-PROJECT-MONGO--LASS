@@ -10,6 +10,7 @@ export const postMiddlewares = [
         .isString()
         .custom(async blogId => {
         const blog = await blogsQueryRepository.getBlogByIdRepository(blogId)
+        // console.log('postMiddlewares: - blog', blog)
         if(!blog){
             throw new Error('Блога с таким blogId не найденно!')
     }}),

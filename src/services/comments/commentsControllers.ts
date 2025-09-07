@@ -3,12 +3,13 @@ import { URIParamsCommentIdModel, URIParamsUpdateDeleteCommentIdModel } from './
 import { INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
 import { UpdateCommentModel } from './Comment_DTO/UpdateCommentModel';
 import { CommentType } from './Comment_DTO/commentType';
-import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
-import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
+// import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
+import { ErRes } from '../../shared/utils/ErRes';
 import { RequestWithParams, RequestWithParamsAndBody } from '../../shared/types/typesGeneric';
 import { inject, injectable } from 'inversify';
 import { CommentsServices } from './commentsServices';
 import { CommentsQueryRepository } from './CommentRepository/commentsQueryRepository';
+import { SuccessResponse } from '../../shared/utils/SuccessResponse';
 
 @injectable()
 export class CommentsControllers {
@@ -20,25 +21,61 @@ export class CommentsControllers {
     async getCommentByIdController(req: RequestWithParams<URIParamsCommentIdModel>, res: Response<CommentType>) {
         const foundComment: CommentType | null = await this.commentsQueryRepository.getCommentByIdRepository(req.params.id);
         if (foundComment && foundComment.id) {
-            return SuccessfulResponse(res, INTERNAL_STATUS_CODE.SUCCESS, undefined, foundComment)
+            return SuccessResponse(
+                INTERNAL_STATUS_CODE.SUCCESS,
+                foundComment,
+                undefined,
+                req,
+                res
+            )
         } else {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.NOT_FOUND)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.NOT_FOUND,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
     }
     async updateCommentController(req: RequestWithParamsAndBody<URIParamsUpdateDeleteCommentIdModel, UpdateCommentModel>, res: Response<any>) {
         const updateComment = await this.commentsServices.updateCommentServices(req.params.commentId, req.user!.id, req.body)
         if (updateComment.acknowledged === true) {
-            return SuccessfulResponse(res, INTERNAL_STATUS_CODE.SUCCESS_UPDATED_COMMENT)
+            return SuccessResponse(
+                INTERNAL_STATUS_CODE.SUCCESS_UPDATED_COMMENT,
+                undefined,
+                undefined,
+                req,
+                res,
+            )
         } else {
-            return ResErrorsSwitch(res, updateComment)
+            return new ErRes(
+                updateComment,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
     }
     async deleteCommentController(req: RequestWithParams<URIParamsUpdateDeleteCommentIdModel>, res: Response<any>) {
         const commsnt = await this.commentsServices.deleteCommentServices(req.params.commentId, req.user!.id);
         if (commsnt && commsnt.acknowledged === true) {
-            return SuccessfulResponse(res, INTERNAL_STATUS_CODE.SUCCESS_DELETED_COMMENT)
+            return SuccessResponse(
+                INTERNAL_STATUS_CODE.SUCCESS_DELETED_COMMENT,
+                undefined,
+                undefined,
+                req,
+                res,
+            )
         } else {
-            return ResErrorsSwitch(res, commsnt)
+            return new ErRes(
+                commsnt,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
     }
 }

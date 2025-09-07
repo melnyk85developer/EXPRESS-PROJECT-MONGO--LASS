@@ -13,17 +13,19 @@ import { UsersQueryRepository } from '../users/UserRpository/usersQueryRepositor
 import { SecurityDeviceServices } from '../usersSessions/securityDeviceService';
 import { TokenService } from '../../shared/infrastructure/tokenService';
 import { MongoDBCollection } from '../../db';
+import { ConfirmationRepository } from '../confirmation/confirmationRepository/confirmationRepository';
 
 @injectable()
 export class AuthServices {
     constructor(
         @inject(MongoDBCollection) private mongoDB: MongoDBCollection,
         @inject(UserService) private usersServices: UserService,
+        @inject(TokenService) private tokenService: TokenService,
+        @inject(MailService) private mailService: MailService,
         @inject(UsersRepository) private usersRepository: UsersRepository,
         @inject(UsersQueryRepository) private usersQueryRepository: UsersQueryRepository,
         @inject(SecurityDeviceServices) private securityDeviceServices: SecurityDeviceServices,
-        @inject(TokenService) private tokenService: TokenService,
-        @inject(MailService) private mailService: MailService,
+        @inject(ConfirmationRepository) private myConfirmationRepository: ConfirmationRepository,
     ) { }
     async registrationServices(login: string, password: string, email: string): Promise<UserType | null | any> {
         // console.log('registrationServices - login, password, email 😡😡', login, password, email)
@@ -43,18 +45,20 @@ export class AuthServices {
                     email,
                     password: password,
                     createdAt: createdAt
-                },
-                emailConfirmation: {
-                    confirmationCode: confirmationCode,
-                    expirationDate: add(new Date(), {
-                        hours: 1,
-                        minutes: 3
-                    }),
-                    isConfirmed: false
                 }
             }
             const crestedUser = await this.usersServices.createUserServices(createUser as unknown as UserTypeDB)
             // console.log('crestedUser: - 😡', crestedUser)
+            await this.myConfirmationRepository.createConfirmationRepository({
+                confirmationCode: confirmationCode,
+                expirationDate: add(new Date(), {
+                    // hours: 1,
+                    minutes: 3
+                }),
+                isBlocked: true,
+                field: 'registration',
+                userId: crestedUser.insertedId,
+            })
             const from = `IT-INCUBATOR <${process.env.SMTP_USER}>`
             const to = email
             const subject = `Активация аккаунта на сайте ${process.env.PROJEKT_NAME}`

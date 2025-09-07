@@ -17,6 +17,7 @@ export class MongoDBCollection {
     public tokensCollection!: Collection<any>;
     public requestsCollection!: Collection<any>;
     public devicesCollection!: Collection<any>;
+    public confirmationCollection!: Collection<any>;
 
     constructor() {
         const mongoUrl = process.env.MONGO_LOCAL_URL;
@@ -37,6 +38,7 @@ export class MongoDBCollection {
         this.tokensCollection = this.DB.collection("tokens");
         this.requestsCollection = this.DB.collection("requests");
         this.devicesCollection = this.DB.collection("devices");
+        this.confirmationCollection = this.DB.collection("confirmation");
 
         this.isConnected = true; // <<< отмечаем соединение
         console.log("✅ Успешное подключение к MongoDB 👍");

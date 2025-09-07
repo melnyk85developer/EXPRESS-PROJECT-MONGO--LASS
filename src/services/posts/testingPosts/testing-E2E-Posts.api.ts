@@ -1,45 +1,32 @@
-import { SETTINGS } from '../../../shared/settings';
 import { HTTP_STATUSES } from '../../../shared/utils/utils';
 import { CreatePostModel } from '../Post_DTO/CreatePostModel';
 import { CreateBlogModel } from '../../blogs/Blogs_DTO/CreateBlogModel';
 import { UpdatePostModel } from '../Post_DTO/UpdatePostModel';
-import { getRequest, postsTestManager } from '../../../shared/__tests__/managersTests/postsTestManager';
-import { usersTestManager } from '../../../shared/__tests__/managersTests/usersTestManager';
-import { authTestManager } from '../../../shared/__tests__/managersTests/authTestManager';
+import { postsTestManager } from '../../../shared/__tests__/managersTests/postsTestManager';
 import { blogsTestManager } from '../../../shared/__tests__/managersTests/blogsTestManager';
 import { contextTests } from '../../../shared/__tests__/contextTests';
-// import { container } from '../../src/shared/container/iocRoot';
-// import { MongoDBCollection } from '../../src/db';
-
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
+import { isCreatedUser1 } from '../../users/testingUsers/testFunctionsUser';
+import { isLoginUser1 } from '../../auth/testingAuth/testFunctionsAuth';
 
 export const postsE2eTest = () => {
     describe('E2E-POSTS', () => {
         beforeAll(async () => {
-            await getRequest().delete(`${SETTINGS.RouterPath.__test__}/all-data`);
-        })
-        it('Должен вернуть 200, массив постов - should return 200 and post array', async () => {
-            const userData: any = {
-                login: contextTests.correctUserName1,
-                password: contextTests.correctUserPassword1,
-                email: contextTests.correctUserEmail1
-            }
-            const { createdEntity } = await usersTestManager.createUser(
-                userData,
-                contextTests.codedAuth,
-                HTTP_STATUSES.CREATED_201
+            const isUser = await isCreatedUser1(
+                contextTests.correctUserName1,
+                contextTests.correctUserEmail1,
+                contextTests.correctUserPassword1,
+                HTTP_STATUSES.NO_CONTENT_204
             )
-            contextTests.createdUser1 = createdEntity;
-            const authData = {
-                loginOrEmail: contextTests.correctUserName1,
-                password: contextTests.correctUserPassword1
-            }
-            const { accessToken } = await authTestManager.login(
-                authData, 
-                contextTests.userAgent[3],
+            const isLogin = await isLoginUser1(
+                contextTests.accessTokenUser1Device1,
+                contextTests.refreshTokenUser1Device1,
+                contextTests.correctUserEmail1,
+                contextTests.correctUserPassword1,
+                contextTests.userAgent[0],
                 HTTP_STATUSES.OK_200
             )
-            contextTests.accessTokenUser1Device1 = accessToken
+        })
+        it('Должен вернуть 200, массив постов - should return 200 and post array', async () => {
             const { getAllPosts } = await postsTestManager.getAllPosts(HTTP_STATUSES.OK_200)
             expect(getAllPosts).toEqual(
                 expect.objectContaining({
@@ -52,7 +39,7 @@ export const postsE2eTest = () => {
         })
         it('Должен возвращать 404 для несуществующего сообщения - should return 404 for a non-existent post', async () => {
             await postsTestManager.getPostsById(
-                contextTests.invalidId, 
+                contextTests.invalidId,
                 HTTP_STATUSES.NOT_FOUND_404
             )
         })
@@ -64,8 +51,8 @@ export const postsE2eTest = () => {
                 blogId: "1"
             }
             await postsTestManager.createPosts(
-                data, 
-                contextTests.expiredToken, 
+                data,
+                contextTests.expiredToken,
                 HTTP_STATUSES.UNAUTHORIZED_401
             )
             const { getAllPosts } = await postsTestManager.getAllPosts(HTTP_STATUSES.OK_200)
@@ -139,7 +126,7 @@ export const postsE2eTest = () => {
             const blogData: CreateBlogModel = {
                 name: contextTests.correctBlogNsme1,
                 description: contextTests.correctBlogDescription1,
-                websiteUrl: contextTests.correctWebsiteUrl1 
+                websiteUrl: contextTests.correctWebsiteUrl1
             };
             const resData = await blogsTestManager.createBlogs(
                 blogData,
@@ -176,13 +163,13 @@ export const postsE2eTest = () => {
                 blogId: ''
             };
             await postsTestManager.updatePosts(
-                contextTests.createdBlog1Post1.id, 
+                contextTests.createdBlog1Post1.id,
                 data,
                 contextTests.codedAuth,
                 HTTP_STATUSES.BAD_REQUEST_400
             );
             const { getPostsById } = await postsTestManager.getPostsById(
-                contextTests.createdBlog1Post1.id, 
+                contextTests.createdBlog1Post1.id,
                 HTTP_STATUSES.OK_200
             );
             expect(getPostsById).toEqual(
@@ -199,7 +186,7 @@ export const postsE2eTest = () => {
                 blogId: contextTests.invalidId
             }
             await postsTestManager.updatePosts(
-                contextTests.invalidId, 
+                contextTests.invalidId,
                 data,
                 contextTests.codedAuth,
                 HTTP_STATUSES.NOT_FOUND_404
@@ -213,13 +200,13 @@ export const postsE2eTest = () => {
                 blogId: contextTests.createdBlog1Post1.blogId
             }
             await postsTestManager.updatePosts(
-                contextTests.createdBlog1Post1.id, 
+                contextTests.createdBlog1Post1.id,
                 updatedPost,
                 contextTests.codedAuth,
                 HTTP_STATUSES.NO_CONTENT_204
             );
             const { getPostsById } = await postsTestManager.getPostsById(
-                contextTests.createdBlog1Post1.id, 
+                contextTests.createdBlog1Post1.id,
                 HTTP_STATUSES.OK_200
             )
             expect(getPostsById).toEqual(
@@ -230,7 +217,7 @@ export const postsE2eTest = () => {
                     blogId: updatedPost.blogId
                 }))
             const { response } = await postsTestManager.getPostsById(
-                contextTests.createdBlog1Post2.id, 
+                contextTests.createdBlog1Post2.id,
                 HTTP_STATUSES.OK_200
             )
             expect(response.body).toEqual(
@@ -246,7 +233,7 @@ export const postsE2eTest = () => {
                 HTTP_STATUSES.NO_CONTENT_204
             )
             await postsTestManager.getPostsById(
-                contextTests.createdBlog1Post1.id, 
+                contextTests.createdBlog1Post1.id,
                 HTTP_STATUSES.NOT_FOUND_404
             )
             await postsTestManager.deletePost(
@@ -255,7 +242,7 @@ export const postsE2eTest = () => {
                 HTTP_STATUSES.NO_CONTENT_204
             )
             await postsTestManager.getPostsById(
-                contextTests.createdBlog1Post2.id, 
+                contextTests.createdBlog1Post2.id,
                 HTTP_STATUSES.NOT_FOUND_404
             )
             const { getAllPosts } = await postsTestManager.getAllPosts(HTTP_STATUSES.OK_200)
@@ -268,8 +255,5 @@ export const postsE2eTest = () => {
                     items: []
                 }))
         })
-        afterAll(done => {
-            done();
-        });
-    });
+    })
 }

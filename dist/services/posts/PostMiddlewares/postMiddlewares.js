@@ -20,6 +20,7 @@ exports.postMiddlewares = [
         .isString()
         .custom((blogId) => __awaiter(void 0, void 0, void 0, function* () {
         const blog = yield blogsQueryRepository.getBlogByIdRepository(blogId);
+        // console.log('postMiddlewares: - blog', blog)
         if (!blog) {
             throw new Error('Блога с таким blogId не найденно!');
         }

@@ -8,52 +8,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersSessionsInegrationTest = exports.getRequest = void 0;
-const supertest_1 = __importDefault(require("supertest"));
-const settings_1 = require("../../../shared/settings");
-const app_1 = require("../../../app");
+exports.usersSessionsInegrationTest = void 0;
 const utils_1 = require("../../../shared/utils/utils");
-const usersTestManager_1 = require("../../../shared/__tests__/managersTests/usersTestManager");
-const authTestManager_1 = require("../../../shared/__tests__/managersTests/authTestManager");
 const userSessionTestManager_1 = require("../../../shared/__tests__/managersTests/userSessionTestManager");
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
-// import { container } from '../../src/shared/container/iocRoot';
-// import { MongoDBCollection } from '../../src/db';
-// const mongoDB: MongoDBCollection = container.get(MongoDBCollection)
-const getRequest = () => {
-    return (0, supertest_1.default)(app_1.app);
-};
-exports.getRequest = getRequest;
+const testFunctionsUser_1 = require("../../users/testingUsers/testFunctionsUser");
+const testFunctionsAuth_1 = require("../../auth/testingAuth/testFunctionsAuth");
 const usersSessionsInegrationTest = () => {
     describe('SESSIONS-INTEGRATION-TEST', () => {
         beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-            // await mongoDB.connectDB();
-            yield (0, exports.getRequest)().delete(`${settings_1.SETTINGS.RouterPath.__test__}/all-data`);
-            const data = {
-                login: contextTests_1.contextTests.correctUserName1,
-                password: contextTests_1.contextTests.correctUserPassword1,
-                email: contextTests_1.contextTests.correctUserEmail1
-            };
-            const { response } = yield usersTestManager_1.usersTestManager.createUser(data, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.CREATED_201);
-            contextTests_1.contextTests.createdUser1 = response;
-            const { accessToken, refreshToken } = yield authTestManager_1.authTestManager.login({
-                loginOrEmail: contextTests_1.contextTests.correctUserName1,
-                password: contextTests_1.contextTests.correctUserPassword1
-            }, contextTests_1.contextTests.userAgent[6], utils_1.HTTP_STATUSES.OK_200);
-            contextTests_1.contextTests.accessTokenUser1Device1 = accessToken,
-                contextTests_1.contextTests.refreshTokenUser1Device1 = refreshToken;
+            const isUser3 = yield (0, testFunctionsUser_1.isCreatedUser3)(contextTests_1.contextTests.correctUserName3, contextTests_1.contextTests.correctUserEmail3, contextTests_1.contextTests.correctUserPassword3, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+            console.log('TEST: - isUser1 blogsE2eTest', isUser3);
+            const isLogin = yield (0, testFunctionsAuth_1.isLoginUser3)(contextTests_1.contextTests.accessTokenUser3Device1, contextTests_1.contextTests.refreshTokenUser3Device1, contextTests_1.contextTests.correctUserEmail3, contextTests_1.contextTests.correctUserPassword3, contextTests_1.contextTests.userAgent[0], utils_1.HTTP_STATUSES.OK_200);
         }));
         it('Должен успешно создать сессию!', () => __awaiter(void 0, void 0, void 0, function* () {
             const count = 5;
-            yield userSessionTestManager_1.usersSessionTestManager.createArrayUsersSessions(count, contextTests_1.contextTests.codedAuth, contextTests_1.contextTests.refreshTokenUser1Device1);
-            const { arrSessions } = yield userSessionTestManager_1.usersSessionTestManager.getAllUserSessionByUserId(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.OK_200);
-            expect(arrSessions.length).toBe(count + 1);
-            yield userSessionTestManager_1.usersSessionTestManager.deleteUserSessions(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.NO_CONTENT_204);
-            const { response } = yield userSessionTestManager_1.usersSessionTestManager.getAllUserSessionByUserId(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.OK_200);
+            console.log('usersSessionTestManager: - ', contextTests_1.contextTests.refreshTokenUser3Device1);
+            const userToken = yield contextTests_1.contextTests.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser3Device1);
+            for (let i = 0; i < count; i++) {
+                yield contextTests_1.contextTests.usersSessionService.createSessionServices(userToken.userId.toString(), `::ffff:127.0.0.${i}`, `${contextTests_1.contextTests.userAgent[i]}`);
+                contextTests_1.contextTests.total_number_of_active_sessions_in_tests++;
+            }
+            const { arrSessions } = yield userSessionTestManager_1.usersSessionTestManager.getAllUserSessionByUserId(contextTests_1.contextTests.refreshTokenUser3Device1, utils_1.HTTP_STATUSES.OK_200);
+            expect(arrSessions.length).toBe(count);
+            yield userSessionTestManager_1.usersSessionTestManager.deleteUserSessions(contextTests_1.contextTests.refreshTokenUser3Device1, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+            const { response } = yield userSessionTestManager_1.usersSessionTestManager.getAllUserSessionByUserId(contextTests_1.contextTests.refreshTokenUser3Device1, utils_1.HTTP_STATUSES.OK_200);
             expect(response.length).toBe(1);
         }));
     });

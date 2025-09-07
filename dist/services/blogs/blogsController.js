@@ -23,13 +23,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsControllers = void 0;
 const utils_1 = require("../../shared/utils/utils");
-const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
-const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../shared/utils/ErRes");
 const inversify_1 = require("inversify");
 const postQueryRepository_1 = require("../posts/PostRepository/postQueryRepository");
 const blogQueryRepository_1 = require("./BlogsRepository/blogQueryRepository");
 const postsServices_1 = require("../posts/postsServices");
 const blogsServices_1 = require("./blogsServices");
+const SuccessResponse_1 = require("../../shared/utils/SuccessResponse");
 let BlogsControllers = class BlogsControllers {
     constructor(postsQueryRepository, blogsQueryRepository, postsServices, blogsServices) {
         this.postsQueryRepository = postsQueryRepository;
@@ -39,27 +39,27 @@ let BlogsControllers = class BlogsControllers {
     }
     getBlogsController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.HTTP_STATUSES.OK_200, undefined, yield this.blogsQueryRepository.getAllBlogsRepository(req));
+            return (0, SuccessResponse_1.SuccessResponse)(utils_1.HTTP_STATUSES.OK_200, yield this.blogsQueryRepository.getAllBlogsRepository(req), undefined, req, res);
         });
     }
     getBlogIdAllPostsController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield this.postsQueryRepository.getAllPostsRepositories(req));
+            return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS, yield this.postsQueryRepository.getAllPostsRepositories(req), undefined, req, res);
         });
     }
     getBlogByIdController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield this.blogsQueryRepository.getBlogByIdRepository(req.params.id));
+            return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS, yield this.blogsQueryRepository.getBlogByIdRepository(req.params.id), undefined, req, res);
         });
     }
     createBlogController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const createBlog = yield this.blogsServices.createBlogServices(req.body);
             if (createBlog && createBlog.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_BLOG, undefined, yield this.blogsQueryRepository.getBlogByIdRepository(createBlog.insertedId));
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_BLOG, yield this.blogsQueryRepository.getBlogByIdRepository(createBlog.insertedId), undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, createBlog);
+                return new ErRes_1.ErRes(createBlog, undefined, undefined, req, res);
             }
         });
     }
@@ -67,10 +67,10 @@ let BlogsControllers = class BlogsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const createPostOneBlog = yield this.postsServices.createPostOneBlogServices(req);
             if (createPostOneBlog && createPostOneBlog.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_POST, undefined, yield this.postsQueryRepository.getPostByIdRepositories(createPostOneBlog.insertedId));
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_POST, yield this.postsQueryRepository.getPostByIdRepositories(createPostOneBlog.insertedId), undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, createPostOneBlog);
+                return new ErRes_1.ErRes(createPostOneBlog, undefined, undefined, req, res);
             }
         });
     }
@@ -78,10 +78,10 @@ let BlogsControllers = class BlogsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const updateBlog = yield this.blogsServices.updateBlogServices(req.params.id, req.body);
             if (updateBlog && updateBlog.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_BLOG, undefined, yield this.postsQueryRepository.getPostByIdRepositories(updateBlog.insertedId));
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_BLOG, yield this.postsQueryRepository.getPostByIdRepositories(updateBlog.insertedId), undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, updateBlog);
+                return new ErRes_1.ErRes(updateBlog, undefined, undefined, req, res);
             }
         });
     }
@@ -89,10 +89,10 @@ let BlogsControllers = class BlogsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const blog = yield this.blogsServices.deleteBlogServices(req.params.id);
             if (blog && blog.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_BLOG);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_BLOG, undefined, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, blog);
+                return new ErRes_1.ErRes(blog, undefined, undefined, req, res);
             }
         });
     }

@@ -24,24 +24,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsMiddlewares = void 0;
 const utils_1 = require("../../../shared/utils/utils");
 ;
-const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../../shared/utils/ErRes");
 const inversify_1 = require("inversify");
 const postQueryRepository_1 = require("../PostRepository/postQueryRepository");
 let PostsMiddlewares = class PostsMiddlewares {
     constructor(postsQueryRepository) {
         this.postsQueryRepository = postsQueryRepository;
         this.postIdMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            // console.log('PostsMiddlewares: postIdMiddleware - req.params.id', req.params.id)
             const foundPost = yield this.postsQueryRepository.getPostByIdRepositories(req.params.id);
+            // console.log('PostsMiddlewares: postIdMiddleware - foundPost', foundPost)
             if (!foundPost) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.POST_NOT_FOUND_ID);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.POST_NOT_FOUND_ID, undefined, undefined, req, res);
             }
             next();
             return;
         });
         this.postPostIdMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            // console.log('PostsMiddlewares: postPostIdMiddleware - postId', req.params.postId)
             const foundPost = yield this.postsQueryRepository.getPostByIdRepositories(req.params.postId);
+            // console.log('PostsMiddlewares: postPostIdMiddleware - foundPost', foundPost)
             if (!foundPost) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.POST_NOT_FOUND_POST_ID);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.POST_NOT_FOUND_POST_ID, undefined, undefined, req, res);
             }
             next();
             return;

@@ -19,7 +19,7 @@ export class SecurityDeviceServices {
         );
         if (existingSession) {
             // Обновляем существующую сессию
-            console.log('secutityDeviceServices: - Обновляем существующую сессию', existingSession)
+            // console.log('secutityDeviceServices: - Обновляем существующую сессию', existingSession)
             return await this.updateSessionServices(
                 userId,
                 ip,

@@ -23,7 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.СommentsMiddlewares = void 0;
 const utils_1 = require("../../../shared/utils/utils");
-const ErResSwitch_1 = require("../../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../../shared/utils/ErRes");
 const inversify_1 = require("inversify");
 const postQueryRepository_1 = require("../../posts/PostRepository/postQueryRepository");
 const commentsRepository_1 = require("../CommentRepository/commentsRepository");
@@ -33,26 +33,26 @@ let СommentsMiddlewares = class СommentsMiddlewares {
         this.commentsRepository = commentsRepository;
         this.commentIdMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             if (!req.params.id) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT, undefined, undefined, req, res);
             }
             const foundComment = yield this.commentsRepository._getCommentRepository(req.params.id);
             if (!foundComment) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.COMMENT_NOT_FOUND);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.COMMENT_NOT_FOUND, undefined, undefined, req, res);
             }
             next();
             return;
         });
         this.commentCommentIdMiddleware = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             if (!req.params.commentId) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_PARAMS_FOR_GET_COMMENT, undefined, undefined, req, res);
             }
             const foundComment = yield this.commentsRepository._getCommentRepository(req.params.commentId);
             if (!foundComment) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.COMMENT_NOT_FOUND);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.COMMENT_NOT_FOUND, undefined, undefined, req, res);
             }
             const foundPost = yield this.postsQueryRepository.getPostByIdRepositories(foundComment.postId);
             if (!foundPost) {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.POST_NOT_FOUND_ID);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.POST_NOT_FOUND_ID, undefined, undefined, req, res);
             }
             next();
             return;

@@ -1,10 +1,10 @@
 import { RequestHandler } from 'express';
-import { ResErrorsSwitch } from '../../shared/utils/ErResSwitch';
+import { ErRes } from '../../shared/utils/ErRes';
 import { INTERNAL_STATUS_CODE } from '../../shared/utils/utils';
-import { SuccessfulResponse } from '../../shared/utils/SuccessfulResponse';
 import { inject, injectable } from 'inversify';
 import { SecurityDeviceServices } from './securityDeviceService';
 import { UserSessionsQueryRepository } from './UserSessionsRpository/userSessionQueryRepository';
+import { SuccessResponse } from '../../shared/utils/SuccessResponse';
 
 @injectable()
 export class SecurityController {
@@ -15,11 +15,12 @@ export class SecurityController {
     getAllSessionsByUserId: RequestHandler = async (req, res) => {
         // @ts-ignore
         const sessions = await this.userSessionsQueryRepository.getAllSessionByUserIdRepository(String(req.user!.id));
-        return SuccessfulResponse(
-            res, 
-            INTERNAL_STATUS_CODE.SUCCESS_CREATED_SESSIONS, 
-            undefined, 
-            sessions
+        return SuccessResponse(
+            INTERNAL_STATUS_CODE.SUCCESS_CREATED_SESSIONS,
+            sessions,
+            undefined,
+            req,
+            res
         );
     };
     deleteAllSessions: RequestHandler = async (req, res) => {
@@ -29,23 +30,41 @@ export class SecurityController {
             (req as any).deviceId
         );
         if (isDeleteSessions.acknowledged === true) {
-            return SuccessfulResponse(
-                res, 
-                INTERNAL_STATUS_CODE.SUCCESS_DELETED_SESSIONS
+            return SuccessResponse(
+                INTERNAL_STATUS_CODE.SUCCESS_DELETED_SESSIONS,
+                undefined,
+                undefined,
+                req,
+                res
             )
         }
-        return ResErrorsSwitch(res, isDeleteSessions!.statusCode, isDeleteSessions!.message);
+        return new ErRes(
+            isDeleteSessions!.statusCode,
+            undefined,
+            isDeleteSessions!.message,
+            req,
+            res
+        );
     };
     deleteSessionByDeviceId: RequestHandler = async (req, res) => {
         // @ts-ignore
         const isDeleteSession = await this.securityDeviceServices.deleteSessionByDeviceIdServices(String(req.user!.id), req.params.deviceId);
         if (isDeleteSession.acknowledged) {
             res.clearCookie('refreshToken', { httpOnly: true });
-            return SuccessfulResponse(
-                res, 
-                INTERNAL_STATUS_CODE.SUCCESS_DELETED_SESSIONS_BY_DEVICE_ID
+            return SuccessResponse(
+                INTERNAL_STATUS_CODE.SUCCESS_DELETED_SESSIONS_BY_DEVICE_ID,
+                undefined,
+                undefined,
+                req,
+                res
             )
         }
-        return ResErrorsSwitch(res, isDeleteSession!.statusCode, isDeleteSession!.message);
+        return new ErRes(
+            isDeleteSession!.statusCode,
+            undefined,
+            isDeleteSession!.message,
+            req,
+            res
+        );
     };
 }

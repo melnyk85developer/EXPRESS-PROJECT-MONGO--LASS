@@ -17,18 +17,10 @@ const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../../../app");
 const settings_1 = require("../../settings");
 const utils_1 = require("../../utils/utils");
-const iocRoot_1 = require("../../container/iocRoot");
-const tokenService_1 = require("../../infrastructure/tokenService");
-const securityDeviceService_1 = require("../../../services/usersSessions/securityDeviceService");
-// import { securityDeviceServices, tokenService } from "../../../src/shared/container/compositionRootCustom";
-const tokenService = iocRoot_1.container.get(tokenService_1.TokenService);
-const securityDeviceServices = iocRoot_1.container.get(securityDeviceService_1.SecurityDeviceServices);
 const getRequest = () => {
     return (0, supertest_1.default)(app_1.app);
 };
 exports.getRequest = getRequest;
-const buff2 = Buffer.from(settings_1.SETTINGS.ADMIN, 'utf8');
-const codedAuth = buff2.toString('base64');
 exports.usersSessionTestManager = {
     getAllUserSessionByUserId(refreshToken_1) {
         return __awaiter(this, arguments, void 0, function* (refreshToken, expectedStatusCode = utils_1.HTTP_STATUSES.OK_200) {
@@ -40,7 +32,6 @@ exports.usersSessionTestManager = {
                 .expect(expectedStatusCode);
             // console.log('usersTestManager - res', response.body)
             let arrSessions = response.body;
-            const userToken = yield tokenService.validateRefreshToken(refreshToken);
             expect(Array.isArray(arrSessions)).toBe(true);
             expect(arrSessions).toEqual(expect.arrayContaining([
                 expect.objectContaining({
@@ -108,14 +99,6 @@ exports.usersSessionTestManager = {
                 .expect(expectedStatusCode);
             // console.log('usersTestManager - res', response.body)
             return { response: response, deleteUser: response.body };
-        });
-    },
-    createArrayUsersSessions() {
-        return __awaiter(this, arguments, void 0, function* (count = 10, codedAuth = undefined, authToken2 = null) {
-            const userToken = yield tokenService.validateRefreshToken(authToken2);
-            for (let i = 0; i < count; i++) {
-                yield securityDeviceServices.createSessionServices(userToken.userId.toString(), `::ffff:127.0.0.${i}`, `user-agent/INTEGRATION-TEST/0.${i}}`);
-            }
         });
     },
     getAllUsersSessions(accessToken_1, refreshToken_1) {

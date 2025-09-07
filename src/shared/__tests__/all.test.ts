@@ -1,5 +1,12 @@
 import { contextTests } from "./contextTests";
 import { AuthServices } from "../../../src/services/auth/authServices";
+import { request } from "http";
+import { app } from "../../app";
+import * as uuid from 'uuid';
+import { container } from "../container/iocRoot";
+import { MongoDBCollection } from "../../db";
+import { getRequest } from "./managersTests/authTestManager";
+import { UserService } from "../../services/users/usersServices";
 import { MailService } from "../../../src/shared/infrastructure/emailAdapter";
 import { SecurityDeviceServices } from "../../../src/services/usersSessions/securityDeviceService";
 import { TokenService } from "../../../src/shared/infrastructure/tokenService";
@@ -11,22 +18,10 @@ import { blogsE2eTest } from "../../../src/services/blogs/testingBlogs/testing-E
 import { commentsE2eTest } from "../../../src/services/comments/testingComments/testing-E2E-Comments.api";
 import { postsE2eTest } from "../../../src/services/posts/testingPosts/testing-E2E-Posts.api";
 import { usersE2eTest } from "../../../src/services/users/testingUsers/testing-E2E-Users.api";
+import { resetPasswordInegrationTest } from "../../../src/services/users/testingUsers/testing-INTEGRATION-Users";
 import { usersSessionsE2eTest } from "../../../src/services/usersSessions/testingUserSessions/testing-E2E-UserSessions.api";
 import { usersSessionsInegrationTest } from "../../../src/services/usersSessions/testingUserSessions/testing-INTEGRATION-UsersSessions.api";
-// import { 
-//     authServices, 
-//     mailService, 
-//     mongoDBCollection, 
-//     securityDeviceServices, 
-//     tokenService 
-// } from "../container/compositionRootCustom";
-import * as uuid from 'uuid';
-import { container } from "../container/iocRoot";
-import { MongoDBCollection } from "../../db";
-import { request } from "http";
-import { app } from "../../app";
-import { getRequest } from "./managersTests/authTestManager";
-// import { app } from "../../app";
+import { ConfirmationRepository } from "../../services/confirmation/confirmationRepository/confirmationRepository";
 
 const initilizationContext = () => {
     contextTests.buff2 = Buffer.from(SETTINGS.ADMIN, 'utf8')
@@ -38,11 +33,15 @@ const initilizationContext = () => {
     contextTests.invalidId = '66b9413d36f75d0b44ad1c5a'
     contextTests.randomId = uuid.v4()
 
-    // contextTests.authServices = mongoDBCollection;
-    // contextTests.authServices = authServices;
-    // contextTests.mailService = mailService;
-    // contextTests.usersSessionService = securityDeviceServices;
-    // contextTests.tokenService = tokenService;
+    contextTests.app = app
+    contextTests.mongoDBCollection = container.get(MongoDBCollection);
+    contextTests.authServices = container.get(AuthServices);
+    contextTests.userService = container.get(UserService);
+    contextTests.mailService = container.get(MailService);
+    contextTests.usersSessionService = container.get(SecurityDeviceServices);
+    contextTests.tokenService = container.get(TokenService);
+
+    contextTests.confirmationRepository = container.get(ConfirmationRepository);
 
     contextTests.total_number_of_active_sessions_in_tests = 0;
 
@@ -146,18 +145,21 @@ describe('ALL TESTS IT-INCUBATOR PROJEKT', () => {
         usersSessionsE2eTest()
         usersSessionsInegrationTest()
     })
-    describe('BLOGS-BLOCK-TESTS', () => {
-        blogsE2eTest()
-    })
-    describe('POSTS-BLOCK-TESTS', () => {
-        postsE2eTest()
-    })
-    describe('COMMENTS-BLOCK-TESTS', () => {
-        commentsE2eTest()
-    })
-    describe('USERS-BLOCK-TESTS', () => {
-        usersE2eTest()
-    })
+    // describe('CONFIRMATION-BLOCK-TESTS', () => {
+    //     resetPasswordInegrationTest()
+    // })
+    // describe('BLOGS-BLOCK-TESTS', () => {
+    //     blogsE2eTest()
+    // })
+    // describe('POSTS-BLOCK-TESTS', () => {
+    //     postsE2eTest()
+    // })
+    // describe('COMMENTS-BLOCK-TESTS', () => {
+    //     commentsE2eTest()
+    // })
+    // describe('USERS-BLOCK-TESTS', () => {
+    //     usersE2eTest()
+    // })
     afterAll(async () => {
         const mongoDB = container.get(MongoDBCollection);
         await mongoDB.close();

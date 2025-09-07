@@ -2,7 +2,7 @@ import { Response, Request, NextFunction } from 'express'
 import { UserType, UserTypeDB } from '../../users/Users_DTO/userTypes';
 import { HTTP_STATUSES, INTERNAL_STATUS_CODE } from '../../../shared/utils/utils';
 import { SETTINGS } from '../../../shared/settings';
-import { ResErrorsSwitch } from '../../../shared/utils/ErResSwitch';
+import { ErRes } from '../../../shared/utils/ErRes';
 import { JwtPayload } from 'jsonwebtoken';
 import { inject, injectable } from 'inversify';
 import { AuthServices } from '../authServices';
@@ -27,7 +27,13 @@ export class AuthMiddlewares {
         const codedAuth = fromUTF8ToBase64(SETTINGS.ADMIN)
         const auth = req.headers['authorization'] as string;
         if (!auth || auth.slice(0, 6) !== 'Basic ' || auth.slice(6) !== codedAuth) {
-            return ResErrorsSwitch(res, HTTP_STATUSES.UNAUTHORIZED_401)
+            return new ErRes(
+                HTTP_STATUSES.UNAUTHORIZED_401,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         } else {
             return next()
         }
@@ -40,7 +46,13 @@ export class AuthMiddlewares {
             next()
             return
         } else {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_PASSWORD_OR_EMAIL_MISSPELLED)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_PASSWORD_OR_EMAIL_MISSPELLED,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
     }
     refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
@@ -50,16 +62,40 @@ export class AuthMiddlewares {
         const userToken = await this.tokenService.validateRefreshToken(refreshToken);
 
         if (userToken === INTERNAL_STATUS_CODE.UNAUTHORIZED_NO_REFRESH_TOKEN) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_NO_REFRESH_TOKEN)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_NO_REFRESH_TOKEN,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
         if (userToken === INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
         if (userToken === INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_REFRESH_TOKEN_FORMAT) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_REFRESH_TOKEN_FORMAT)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_REFRESH_TOKEN_FORMAT,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
         if (userToken === INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
 
         if (userToken) {
@@ -69,14 +105,26 @@ export class AuthMiddlewares {
             // console.log('findToken: - getRefreshTokenByTokenInBlackList', findToken)
             if (findToken || !foundDevice) {
                 // console.log('refreshTokenMiddleware: - BlackList', true)
-                return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_BLACK_LIST)
+                return new ErRes(
+                    INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_BLACK_LIST,
+                    undefined,
+                    undefined,
+                    req,
+                    res
+                )
             } else {
                 // const user = await usersServices._getUserByIdRepo(String((userToken as JwtPayload).userId));
                 // console.log('user1: - ', user1)
                 const user = await this.usersQueryRepository.getUserByIdRepository(String((userToken as JwtPayload).userId));
                 // console.log('refreshTokenMiddleware: user - ', user)
                 if (!user) {
-                    return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.NOT_FOUND)
+                    return new ErRes(
+                        INTERNAL_STATUS_CODE.NOT_FOUND,
+                        undefined,
+                        undefined,
+                        req,
+                        res
+                    )
                 }
                 (req as Request & { user: UserTypeDB }).user = user;
 
@@ -84,14 +132,26 @@ export class AuthMiddlewares {
                 return
             }
         } else {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
     }
     accessTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
         const authHeader = req.headers['authorization'] as string;
         // console.log('accessTokenMiddleware: - authHeader', authHeader)
         if (typeof authHeader !== 'string' || !authHeader) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -107,19 +167,43 @@ export class AuthMiddlewares {
         // console.log('accessTokenMiddlewareService userTokenId: - ', userToken)
 
         if (userToken === INTERNAL_STATUS_CODE.UNAUTHORIZED_ACCESS_TOKEN_LENGHT) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_ACCESS_TOKEN_LENGHT)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_ACCESS_TOKEN_LENGHT,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
         if (userToken === INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_WRONG_ACCESS_TOKEN_FORMAT,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
         if (userToken === INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_ACCESS_TOKEN) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_ACCESS_TOKEN)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_ACCESS_TOKEN,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
-        // const user = await usersServices._getUserByIdRepo((token as JwtPayload).userId);
+        // console.log('AuthMiddlewares user: - userToken.userId', (userToken as unknown as JwtPayload).userId)
         const user = await this.usersQueryRepository.getUserByIdRepository((userToken as unknown as JwtPayload).userId);
-        // console.log('user: - ', user.id)
+        // console.log('AuthMiddlewares user: - ', user)
         if (!user) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.NOT_FOUND)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.NOT_FOUND,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
 
         (req as Request & { user: UserTypeDB }).user = user;
@@ -132,7 +216,13 @@ export class AuthMiddlewares {
         const refreshToken = req.cookies[cookieName];
 
         if (!req.cookies[cookieName]) {
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_REFRESH_TOKEN_LENGHT,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
 
         // console.log('sessionTokenMiddleware refreshToken: - ', refreshToken)
@@ -141,7 +231,13 @@ export class AuthMiddlewares {
 
         if ((userToken as JwtPayload).deviceId === INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN) {
             // console.log('sessionTokenMiddleware refreshToken: ', refreshToken)
-            return ResErrorsSwitch(res, INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN)
+            return new ErRes(
+                INTERNAL_STATUS_CODE.UNAUTHORIZED_INVALID_REFRESH_TOKEN,
+                undefined,
+                undefined,
+                req,
+                res
+            )
         }
 
         (req as Request & { deviceId: string }).deviceId = (userToken as JwtPayload).deviceId

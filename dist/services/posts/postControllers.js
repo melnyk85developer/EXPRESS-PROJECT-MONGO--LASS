@@ -23,14 +23,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsControllers = void 0;
 const utils_1 = require("../../shared/utils/utils");
-;
-const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
-const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../shared/utils/ErRes");
 const inversify_1 = require("inversify");
 const postQueryRepository_1 = require("./PostRepository/postQueryRepository");
 const commentsServices_1 = require("../comments/commentsServices");
 const commentsQueryRepository_1 = require("../comments/CommentRepository/commentsQueryRepository");
 const postsServices_1 = require("./postsServices");
+const SuccessResponse_1 = require("../../shared/utils/SuccessResponse");
 let PostsControllers = class PostsControllers {
     constructor(postsQueryRepository, commentsServices, commentsQueryRepository, postsServices) {
         this.postsQueryRepository = postsQueryRepository;
@@ -40,17 +39,17 @@ let PostsControllers = class PostsControllers {
     }
     getAllPostsController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, yield this.postsQueryRepository.getAllPostsRepositories(req));
+            return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS, yield this.postsQueryRepository.getAllPostsRepositories(req), undefined, req, res);
         });
     }
     getPostByIdController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const foundPost = yield this.postsQueryRepository.getPostByIdRepositories(req.params.id);
             if (foundPost && foundPost.id) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, foundPost);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS, foundPost, undefined, undefined, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, 0, foundPost);
+                return new ErRes_1.ErRes(foundPost, undefined, undefined, req, res);
             }
         });
     }
@@ -58,10 +57,10 @@ let PostsControllers = class PostsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const createPost = yield this.postsServices.createPostServices(req.body);
             if (createPost && createPost.acknowledged) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_POST, undefined, yield this.postsQueryRepository.getPostByIdRepositories(createPost.insertedId));
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_POST, yield this.postsQueryRepository.getPostByIdRepositories(createPost.insertedId), undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_BLOG_TO_CREATE_THIS_POST);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_BLOG_TO_CREATE_THIS_POST, undefined, undefined, req, res);
             }
         });
     }
@@ -70,22 +69,24 @@ let PostsControllers = class PostsControllers {
             const foundPost = yield this.postsQueryRepository.getPostByIdRepositories(req.params.postId);
             if (foundPost.id) {
                 const comments = yield this.commentsQueryRepository.getAllCommentssRepository(req.params.postId, req.query);
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS, undefined, comments);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS, comments, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_POST_FOR_THIS_COMMENTS);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_NO_POST_FOR_THIS_COMMENTS, undefined, undefined, req, res);
             }
         });
     }
     createCommentByPostIdController(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const createCommentOnePost = yield this.commentsServices.createCommentOnePostServices(req);
+            // console.log('createCommentByPostIdController: createCommentOnePost', createCommentOnePost)
             if (createCommentOnePost && createCommentOnePost.acknowledged) {
                 const foundComment = yield this.commentsQueryRepository.getCommentByIdRepository(createCommentOnePost.insertedId);
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_COMMENT, undefined, foundComment);
+                // console.log('createCommentByPostIdController: foundComment', foundComment)
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_COMMENT, foundComment, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, 0, 'При получении созданого комментария произошла не известная ошибка!');
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST, undefined, 'При получении созданого комментария произошла не известная ошибка!', req, res);
             }
         });
     }
@@ -93,10 +94,10 @@ let PostsControllers = class PostsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const updatePost = yield this.postsServices.updatePostServices(req.params.id, req.body);
             if (updatePost && updatePost.acknowledged) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_POST);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_UPDATED_POST, undefined, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_UPDATED_POST);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_UPDATED_POST, undefined, undefined, req, res);
             }
         });
     }
@@ -104,10 +105,10 @@ let PostsControllers = class PostsControllers {
         return __awaiter(this, void 0, void 0, function* () {
             const isDeletedPost = yield this.postsServices.deletePostServices(req.params.id);
             if (isDeletedPost && isDeletedPost.acknowledged) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_POST);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_POST, undefined, undefined, req, res);
             }
             else {
-                return (0, ErResSwitch_1.ResErrorsSwitch)(res, utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_DELETED_POST);
+                return new ErRes_1.ErRes(utils_1.INTERNAL_STATUS_CODE.BAD_REQUEST_ERROR_DELETED_POST, undefined, undefined, req, res);
             }
         });
     }

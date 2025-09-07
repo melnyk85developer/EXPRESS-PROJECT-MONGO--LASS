@@ -25,7 +25,6 @@ exports.UsersQueryRepository = void 0;
 const mongodb_1 = require("mongodb");
 ;
 const inversify_1 = require("inversify");
-// import { usersCollection } from '../../../db';
 const db_1 = require("../../../db");
 let UsersQueryRepository = class UsersQueryRepository {
     constructor(mongoDB) {
@@ -75,8 +74,10 @@ let UsersQueryRepository = class UsersQueryRepository {
     }
     getUserByIdRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            // console.log('getUserByIdRepository: - id', id);
             try {
                 const getUser = yield this.mongoDB.usersCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+                // console.log('getUserByIdRepository: - getUser', getUser);
                 if (getUser) {
                     return this._userMapForRender(getUser);
                 }

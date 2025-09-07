@@ -22,12 +22,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SecurityController = void 0;
-const ErResSwitch_1 = require("../../shared/utils/ErResSwitch");
+const ErRes_1 = require("../../shared/utils/ErRes");
 const utils_1 = require("../../shared/utils/utils");
-const SuccessfulResponse_1 = require("../../shared/utils/SuccessfulResponse");
 const inversify_1 = require("inversify");
 const securityDeviceService_1 = require("./securityDeviceService");
 const userSessionQueryRepository_1 = require("./UserSessionsRpository/userSessionQueryRepository");
+const SuccessResponse_1 = require("../../shared/utils/SuccessResponse");
 let SecurityController = class SecurityController {
     constructor(securityDeviceServices, userSessionsQueryRepository) {
         this.securityDeviceServices = securityDeviceServices;
@@ -35,24 +35,24 @@ let SecurityController = class SecurityController {
         this.getAllSessionsByUserId = (req, res) => __awaiter(this, void 0, void 0, function* () {
             // @ts-ignore
             const sessions = yield this.userSessionsQueryRepository.getAllSessionByUserIdRepository(String(req.user.id));
-            return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_SESSIONS, undefined, sessions);
+            return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_CREATED_SESSIONS, sessions, undefined, req, res);
         });
         this.deleteAllSessions = (req, res) => __awaiter(this, void 0, void 0, function* () {
             // @ts-ignore
             const isDeleteSessions = yield this.securityDeviceServices.deleteAllSessionsServices(String(req.user.id), req.deviceId);
             if (isDeleteSessions.acknowledged === true) {
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_SESSIONS);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_SESSIONS, undefined, undefined, req, res);
             }
-            return (0, ErResSwitch_1.ResErrorsSwitch)(res, isDeleteSessions.statusCode, isDeleteSessions.message);
+            return new ErRes_1.ErRes(isDeleteSessions.statusCode, undefined, isDeleteSessions.message, req, res);
         });
         this.deleteSessionByDeviceId = (req, res) => __awaiter(this, void 0, void 0, function* () {
             // @ts-ignore
             const isDeleteSession = yield this.securityDeviceServices.deleteSessionByDeviceIdServices(String(req.user.id), req.params.deviceId);
             if (isDeleteSession.acknowledged) {
                 res.clearCookie('refreshToken', { httpOnly: true });
-                return (0, SuccessfulResponse_1.SuccessfulResponse)(res, utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_SESSIONS_BY_DEVICE_ID);
+                return (0, SuccessResponse_1.SuccessResponse)(utils_1.INTERNAL_STATUS_CODE.SUCCESS_DELETED_SESSIONS_BY_DEVICE_ID, undefined, undefined, req, res);
             }
-            return (0, ErResSwitch_1.ResErrorsSwitch)(res, isDeleteSession.statusCode, isDeleteSession.message);
+            return new ErRes_1.ErRes(isDeleteSession.statusCode, undefined, isDeleteSession.message, req, res);
         });
     }
 };

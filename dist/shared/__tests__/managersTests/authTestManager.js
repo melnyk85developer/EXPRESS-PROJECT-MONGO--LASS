@@ -24,16 +24,18 @@ exports.getRequest = getRequest;
 exports.authTestManager = {
     registration(data_1) {
         return __awaiter(this, arguments, void 0, function* (data, expectedStatusCode = utils_1.HTTP_STATUSES.NO_CONTENT_204) {
+            // console.log('authTestManager - data', data)
             const response = yield (0, exports.getRequest)()
                 .post(`${settings_1.SETTINGS.RouterPath.auth}/registration`)
                 .send(data)
                 .set('User-Agent', 'TestDevice/1.0')
                 .expect(expectedStatusCode);
-            return { response: response, createUser: response.body };
+            // console.log('authTestManager - res', response.body)
+            return { response: response, body: response.body };
         });
     },
     login(data_1) {
-        return __awaiter(this, arguments, void 0, function* (data, userAgent = 'TestDevice/1.0', expectedStatusCode = utils_1.HTTP_STATUSES.NO_CONTENT_204) {
+        return __awaiter(this, arguments, void 0, function* (data, userAgent = 'TestDevice/1.0', expectedStatusCode = utils_1.HTTP_STATUSES.OK_200) {
             var _a, _b, _c, _d;
             const response = yield (0, exports.getRequest)()
                 .post(`${settings_1.SETTINGS.RouterPath.auth}/login`)
@@ -42,13 +44,14 @@ exports.authTestManager = {
                 .expect(expectedStatusCode);
             const authHeader = response.headers['authorization'];
             const token = authHeader ? authHeader.split(' ')[1] : null;
-            const accessToken = ((_a = response.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1]) || null;
-            const refreshToken = ((_d = (_c = (_b = response.headers['set-cookie']) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.split(';')[0]) === null || _d === void 0 ? void 0 : _d.split('=')[1]) || null;
+            const accessToken = (_a = response.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+            const refreshToken = (_d = (_c = (_b = response.headers['set-cookie']) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.split(';')[0]) === null || _d === void 0 ? void 0 : _d.split('=')[1];
             return { response: response, accessToken, refreshToken };
         });
     },
     getUserInfo(accessToken_1) {
         return __awaiter(this, arguments, void 0, function* (accessToken, expectedStatusCode = utils_1.HTTP_STATUSES.OK_200) {
+            // console.log('authTestManager - data', data)
             const response = yield (0, exports.getRequest)()
                 .get(`${settings_1.SETTINGS.RouterPath.auth}/me`)
                 // .set('User-Agent', 'TestDevice/1.0')
@@ -64,6 +67,7 @@ exports.authTestManager = {
                     email: expect.any(String),
                 });
             }
+            // console.log('authTestManager - response.body', response.body)
             return { response: response, userInfo: response.body };
         });
     },
@@ -79,7 +83,11 @@ exports.authTestManager = {
             if (expectedStatusCode === utils_1.HTTP_STATUSES.NO_CONTENT_204) {
                 const clearedCookies = response.headers['set-cookie'];
                 expect(clearedCookies).toBeDefined();
-                expect(clearedCookies[0]).toContain('refreshToken=;'); // Убедимся, что куки очищены
+                expect(clearedCookies[0]).toContain('refreshToken=;');
+                return { status: utils_1.HTTP_STATUSES.NO_CONTENT_204 };
+            }
+            else {
+                return { status: response.status };
             }
         });
     },
@@ -96,7 +104,7 @@ exports.authTestManager = {
             // Проверяем заголовок 'set-cookie'
             const setCookieHeader = response.headers['set-cookie'];
             // let extractedRefreshToken = setCookieHeader ? setCookieHeader[0] : null;
-            let extractedRefreshToken = null;
+            let extractedRefreshToken = '';
             if (Array.isArray(setCookieHeader)) {
                 // Если это массив строк
                 extractedRefreshToken = (_b = (_a = setCookieHeader

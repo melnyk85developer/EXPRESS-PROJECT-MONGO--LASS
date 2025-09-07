@@ -71,7 +71,7 @@ let SecurityDeviceServices = class SecurityDeviceServices {
             const existingSession = allUserSessions.find((session) => session.title === userAgent);
             if (existingSession) {
                 // Обновляем существующую сессию
-                console.log('secutityDeviceServices: - Обновляем существующую сессию', existingSession);
+                // console.log('secutityDeviceServices: - Обновляем существующую сессию', existingSession)
                 return yield this.updateSessionServices(userId, ip, userAgent, existingSession.deviceId);
             }
             else {

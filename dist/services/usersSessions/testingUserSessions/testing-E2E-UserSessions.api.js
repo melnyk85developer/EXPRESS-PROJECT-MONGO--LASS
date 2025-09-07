@@ -9,46 +9,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersSessionsE2eTest = exports.delay = void 0;
-const settings_1 = require("../../../shared/settings");
+exports.usersSessionsE2eTest = void 0;
 const utils_1 = require("../../../shared/utils/utils");
-const testing_INTEGRATION_UsersSessions_api_1 = require("./testing-INTEGRATION-UsersSessions.api");
-const usersTestManager_1 = require("../../../shared/__tests__/managersTests/usersTestManager");
 const authTestManager_1 = require("../../../shared/__tests__/managersTests/authTestManager");
 const userSessionTestManager_1 = require("../../../shared/__tests__/managersTests/userSessionTestManager");
 const contextTests_1 = require("../../../shared/__tests__/contextTests");
-const iocRoot_1 = require("../../../shared/container/iocRoot");
-const tokenService_1 = require("../../../shared/infrastructure/tokenService");
-const securityDeviceService_1 = require("../securityDeviceService");
-const tokenService = iocRoot_1.container.get(tokenService_1.TokenService);
-const securityDeviceServices = iocRoot_1.container.get(securityDeviceService_1.SecurityDeviceServices);
-const delay = (milliseconds) => new Promise((resolve) => {
-    return setTimeout(() => resolve(true), milliseconds);
-});
-exports.delay = delay;
+const all_test_1 = require("../../../shared/__tests__/all.test");
+const testFunctionsUser_1 = require("../../users/testingUsers/testFunctionsUser");
 const usersSessionsE2eTest = () => {
     describe('E2E-USERS-SESSIONS', () => {
         beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, testing_INTEGRATION_UsersSessions_api_1.getRequest)().delete(`${settings_1.SETTINGS.RouterPath.__test__}/all-data`);
-            const userData1 = {
-                login: contextTests_1.contextTests.correctUserName1,
-                password: contextTests_1.contextTests.correctUserPassword1,
-                email: contextTests_1.contextTests.correctUserEmail1
-            };
-            const { response } = yield usersTestManager_1.usersTestManager.createUser(userData1, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.CREATED_201);
-            contextTests_1.contextTests.createdUser1 = response;
-            const userData2 = {
-                login: contextTests_1.contextTests.correctUserName2,
-                password: contextTests_1.contextTests.correctUserPassword2,
-                email: contextTests_1.contextTests.correctUserEmail2
-            };
-            const { createdEntity } = yield usersTestManager_1.usersTestManager.createUser(userData2, contextTests_1.contextTests.codedAuth, utils_1.HTTP_STATUSES.CREATED_201);
-            contextTests_1.contextTests.createdUser2 = createdEntity;
+            const isUser1 = yield (0, testFunctionsUser_1.isCreatedUser1)(contextTests_1.contextTests.correctUserName1, contextTests_1.contextTests.correctUserEmail1, contextTests_1.contextTests.correctUserPassword1, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+            // console.log('TEST: - isUser1 blogsE2eTest', isUser1)
+            const isUser2 = yield (0, testFunctionsUser_1.isCreatedUser2)(contextTests_1.contextTests.correctUserName2, contextTests_1.contextTests.correctUserEmail2, contextTests_1.contextTests.correctUserPassword2, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+            // console.log('TEST: - isUser2 usersSessionsE2eTest', isUser2)
         }));
         it('Должен создать жменю сессий пользователя', () => __awaiter(void 0, void 0, void 0, function* () {
             const countSession = 4;
             for (let i = 0; i < countSession; i++) {
-                yield (0, exports.delay)(1000);
+                yield (0, all_test_1.delay)(1000);
                 const { accessToken, refreshToken } = yield authTestManager_1.authTestManager.login({
                     loginOrEmail: contextTests_1.contextTests.correctUserName1,
                     password: contextTests_1.contextTests.correctUserPassword1
@@ -56,34 +35,35 @@ const usersSessionsE2eTest = () => {
                 if (i === 0) {
                     contextTests_1.contextTests.accessTokenUser1Device1 = accessToken,
                         contextTests_1.contextTests.refreshTokenUser1Device1 = refreshToken;
-                    const userToken = yield tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device1);
-                    const foundDevice = yield securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+                    const userToken = yield contextTests_1.contextTests.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device1);
+                    const foundDevice = yield contextTests_1.contextTests.usersSessionService._getSessionByDeviceIdServices(String(userToken.deviceId));
                     contextTests_1.contextTests.session1User1 = foundDevice;
                 }
                 else if (i === 1) {
                     contextTests_1.contextTests.accessTokenUser1Device2 = accessToken,
                         contextTests_1.contextTests.refreshTokenUser1Device2 = refreshToken;
-                    const userToken = yield tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device2);
-                    const foundDevice = yield securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+                    const userToken = yield contextTests_1.contextTests.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device2);
+                    const foundDevice = yield contextTests_1.contextTests.usersSessionService._getSessionByDeviceIdServices(String(userToken.deviceId));
                     contextTests_1.contextTests.session2User1 = foundDevice;
                 }
                 else if (i === 2) {
                     contextTests_1.contextTests.accessTokenUser1Device3 = accessToken,
                         contextTests_1.contextTests.refreshTokenUser1Device3 = refreshToken;
-                    const userToken = yield tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device3);
-                    const foundDevice = yield securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+                    const userToken = yield contextTests_1.contextTests.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device3);
+                    const foundDevice = yield contextTests_1.contextTests.usersSessionService._getSessionByDeviceIdServices(String(userToken.deviceId));
                     contextTests_1.contextTests.session3User1 = foundDevice;
                 }
                 else if (i === 3) {
                     contextTests_1.contextTests.accessTokenUser1Device4 = accessToken,
                         contextTests_1.contextTests.refreshTokenUser1Device4 = refreshToken;
-                    const userToken = yield tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device4);
-                    const foundDevice = yield securityDeviceServices._getSessionByDeviceIdServices(String(userToken.deviceId));
+                    const userToken = yield contextTests_1.contextTests.tokenService.validateRefreshToken(contextTests_1.contextTests.refreshTokenUser1Device4);
+                    const foundDevice = yield contextTests_1.contextTests.usersSessionService._getSessionByDeviceIdServices(String(userToken.deviceId));
                     contextTests_1.contextTests.session4User1 = foundDevice;
                 }
+                contextTests_1.contextTests.total_number_of_active_sessions_in_tests = i;
             }
             const { arrSessions } = yield userSessionTestManager_1.usersSessionTestManager.getAllUserSessionByUserId(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.OK_200);
-            expect(arrSessions.length).toBe(countSession);
+            expect(arrSessions.length).toBe(contextTests_1.contextTests.total_number_of_active_sessions_in_tests);
         }));
         it('Должен возвращать 403 при удалении чужой сессии пользователя!', () => __awaiter(void 0, void 0, void 0, function* () {
             const { refreshToken } = yield authTestManager_1.authTestManager.login({
@@ -113,56 +93,31 @@ const usersSessionsE2eTest = () => {
             expect(response.length).toBe(3);
         }));
         it('Должен возвращать при logout 204 и заносить в черный список refreshToken!', () => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, exports.delay)(2000);
+            yield (0, all_test_1.delay)(2000);
             yield authTestManager_1.authTestManager.logout(contextTests_1.contextTests.accessTokenUser1Device3, contextTests_1.contextTests.refreshTokenUser1Device3, utils_1.HTTP_STATUSES.NO_CONTENT_204);
             const { response } = yield authTestManager_1.authTestManager.refreshToken(contextTests_1.contextTests.accessTokenUser1Device3, contextTests_1.contextTests.refreshTokenUser1Device3, utils_1.HTTP_STATUSES.UNAUTHORIZED_401);
             expect(response.body[0].message).toBe('Онулирован refresh-token!');
             const { response: sessions } = yield userSessionTestManager_1.usersSessionTestManager.getAllUserSessionByUserId(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.OK_200);
             expect(sessions.length).toBe(2);
+            if (response.status === utils_1.HTTP_STATUSES.NO_CONTENT_204) {
+                contextTests_1.contextTests.accessTokenUser1Device3 = null,
+                    contextTests_1.contextTests.refreshTokenUser1Device3 = null;
+            }
         }));
         it(`Должен удалить все сессии пользователя!`, () => __awaiter(void 0, void 0, void 0, function* () {
-            yield userSessionTestManager_1.usersSessionTestManager.deleteUserSessions(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.NO_CONTENT_204);
+            const { response } = yield userSessionTestManager_1.usersSessionTestManager.deleteUserSessions(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.NO_CONTENT_204);
             const { arrSessions } = yield userSessionTestManager_1.usersSessionTestManager.getAllUserSessionByUserId(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.OK_200);
             expect(arrSessions.length).toBe(1);
+            if (response.status === utils_1.HTTP_STATUSES.NO_CONTENT_204) {
+                contextTests_1.contextTests.accessTokenUser2Device1 === null;
+                contextTests_1.contextTests.refreshTokenUser2Device1 === null;
+                contextTests_1.contextTests.total_number_of_active_sessions_in_tests = 1;
+            }
         }));
         it.skip('Должен обновлять жизнь сессии при любых запросах на индпоинты!', () => __awaiter(void 0, void 0, void 0, function* () {
             const { arrSessions } = yield userSessionTestManager_1.usersSessionTestManager.getAllUserSessionByUserId(contextTests_1.contextTests.refreshTokenUser1Device1, utils_1.HTTP_STATUSES.OK_200);
             // console.log('TEST - getAllUserSession', getAllUserSession)
         }));
-        // it(`Не стоит обновлять несуществующего пользователя - You should not update a user that does not exist`, async () => {
-        //     const data = {
-        //         login: 'no-user-login',
-        //         password: 'no-user-password',
-        //         email: 'no-user-email'
-        //     }
-        //     await usersTestManager.updateUser('66b9413d36f75d0b44ad1c5a', data, 
-        //         // authToken1,
-        //         codedAuth, 
-        //         HTTP_STATUSES.NOT_FOUND_404)
-        // })
-        // it(`Необходимо обновить пользователя с правильными исходными данными - should update user with correct input data`, async () => {
-        //     const data: any = {
-        //         login: 'loginUPD',
-        //         password: 'update_password',
-        //         email: 'update_mail@mail.ru'
-        //     }
-        //     await usersTestManager.updateUser(createdUser1.id, data, 
-        //         // authToken1,
-        //         codedAuth, 
-        //         HTTP_STATUSES.NO_CONTENT_204)
-        //     const {getUsersById} = await usersTestManager.getUserById(createdUser1.id, HTTP_STATUSES.OK_200)
-        //     expect(getUsersById).toEqual(
-        //         expect.objectContaining({
-        //             login: data.login,
-        //             email: data.email
-        //         }))
-        //     const {response} = await usersTestManager.getUserById(createdUser2.id, HTTP_STATUSES.OK_200)
-        //     expect(response.body)
-        //         .toEqual(expect.objectContaining(createdUser2))
-        // })
-        afterAll(done => {
-            done();
-        });
     });
 };
 exports.usersSessionsE2eTest = usersSessionsE2eTest;

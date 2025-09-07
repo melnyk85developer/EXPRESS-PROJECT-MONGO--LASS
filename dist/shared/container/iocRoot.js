@@ -36,10 +36,12 @@ const isThereACommentValidation_1 = require("../../services/comments/CommentMidd
 const authGuardMiddleware_1 = require("../../services/auth/AuthMiddlewares/authGuardMiddleware");
 const testsController_1 = require("../../services/tests/testsController");
 const emailAdapter_1 = require("../infrastructure/emailAdapter");
+const confirmationRepository_1 = require("../../services/confirmation/confirmationRepository/confirmationRepository");
 exports.container = new inversify_1.Container();
 // DB
 exports.container.bind(db_1.MongoDBCollection).to(db_1.MongoDBCollection).inSingletonScope();
 exports.container.bind(emailAdapter_1.MailService).to(emailAdapter_1.MailService).inSingletonScope();
+exports.container.bind(confirmationRepository_1.ConfirmationRepository).to(confirmationRepository_1.ConfirmationRepository).inSingletonScope();
 // MIDDLEWARE
 exports.container.bind(globalRequestLimitMiddleware_1.GlobalRequestLimitMiddleware).to(globalRequestLimitMiddleware_1.GlobalRequestLimitMiddleware);
 // auth

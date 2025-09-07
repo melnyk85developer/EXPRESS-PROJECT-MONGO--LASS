@@ -47,8 +47,6 @@ const app_1 = require("./app");
 const dotenv = __importStar(require("dotenv"));
 const iocRoot_1 = require("./shared/container/iocRoot");
 const db_1 = require("./db");
-// import { MongoDBCollection } from "./db";
-// import { connectDB } from "./db";
 dotenv.config();
 const port = process.env.PORT || 5001;
 const mongoDBCollection = iocRoot_1.container.get(db_1.MongoDBCollection);

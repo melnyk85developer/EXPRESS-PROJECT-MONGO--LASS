@@ -75,6 +75,15 @@ let UsersRepository = class UsersRepository {
             }
         });
     }
+    updatePasswordRepository(password, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const updatePassword = yield this.mongoDB.usersCollection.updateOne({ password }, {
+                where: { userId },
+                returning: true
+            });
+            return updatePassword.upsertedId;
+        });
+    }
     deleteUserRepository(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -128,13 +137,17 @@ let UsersRepository = class UsersRepository {
     _getUserByEmailRepository(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getUser = yield this.mongoDB.usersCollection.findOne({ 'accountData.email': email });
-                if (getUser) {
-                    return getUser;
+                const isUser = yield this.mongoDB.usersCollection.findOne({ 'accountData.email': email });
+                if (isUser) {
+                    // console.log('UsersRepository _getUserByEmailRepository: - isUser', isUser)
+                    return isUser;
+                }
+                else {
+                    return null;
                 }
             }
             catch (error) {
-                // console.error(error);
+                console.error(error);
                 return error;
             }
         });

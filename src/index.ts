@@ -3,8 +3,6 @@ import { app } from './app';
 import * as dotenv from 'dotenv';
 import { container } from "./shared/container/iocRoot";
 import { MongoDBCollection } from "./db";
-// import { MongoDBCollection } from "./db";
-// import { connectDB } from "./db";
 
 dotenv.config();
 
